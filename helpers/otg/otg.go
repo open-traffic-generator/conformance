@@ -197,7 +197,7 @@ func GetFlowMetrics(t *testing.T) []gosnappi.FlowMetric {
 		}
 	}
 
-	t.Log(tb)
+	t.Log(tb.String())
 	return res.FlowMetrics().Items()
 }
 

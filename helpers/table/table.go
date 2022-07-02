@@ -28,7 +28,7 @@ func (tb *Table) AppendRow(row []interface{}) {
 	tb.Rows = append(tb.Rows, row)
 }
 
-func (tb *Table) Stringer() string {
+func (tb *Table) String() string {
 	var out strings.Builder
 
 	border := strings.Repeat("-", 20*len(tb.Headers))
