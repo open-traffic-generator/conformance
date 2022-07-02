@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
+	"github.com/open-traffic-generator/tests/helpers/table"
 )
 
 type WaitForOpts struct {
@@ -180,38 +181,23 @@ func GetFlowMetrics(t *testing.T) []gosnappi.FlowMetric {
 	res, err := api.GetMetrics(mr)
 	LogWrnErr(t, nil, err, true)
 
-	var out strings.Builder
-
-	border := strings.Repeat("-", 20*6+5)
-	out.WriteString("\n")
-	out.WriteString(border)
-	out.WriteString("\nFlow Metrics\n")
-	out.WriteString(border)
-	out.WriteString("\n")
-
-	for _, rowName := range flowMetricRowNames {
-		out.WriteString(fmt.Sprintf("%-15s", rowName))
-	}
-	out.WriteString("\n")
-
+	tb := table.NewTable("Flow Metrics", flowMetricRowNames)
 	for _, v := range res.FlowMetrics().Items() {
 		if v != nil {
-			out.WriteString(fmt.Sprintf("%-15v", v.Name()))
-			out.WriteString(fmt.Sprintf("%-15v", v.Transmit()))
-			out.WriteString(fmt.Sprintf("%-15v", v.FramesTx()))
-			out.WriteString(fmt.Sprintf("%-15v", v.FramesRx()))
-			out.WriteString(fmt.Sprintf("%-15v", v.FramesTxRate()))
-			out.WriteString(fmt.Sprintf("%-15v", v.FramesRxRate()))
-			out.WriteString(fmt.Sprintf("%-15v", v.BytesTx()))
-			out.WriteString(fmt.Sprintf("%-15v", v.BytesRx()))
+			tb.AppendRow([]interface{}{
+				v.Name(),
+				v.Transmit(),
+				v.FramesTx(),
+				v.FramesRx(),
+				v.FramesTxRate(),
+				v.FramesRxRate(),
+				v.BytesTx(),
+				v.BytesRx(),
+			})
 		}
-		out.WriteString("\n")
 	}
 
-	out.WriteString(border)
-	out.WriteString("\n\n")
-	t.Log(out.String())
-
+	t.Log(tb)
 	return res.FlowMetrics().Items()
 }
 
