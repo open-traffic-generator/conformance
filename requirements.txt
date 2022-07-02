@@ -1,0 +1,5 @@
+pytest
+black; python_version > '3.6'
+flake8
+dpkt==1.9.4
+snappi==0.8.2
