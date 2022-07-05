@@ -21,8 +21,7 @@ func testConfigPath() (string, error) {
 	_, src, _, _ := runtime.Caller(0)
 	for {
 		src = filepath.Dir(src)
-		fmt.Println(src)
-		if len(src) == 0 {
+		if src == filepath.Dir(src) {
 			return "", fmt.Errorf("path exhausted")
 		}
 		files, err := ioutil.ReadDir(src)
@@ -30,8 +29,8 @@ func testConfigPath() (string, error) {
 			return "", err
 		}
 		for _, f := range files {
-			if f.Name() == "test-config.yaml" {
-				return path.Join(src, f.Name()), nil
+			if f.Name() == "versions.yaml" {
+				return path.Join(src, "test-config.yaml"), nil
 			}
 		}
 	}

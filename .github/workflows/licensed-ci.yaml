@@ -14,7 +14,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back licensed distribution of ixia-c
         run: |
-          ./do.sh topo new lic
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new lic
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
