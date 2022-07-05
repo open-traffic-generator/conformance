@@ -16,16 +16,6 @@ var (
 		"Bytes Tx",
 		"Bytes Rx",
 	}
-	flowMetricRowNames = []string{
-		"Name",
-		"State",
-		"Frames Tx",
-		"Frames Rx",
-		"FPS Tx",
-		"FPS Rx",
-		"Bytes Tx",
-		"Bytes Rx",
-	}
 	bgpMetricRowNames = []string{
 		"Name",
 		"State",
