@@ -116,6 +116,19 @@ topo() {
     esac
 }
 
+pregotest() {
+    go mod download \
+    && echo "Successfully setup gotest !"
+}
+
+prepytest() {
+    rm -rf .env
+    python -m pip install virtualenv \
+    && python -m virtualenv .env \
+    && .env/bin/python -m pip install -r requirements.txt \
+    && echo "Successfully setup pytest !"
+}
+
 gotest() {
     mkdir -p logs
     log=logs/gotest.log
