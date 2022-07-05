@@ -8,8 +8,6 @@ import (
 )
 
 func TestUdpHeader(t *testing.T) {
-	defer otg.Cleanup(t)
-
 	c := otg.Api().NewConfig()
 	p1 := c.Ports().Add().SetName("p1").SetLocation(otg.OtgPort1Location())
 	p2 := c.Ports().Add().SetName("p2").SetLocation(otg.OtgPort2Location())
@@ -45,20 +43,18 @@ func TestUdpHeader(t *testing.T) {
 	otg.StartTransmit(t)
 
 	err := otg.WaitFor(
-		t,
-		func() (bool, error) {
-			m := otg.GetFlowMetrics(t)[0]
-			return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
-					m.FramesTx() == 100 &&
-					m.FramesRx() == 100,
-				nil
-		},
-		&otg.WaitForOpts{
-			FnName: "WaitForFlowMetrics",
-		},
+		t, udpHeaderMetricsOk, &otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
 
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func udpHeaderMetricsOk(t *testing.T) (bool, error) {
+	m := otg.GetFlowMetrics(t)[0]
+	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
+			m.FramesTx() == 100 &&
+			m.FramesRx() == 100,
+		nil
 }

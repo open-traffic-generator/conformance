@@ -26,6 +26,7 @@
     "python.testing.pytestEnabled": true,
     "python.analysis.typeCheckingMode": "basic",
     "python.formatting.provider": "black",
+    "python.defaultInterpreterPath": ".env/bin/python",
     "files.insertFinalNewline": true,
     "files.eol": "\n",
     "diffEditor.ignoreTrimWhitespace": false,

@@ -22,7 +22,7 @@ func NewTable(title string, headers []string, colWidth int) *Table {
 }
 
 func (tb *Table) AppendRow(row []interface{}) {
-	diff := len(row) - len(tb.Headers)
+	diff := len(tb.Headers) - len(row)
 	for i := 0; i < diff; i++ {
 		row = append(row, "_")
 	}

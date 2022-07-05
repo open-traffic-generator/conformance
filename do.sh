@@ -118,18 +118,35 @@ topo() {
 
 gotest() {
     mkdir -p logs
+    log=logs/gotest.log
 
+    # TODO: path should be ./... instead of ./flows/... (but ./... doesn't stream log output)
     if [ -z ${1} ]
     then
-        CGO_ENABLED=0 go test -v -count=1 ./... | tee logs/tests.log
+        CGO_ENABLED=0 go test -v -count=1 ./flows/... | tee ${log}
     else
-        CGO_ENABLED=0 go test -v -count=1 -run "^${1}$" ./... | tee logs/tests.log
+        CGO_ENABLED=0 go test -v -count=1 -run "^${1}$" ./flows/... | tee ${log}
     fi
     
     echo "Summary:"
-    grep ": Test" logs/tests.log
+    grep ": Test" ${log}
 
-    grep FAIL logs/tests.log && return 1 || true
+    grep FAIL ${log} && return 1 || true
+}
+
+pytest() {
+    mkdir -p logs
+    py=.env/bin/python
+    log=logs/pytest.log
+
+    if [ -z ${1} ]
+    then
+        ${py} -m pytest -svvv | tee ${log}
+    else
+        ${py} -m pytest -svvv -k "${1}" | tee ${log}
+    fi
+    
+    grep FAILED ${log} && return 1 || true
 }
 
 help() {

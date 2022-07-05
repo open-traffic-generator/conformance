@@ -21,7 +21,7 @@ func Timer(t *testing.T, start time.Time, fnName string) {
 	t.Logf("Elapsed duration for %s: %d ms", fnName, elapsed.Milliseconds())
 }
 
-func WaitFor(t *testing.T, fn func() (bool, error), opts *WaitForOpts) error {
+func WaitFor(t *testing.T, fn func(*testing.T) (bool, error), opts *WaitForOpts) error {
 	if opts == nil {
 		opts = &WaitForOpts{
 			FnName: "WaitFor",
@@ -40,7 +40,7 @@ func WaitFor(t *testing.T, fn func() (bool, error), opts *WaitForOpts) error {
 	t.Logf("Waiting for %s ...\n", opts.FnName)
 
 	for {
-		done, err := fn()
+		done, err := fn(t)
 		if err != nil {
 			return fmt.Errorf("error waiting for %s: %v", opts.FnName, err)
 		}
@@ -56,8 +56,8 @@ func WaitFor(t *testing.T, fn func() (bool, error), opts *WaitForOpts) error {
 	}
 }
 
-func Cleanup(t *testing.T) {
-	t.Log("Cleaning up ...")
+func CleanupConfig(t *testing.T) {
+	t.Log("Cleaning up config ...")
 	SetConfig(t, gosnappi.NewConfig())
 }
 
