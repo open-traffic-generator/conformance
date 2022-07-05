@@ -181,18 +181,19 @@ func GetFlowMetrics(t *testing.T) []gosnappi.FlowMetric {
 	res, err := api.GetMetrics(mr)
 	LogWrnErr(t, nil, err, true)
 
-	tb := table.NewTable("Flow Metrics", flowMetricRowNames)
+	tb := table.NewTable(
+		"Flow Metrics",
+		[]string{
+			"Name", "State", "Frames Tx", "Frames Rx", "FPS Tx", "FPS Rx",
+			"Bytes Tx", "Bytes Rx",
+		},
+		15,
+	)
 	for _, v := range res.FlowMetrics().Items() {
 		if v != nil {
 			tb.AppendRow([]interface{}{
-				v.Name(),
-				v.Transmit(),
-				v.FramesTx(),
-				v.FramesRx(),
-				v.FramesTxRate(),
-				v.FramesRxRate(),
-				v.BytesTx(),
-				v.BytesRx(),
+				v.Name(), v.Transmit(), v.FramesTx(), v.FramesRx(),
+				v.FramesTxRate(), v.FramesRxRate(), v.BytesTx(), v.BytesRx(),
 			})
 		}
 	}

@@ -6,16 +6,18 @@ import (
 )
 
 type Table struct {
-	Title   string
-	Headers []string
-	Rows    [][]interface{}
+	Title    string
+	Headers  []string
+	Rows     [][]interface{}
+	ColWidth int
 }
 
-func NewTable(title string, headers []string) *Table {
+func NewTable(title string, headers []string, colWidth int) *Table {
 	return &Table{
-		Title:   title,
-		Headers: headers,
-		Rows:    make([][]interface{}, 0, 4),
+		Title:    title,
+		Headers:  headers,
+		Rows:     make([][]interface{}, 0, 4),
+		ColWidth: colWidth,
 	}
 }
 
@@ -31,7 +33,7 @@ func (tb *Table) AppendRow(row []interface{}) {
 func (tb *Table) String() string {
 	var out strings.Builder
 
-	border := strings.Repeat("-", 20*len(tb.Headers))
+	border := strings.Repeat("-", tb.ColWidth*len(tb.Headers))
 	out.WriteString("\n")
 	out.WriteString(border)
 	out.WriteString(fmt.Sprintf("\n%s\n", tb.Title))
