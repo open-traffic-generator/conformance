@@ -3,8 +3,8 @@ from helpers.otg import otg
 
 def test_udp_header():
     c = otg.api.config()
-    p1 = c.ports.port(name="p1", location=otg.otg_port1)[-1]
-    p2 = c.ports.port(name="p2", location=otg.otg_port2)[-1]
+    p1 = c.ports.port(name="p1", location=otg.otg_ports[0])[-1]
+    p2 = c.ports.port(name="p2", location=otg.otg_ports[1])[-1]
 
     ly = c.layer1.layer1(name="ly", port_names=[p1.name, p2.name])[-1]
     ly.speed = ly.SPEED_1_GBPS

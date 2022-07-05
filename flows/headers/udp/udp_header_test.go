@@ -8,9 +8,9 @@ import (
 )
 
 func TestUdpHeader(t *testing.T) {
-	c := otg.Api().NewConfig()
-	p1 := c.Ports().Add().SetName("p1").SetLocation(otg.OtgPort1Location())
-	p2 := c.Ports().Add().SetName("p2").SetLocation(otg.OtgPort2Location())
+	c := otg.Api(t).NewConfig()
+	p1 := c.Ports().Add().SetName("p1").SetLocation(otg.OtgPorts(t)[0])
+	p2 := c.Ports().Add().SetName("p2").SetLocation(otg.OtgPorts(t)[1])
 
 	c.Layer1().Add().
 		SetName("ly").

@@ -5,26 +5,31 @@ import time
 import snappi
 
 from helpers.table import table
+from helpers.testconf.config import TestConfig
 
-otg_host = "https://localhost"
-otg_port1 = "localhost:5555"
-otg_port2 = "localhost:5556"
+TEST_CONFIG = TestConfig()
+
+otg_host = TEST_CONFIG.otg_host
+otg_ports = TEST_CONFIG.otg_ports
 api = snappi.api(otg_host, verify=False)
+
+log.info("OTG Host: %s", otg_host)
+log.info("OTG Ports: %s", otg_ports)
 
 
 def timer(fn_name, since):
     elapsed = (datetime.datetime.now() - since).microseconds / 1000
-    log.info("Elapsed duration %s: %d ms" % (fn_name, elapsed))
+    log.info("Elapsed duration %s: %d ms", fn_name, elapsed)
 
 
 def wait_for(fn, fn_name="wait_for", interval_seconds=0.5, timeout_seconds=10):
     start = datetime.datetime.now()
     try:
-        log.info("Waiting for %s ..." % fn_name)
+        log.info("Waiting for %s ...", fn_name)
         while True:
             done = fn()
             if done:
-                log.info("Done waiting for %s" % fn_name)
+                log.info("Done waiting for %s", fn_name)
                 return
 
             elapsed = datetime.datetime.now() - start

@@ -8,6 +8,12 @@ import (
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
 	"github.com/open-traffic-generator/tests/helpers/table"
+	"github.com/open-traffic-generator/tests/helpers/testconf"
+)
+
+var (
+	api        gosnappi.GosnappiApi
+	testConfig *testconf.TestConfig
 )
 
 type WaitForOpts struct {
@@ -54,6 +60,33 @@ func WaitFor(t *testing.T, fn func(*testing.T) (bool, error), opts *WaitForOpts)
 		}
 		time.Sleep(opts.Interval)
 	}
+}
+
+func TestConfig(t *testing.T) *testconf.TestConfig {
+	if testConfig == nil {
+		testConfig = testconf.NewTestConfig(t)
+		t.Logf("OTG Host: %s\n", testConfig.OtgHost)
+		t.Logf("OTG Port: %v\n", testConfig.OtgPorts)
+	}
+
+	return testConfig
+}
+
+func Api(t *testing.T) gosnappi.GosnappiApi {
+	if api == nil {
+		api = gosnappi.NewApi()
+		api.NewHttpTransport().SetLocation(TestConfig(t).OtgHost).SetVerify(false)
+	}
+
+	return api
+}
+
+func OtgHost(t *testing.T) string {
+	return TestConfig(t).OtgHost
+}
+
+func OtgPorts(t *testing.T) []string {
+	return TestConfig(t).OtgPorts
 }
 
 func CleanupConfig(t *testing.T) {
@@ -184,16 +217,28 @@ func GetFlowMetrics(t *testing.T) []gosnappi.FlowMetric {
 	tb := table.NewTable(
 		"Flow Metrics",
 		[]string{
-			"Name", "State", "Frames Tx", "Frames Rx", "FPS Tx", "FPS Rx",
-			"Bytes Tx", "Bytes Rx",
+			"Name",
+			"State",
+			"Frames Tx",
+			"Frames Rx",
+			"FPS Tx",
+			"FPS Rx",
+			"Bytes Tx",
+			"Bytes Rx",
 		},
 		15,
 	)
 	for _, v := range res.FlowMetrics().Items() {
 		if v != nil {
 			tb.AppendRow([]interface{}{
-				v.Name(), v.Transmit(), v.FramesTx(), v.FramesRx(),
-				v.FramesTxRate(), v.FramesRxRate(), v.BytesTx(), v.BytesRx(),
+				v.Name(),
+				v.Transmit(),
+				v.FramesTx(),
+				v.FramesRx(),
+				v.FramesTxRate(),
+				v.FramesRxRate(),
+				v.BytesTx(),
+				v.BytesRx(),
 			})
 		}
 	}
