@@ -6,8 +6,6 @@ VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
 
-# set -x
-
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
     then
@@ -70,6 +68,7 @@ create_ixia_c_b2b_free() {
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
         $(ixia_c_traffic_engine_img)                        \
+    && docker ps -a                                         \
     && echo "Successfully deployed !"
 }
 
@@ -78,6 +77,7 @@ rm_ixia_c_b2b_free() {
     docker stop ixia-c-controller && docker rm ixia-c-controller
     docker stop ixia-c-traffic-engine-a && docker rm ixia-c-traffic-engine-a
     docker stop ixia-c-traffic-engine-z && docker rm ixia-c-traffic-engine-z
+    docker ps -a
     rm_veth_pair veth-a veth-z
 }
 
@@ -90,6 +90,30 @@ create_ixia_c_b2b_licensed() {
 rm_ixia_c_b2b_licensed() {
     echo "Tearing down back-to-back with licensed distribution of ixia-c ..."
     rm_veth_pair veth-a veth-z
+}
+
+topo() {
+    case $1 in
+        new )
+            if [ "${2}" = "lic" ]
+            then
+                create_ixia_c_b2b_licensed
+            else
+                create_ixia_c_b2b_free
+            fi
+        ;;
+        rm  )
+            if [ "${2}" = "lic" ]
+            then
+                rm_ixia_c_b2b_licensed
+            else
+                rm_ixia_c_b2b_free
+            fi
+        ;;
+        *   )
+            exit 1
+        ;;
+    esac
 }
 
 gotest() {
