@@ -2,7 +2,10 @@ module github.com/open-traffic-generator/tests
 
 go 1.18
 
-require github.com/open-traffic-generator/snappi/gosnappi v0.8.2
+require (
+	github.com/open-traffic-generator/snappi/gosnappi v0.8.2
+	gopkg.in/yaml.v2 v2.2.3
+)
 
 require (
 	github.com/ghodss/yaml v1.0.0 // indirect
@@ -13,5 +16,4 @@ require (
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.47.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/yaml.v2 v2.2.3 // indirect
 )
