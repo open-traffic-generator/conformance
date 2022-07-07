@@ -107,6 +107,7 @@ gen_config_b2b_free() {
         otg_ports:
           - localhost:5555
           - localhost:5556
+        otg_speed: speed_1_gbps
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 }
@@ -120,6 +121,7 @@ gen_config_b2b_lic() {
         otg_ports:
           - ${OTG_PORTA}:5555+${OTG_PORTA}:50071
           - ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
+        otg_speed: speed_1_gbps
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 }
@@ -267,9 +269,9 @@ gotest() {
     # TODO: path should be ./... instead of ./flows/... (but ./... doesn't stream log output)
     if [ -z ${1} ]
     then
-        CGO_ENABLED=0 go test -v -count=1 ./flows/... | tee ${log}
+        CGO_ENABLED=0 go test -v -count=1 ./... | tee ${log}
     else
-        CGO_ENABLED=0 go test -v -count=1 -run "^${1}$" ./flows/... | tee ${log}
+        CGO_ENABLED=0 go test -v -count=1 -run "^${1}$" ./... | tee ${log}
     fi
     
     echo "Summary:"
