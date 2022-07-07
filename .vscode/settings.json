@@ -7,6 +7,9 @@
     "go.testEnvVars": {
         "CGO_ENABLED": 0,
     },
+    "go.testFlags": [
+        "-v"
+    ],
     "editor.formatOnSave": true,
     "gopls": {
         "build.env": {
