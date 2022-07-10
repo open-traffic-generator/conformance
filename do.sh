@@ -205,7 +205,6 @@ create_ixia_c_b2b_licensed() {
     && push_ifc_to_container ${VETH_A} ixia-c-traffic-engine-${VETH_A}  \
     && push_ifc_to_container ${VETH_Z} ixia-c-traffic-engine-${VETH_Z}  \
     && gen_config_b2b_lic                                   \
-    && sleep 60 \
     && docker ps -a \
     && echo "Successfully deployed !"
 }
@@ -262,6 +261,7 @@ topo() {
                 docker logs ixia-c-protocol-engine-${VETH_A} | tee logs/ixia-c-protocol-engine-${VETH_A}/stdout.log > /dev/null
                 docker logs ixia-c-protocol-engine-${VETH_Z} | tee logs/ixia-c-protocol-engine-${VETH_Z}/stdout.log > /dev/null
             fi
+            top -bn2 | tee logs/resource-usage.log > /dev/null
         ;;
         *   )
             exit 1
