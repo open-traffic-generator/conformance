@@ -245,6 +245,24 @@ topo() {
                 rm_ixia_c_b2b_free
             fi
         ;;
+        logs    )
+            mkdir -p logs/ixia-c-controller
+            docker cp ixia-c-controller:/home/keysight/ixia-c/controller/logs/ logs/ixia-c-controller
+            mkdir -p logs/ixia-c-traffic-engine-${VETH_A}
+            mkdir -p logs/ixia-c-traffic-engine-${VETH_Z}
+            docker cp ixia-c-traffic-engine-${VETH_A}:/var/log/usstream/ logs/ixia-c-traffic-engine-${VETH_A}
+            docker cp ixia-c-traffic-engine-${VETH_Z}:/var/log/usstream/ logs/ixia-c-traffic-engine-${VETH_Z}
+            if [ "${2}" = "lic" ]
+            then
+                mkdir -p logs/ixia-c-protocol-engine-${VETH_A}
+                mkdir -p logs/ixia-c-protocol-engine-${VETH_Z}
+                docker cp ixia-c-protocol-engine-${VETH_A}:/var/log/ logs/ixia-c-protocol-engine-${VETH_A}
+                docker cp ixia-c-protocol-engine-${VETH_Z}:/var/log/ logs/ixia-c-protocol-engine-${VETH_Z}
+                # TODO: where to get complete logs ?
+                docker logs ixia-c-protocol-engine-${VETH_A} | tee logs/ixia-c-protocol-engine-${VETH_A}/stdout.log > /dev/null
+                docker logs ixia-c-protocol-engine-${VETH_Z} | tee logs/ixia-c-protocol-engine-${VETH_Z}/stdout.log > /dev/null
+            fi
+        ;;
         *   )
             exit 1
         ;;
