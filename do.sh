@@ -205,6 +205,7 @@ create_ixia_c_b2b_licensed() {
     && push_ifc_to_container ${VETH_A} ixia-c-traffic-engine-${VETH_A}  \
     && push_ifc_to_container ${VETH_Z} ixia-c-traffic-engine-${VETH_Z}  \
     && gen_config_b2b_lic                                   \
+    && sleep 30 \
     && echo "Successfully deployed !"
 }
 
