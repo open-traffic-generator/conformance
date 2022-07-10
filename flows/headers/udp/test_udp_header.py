@@ -1,41 +1,71 @@
+import logging as log
+import pytest
 from helpers.otg import otg
 
 
+@pytest.mark.free
+@pytest.mark.b2b
 def test_udp_header():
-    c = otg.api.config()
-    p1 = c.ports.port(name="p1", location=otg.otg_ports[0])[-1]
-    p2 = c.ports.port(name="p2", location=otg.otg_ports[1])[-1]
+    test_const = {
+        "pktRate": 50,
+        "pktCount": 100,
+        "pktSize": 128,
+        "txMac": "00:00:01:01:01:01",
+        "rxMac": "00:00:01:01:01:02",
+        "txIp": "1.1.1.1",
+        "rxIp": "1.1.1.2",
+        "txUdpPort": 5000,
+        "rxUdpPort": 6000,
+    }
 
-    ly = c.layer1.layer1(name="ly", port_names=[p1.name, p2.name])[-1]
-    ly.speed = ly.SPEED_1_GBPS
+    api = otg.OtgApi()
+    c = udp_header_config(api, test_const)
 
-    f1 = c.flows.flow(name="f1")[-1]
+    api.set_config(c)
+
+    api.start_transmit()
+
+    api.wait_for(
+        fn=lambda: metrics_ok(api, test_const), fn_name="wait_for_flow_metrics"
+    )
+
+
+def udp_header_config(api, tc):
+    c = api.api.config()
+    p1 = c.ports.add(name="p1", location=api.test_config.otg_ports[0])
+    p2 = c.ports.add(name="p2", location=api.test_config.otg_ports[1])
+
+    ly = c.layer1.add(name="ly", port_names=[p1.name, p2.name])
+    ly.speed = api.test_config.otg_speed
+
+    f1 = c.flows.add(name="f1")
     f1.tx_rx.port.tx_name = p1.name
     f1.tx_rx.port.rx_name = p2.name
-    f1.duration.fixed_packets.packets = 100
-    f1.rate.pps = 50
-    f1.size.fixed = 128
+    f1.duration.fixed_packets.packets = tc["pktCount"]
+    f1.rate.pps = tc["pktRate"]
+    f1.size.fixed = tc["pktSize"]
     f1.metrics.enable = True
 
     eth, ip, udp = f1.packet.ethernet().ipv4().udp()
 
-    eth.src.value = "00:00:00:00:00:AA"
-    eth.dst.value = "00:00:00:00:00:BB"
+    eth.src.value = tc["txMac"]
+    eth.dst.value = tc["rxMac"]
 
-    ip.src.value = "1.1.1.10"
-    ip.dst.value = "1.1.1.20"
+    ip.src.value = tc["txIp"]
+    ip.dst.value = tc["rxIp"]
 
-    udp.src_port.value = 5000
-    udp.dst_port.value = 6000
+    udp.src_port.value = tc["txUdpPort"]
+    udp.dst_port.value = tc["rxUdpPort"]
 
-    otg.set_config(c)
-
-    otg.start_transmit()
-
-    otg.wait_for(fn=metrics_ok, fn_name="wait_for_flow_metrics")
+    log.info("Config:\n%s", c)
+    return c
 
 
-def metrics_ok():
-    m = otg.get_flow_metrics()[0]
-    ok = m.transmit == m.STOPPED and m.frames_tx == 100 and m.frames_rx == 100
+def metrics_ok(api, tc):
+    m = api.get_flow_metrics()[0]
+    ok = (
+        m.transmit == m.STOPPED
+        and m.frames_tx == tc["pktCount"]
+        and m.frames_rx == tc["pktCount"]
+    )
     return ok

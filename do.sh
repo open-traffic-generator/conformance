@@ -266,14 +266,8 @@ gotest() {
     mkdir -p logs
     log=logs/gotest.log
 
-    # TODO: path should be ./... instead of ./flows/... (but ./... doesn't stream log output)
-    if [ -z ${1} ]
-    then
-        CGO_ENABLED=0 go test -v -count=1 ./... | tee ${log}
-    else
-        CGO_ENABLED=0 go test -v -count=1 -run "^${1}$" ./... | tee ${log}
-    fi
-    
+    CGO_ENABLED=0 go test -v -count=1 ${@} ./... | tee ${log}
+
     echo "Summary:"
     grep ": Test" ${log}
 
@@ -285,12 +279,7 @@ pytest() {
     py=.env/bin/python
     log=logs/pytest.log
 
-    if [ -z ${1} ]
-    then
-        ${py} -m pytest -svvv | tee ${log}
-    else
-        ${py} -m pytest -svvv -k "${1}" | tee ${log}
-    fi
+    ${py} -m pytest -svvv ${@} | tee ${log}
     
     grep FAILED ${log} && return 1 || true
 }

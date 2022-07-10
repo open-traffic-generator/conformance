@@ -1,3 +1,5 @@
+//go:build all || free || b2b
+
 package udp
 
 import (

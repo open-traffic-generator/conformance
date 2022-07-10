@@ -31,10 +31,10 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ```sh
     # setup test requirements
     ./do.sh pregotest
-    # run all tests
-    ./do.sh gotest
+    # run all tests tagged as free
+    ./do.sh gotest -tags=free
     # run single test
-    ./do.sh gotest TestUdpHeader
+    ./do.sh gotest -tags=free -run=TestUdpHeader
     ```
 
 4. Setup and run Python tests
@@ -43,9 +43,9 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     # setup test requirements
     ./do.sh prepytest
     # run all tests
-    ./do.sh pytest
+    ./do.sh pytest -m free
     # run single test
-    ./do.sh pytest test_udp_header
+    ./do.sh pytest -m free -k test_udp_header
     ```
 
 5. Teardown topology

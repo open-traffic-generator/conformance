@@ -1,3 +1,5 @@
+//go:build all || lic || b2b
+
 package bgp
 
 import (

@@ -15,7 +15,7 @@ import (
 type TestConfig struct {
 	OtgHost  string   `yaml:"otg_host,omitempty"`
 	OtgPorts []string `yaml:"otg_ports,omitempty"`
-	OtgSpeed string   `yaml:"otg_string,omitempty"`
+	OtgSpeed string   `yaml:"otg_speed,omitempty"`
 }
 
 func testConfigPath() (string, error) {
