@@ -1,4 +1,4 @@
-# Open Traffic Generator Tests
+# Open Traffic Generator Conformance Tests
 
 This repository hosts equivalent Go and Python tests written using [snappi](https://github.com/open-traffic-generator/snappi) against a back-to-back connected [Ixia-C](https://github.com/open-traffic-generator/ixia-c) topology.
 
@@ -17,7 +17,7 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 1. Clone this repository
 
     ```sh
-    git clone https://github.com/open-traffic-generator/tests.git && cd tests
+    git clone https://github.com/open-traffic-generator/conformance.git && cd conformance
     ```
 
 2. Deploy topology
