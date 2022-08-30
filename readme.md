@@ -63,3 +63,16 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     # remove licensed distribution of ixia-c
     ./do.sh topo rm lic
     ```
+
+### Advanced Usage:
+
+1. Run perf tests in Go
+
+    ```sh
+    # run all perf tests
+    ./do.sh gotest -tags=perf
+    # run single perf test
+    ./do.sh gotest -tags=perf -run=TestUdpHeaderMeshFlow
+    # run single perf test with lesser number of iterations (default=100)
+    OTG_ITERATIONS=2 ./do.sh gotest -tags=perf -run=TestUdpHeaderMeshFlow
+    ```

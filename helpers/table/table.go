@@ -34,19 +34,22 @@ func (tb *Table) String() string {
 	var out strings.Builder
 
 	border := strings.Repeat("-", tb.ColWidth*len(tb.Headers))
+	headerStr := fmt.Sprintf("%%-%ds", tb.ColWidth)
+	valStr := fmt.Sprintf("%%-%dv", tb.ColWidth)
+
 	out.WriteString("\n")
 	out.WriteString(border)
 	out.WriteString(fmt.Sprintf("\n%s\n", tb.Title))
 	out.WriteString(border)
 	out.WriteString("\n")
 	for _, h := range tb.Headers {
-		out.WriteString(fmt.Sprintf("%-15s", h))
+		out.WriteString(fmt.Sprintf(headerStr, h))
 	}
 	out.WriteString("\n")
 
 	for _, row := range tb.Rows {
 		for _, col := range row {
-			out.WriteString(fmt.Sprintf("%-15v", col))
+			out.WriteString(fmt.Sprintf(valStr, col))
 		}
 		out.WriteString("\n")
 	}

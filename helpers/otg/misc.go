@@ -73,3 +73,15 @@ func (o *OtgApi) LogWrnErr(wrn gosnappi.ResponseWarning, err error, exitOnErr bo
 		}
 	}
 }
+
+func (o *OtgApi) LogPlot(name string) {
+	t := o.Testing()
+
+	o.Plot().Analyze(name)
+
+	out, err := o.Plot().ToJson()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("plot: %s\n", out)
+}

@@ -1,6 +1,8 @@
 package otg
 
 import (
+	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -32,6 +34,15 @@ func NewOtgApi(t *testing.T) *OtgApi {
 		api:        api,
 		p:          p,
 	}
+}
+
+func Iterations() int {
+	v, err := strconv.ParseInt(os.Getenv("OTG_ITERATIONS"), 10, 32)
+	if err != nil {
+		return 100
+	}
+
+	return int(v)
 }
 
 func (o *OtgApi) TestConfig() *testconfig.TestConfig {
