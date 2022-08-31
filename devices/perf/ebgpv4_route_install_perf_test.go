@@ -5,7 +5,6 @@ package bgp
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
 	"github.com/open-traffic-generator/tests/helpers/otg"
@@ -56,7 +55,7 @@ func TestEbgpv4RouteInstallPerf(t *testing.T) {
 
 		api.WaitFor(
 			func() bool { return ebgpv4RouteInstallPerfBgpMetricsOk(api, testConst) },
-			&otg.WaitForOpts{FnName: "WaitForBgpv4Metrics", Timeout: 30 * time.Second},
+			&otg.WaitForOpts{FnName: "WaitForBgpv4Metrics"},
 		)
 
 		api.StartTransmit()

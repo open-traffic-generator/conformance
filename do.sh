@@ -162,7 +162,7 @@ rm_ixia_c_b2b_free() {
     docker stop ixia-c-traffic-engine-${VETH_Z}
     docker rm ixia-c-traffic-engine-${VETH_Z}
     docker ps -a
-    rm_veth_pair veth-a veth-z
+    rm_veth_pair ${VETH_A} ${VETH_Z}
 }
 
 create_ixia_c_b2b_licensed() {
