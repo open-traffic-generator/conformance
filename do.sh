@@ -3,8 +3,8 @@
 # update for any release using
 # curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v0.0.1-2994/versions.yaml
 VERSIONS_YAML="versions.yaml"
-VETH_A="veth-a"
-VETH_Z="veth-z"
+VETH_A="vetha"
+VETH_Z="vethz"
 
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
@@ -283,16 +283,15 @@ prepytest() {
 }
 
 gotest() {
-    # mkdir -p logs
-    # log=logs/gotest.log
+    mkdir -p logs
+    log=logs/gotest.log
 
-    # CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./... | tee ${log}
+    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./... | tee ${log}
 
-    # echo "Summary:"
-    # grep ": Test" ${log}
+    echo "Summary:"
+    grep ": Test" ${log}
 
-    # grep FAIL ${log} && return 1 || true
-    return 1
+    grep FAIL ${log} && return 1 || true
 }
 
 pytest() {

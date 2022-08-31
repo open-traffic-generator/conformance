@@ -149,7 +149,7 @@ func (p *Plot) ToTable() (string, error) {
 
 			return cols
 		}(),
-		25,
+		20,
 	)
 
 	tb.AppendRow((func() []interface{} {
