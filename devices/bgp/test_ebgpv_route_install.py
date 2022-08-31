@@ -40,7 +40,9 @@ def test_ebgpv4_route_install():
     api.start_protocols()
 
     api.wait_for(
-        fn=lambda: bgp_metrics_ok(api, test_const), fn_name="wait_for_bgp_metrics"
+        fn=lambda: bgp_metrics_ok(api, test_const),
+        fn_name="wait_for_bgp_metrics",
+        timeout_seconds=30,
     )
 
     api.start_transmit()
