@@ -283,15 +283,16 @@ prepytest() {
 }
 
 gotest() {
-    mkdir -p logs
-    log=logs/gotest.log
+    # mkdir -p logs
+    # log=logs/gotest.log
 
-    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./... | tee ${log}
+    # CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./... | tee ${log}
 
-    echo "Summary:"
-    grep ": Test" ${log}
+    # echo "Summary:"
+    # grep ": Test" ${log}
 
-    grep FAIL ${log} && return 1 || true
+    # grep FAIL ${log} && return 1 || true
+    return 1
 }
 
 pytest() {
@@ -308,11 +309,16 @@ help() {
     grep "() {" ${0} | cut -d\  -f1
 }
 
+usage() {
+    echo "usage: $0 [name of any function in script]"
+    exit 1
+}
+
 case $1 in
     *   )
         # shift positional arguments so that arg 2 becomes arg 1, etc.
         cmd=${1}
         shift 1
-        ${cmd} ${@} || echo "usage: $0 [name of any function in script]"
+        ${cmd} ${@} || usage
     ;;
 esac
