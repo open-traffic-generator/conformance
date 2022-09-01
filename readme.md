@@ -25,7 +25,9 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ```sh
     # use free distribution of ixia-c
     ./do.sh topo new
+
     # use licensed distribution of ixia-c
+    # enter GITHUB PAT instead of password when prompted for credentials
     ./do.sh topo new lic
     ```
 
@@ -36,10 +38,12 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ```sh
     # setup test requirements
     ./do.sh pregotest
+
     # run all feature tests against free distribution of ixia-c
     ./do.sh gotest -tags="free_feature"
     # run all feature tests against licensed distribution of ixia-c
     ./do.sh gotest -tags="feature"
+
     # run single test
     ./do.sh gotest -tags="all" -run="^TestUdpHeader$"
     ```
@@ -49,10 +53,12 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ```sh
     # setup test requirements
     ./do.sh prepytest
+
     # run all tests against free distribution of ixia-c
     ./do.sh pytest -m free_feature
     # run all tests against licensed distribution of ixia-c
     ./do.sh pytest -m feature
+
     # run single test
     ./do.sh pytest -m all -k test_udp_header
     ```
@@ -62,6 +68,7 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ```sh
     # remove free distribution of ixia-c
     ./do.sh topo rm
+
     # remove licensed distribution of ixia-c
     ./do.sh topo rm lic
     ```
