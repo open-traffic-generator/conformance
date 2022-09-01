@@ -1,14 +1,56 @@
 package otg
 
 import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
 	"io"
+	"net"
 	"os"
 	"time"
 
 	"github.com/dreadl0ck/gopcap"
 )
 
-func (o *OtgApi) GetCapture(portName string) []byte {
+type CapturedPacket struct {
+	Sequence       int
+	Timestamp      time.Time
+	Data           []byte
+	ActualLength   int
+	CapturedLength int
+}
+
+type CapturedPackets struct {
+	Packets []CapturedPacket
+}
+
+func (c *CapturedPackets) ValidateField(sequence int, startOffSet int, field []byte) error {
+	if sequence >= len(c.Packets) {
+		return fmt.Errorf("sequence %d >= len(capturedPackets) %d", sequence, len(c.Packets))
+	}
+
+	p := c.Packets[sequence]
+	if startOffSet < 0 || startOffSet >= len(p.Data) {
+		return fmt.Errorf("startOffSet %d not in range [0, %d); data: %v", sequence, len(p.Data), p.Data)
+	}
+
+	endOffset := startOffSet + len(field) - 1
+	if endOffset < startOffSet {
+		return fmt.Errorf("startOffSet %d > endOffset %d; field: %v", startOffSet, endOffset, field)
+	}
+
+	if endOffset >= len(p.Data) {
+		return fmt.Errorf("endOffset %d not in range [0, %d); field: %v data: %v", endOffset, len(p.Data), field, p.Data)
+	}
+
+	if bytes.Compare(field, p.Data[startOffSet:endOffset+1]) != 0 {
+		return fmt.Errorf("field %v != actualField %v; sequence: %d, startOffset: %d, data: %v", field, p.Data[startOffSet:endOffset+1], sequence, startOffSet, p.Data)
+	}
+
+	return nil
+}
+
+func (o *OtgApi) GetCapture(portName string) *CapturedPackets {
 	t := o.Testing()
 	api := o.Api()
 
@@ -40,7 +82,10 @@ func (o *OtgApi) GetCapture(portName string) []byte {
 	}
 	defer r.Close()
 
-	for {
+	cPackets := CapturedPackets{
+		Packets: []CapturedPacket{},
+	}
+	for i := 0; ; i++ {
 		h, data, err := r.ReadNextPacket()
 		if err != nil {
 			if err == io.EOF {
@@ -48,7 +93,70 @@ func (o *OtgApi) GetCapture(portName string) []byte {
 			}
 			t.Fatalf("Could not read next packet: %v\n", err)
 		}
-		t.Log(h, len(data))
+		p := CapturedPacket{
+			Sequence:       i,
+			Data:           data,
+			ActualLength:   int(h.OriginalLen),
+			CapturedLength: int(h.CaptureLen),
+			Timestamp:      time.UnixMicro(int64(h.TsSec)*1000000 + int64(h.TsUsec)),
+		}
+		cPackets.Packets = append(cPackets.Packets, p)
 	}
-	return nil
+
+	return &cPackets
+}
+
+func (o *OtgApi) MacAddrToBytes(mac string) []byte {
+	hw, err := net.ParseMAC(mac)
+	if err != nil {
+		o.Testing().Fatalf("Could not parse MacAddr %s: %v\n", mac, err)
+	}
+
+	return hw
+}
+
+func (o *OtgApi) Ipv4AddrToBytes(ip string) []byte {
+	parsedIp := net.ParseIP(ip)
+	if parsedIp == nil {
+		o.Testing().Fatalf("Could not parse IPv4Addr %s\n", ip)
+	}
+
+	v4 := parsedIp.To4()
+	if v4 == nil {
+		o.Testing().Fatalf("Could not parse IPv4Addr %s\n", ip)
+	}
+
+	return v4
+}
+
+func (o *OtgApi) Ipv6AddrToBytes(ip string) []byte {
+	parsedIp := net.ParseIP(ip)
+	if parsedIp == nil {
+		o.Testing().Fatalf("Could not parse IPv6Addr %s\n", ip)
+	}
+
+	v6 := parsedIp.To16()
+	if v6 == nil {
+		o.Testing().Fatalf("Could not parse IPv6Addr %s\n", ip)
+	}
+
+	return v6
+}
+
+func (o *OtgApi) Uint64ToBytes(num uint64, size int) []byte {
+	var b []byte
+
+	if size < 8 {
+		b = make([]byte, 8)
+	} else {
+		b = make([]byte, size)
+	}
+
+	binary.BigEndian.PutUint64(b, num)
+
+	if size < 8 {
+		return b[8-size : 8]
+	}
+
+	return b
 }

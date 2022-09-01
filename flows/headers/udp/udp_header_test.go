@@ -37,9 +37,7 @@ func TestUdpHeader(t *testing.T) {
 
 	api.StopCapture()
 
-	if !udpHeaderCaptureOk(api, c, testConst) {
-		t.Fatal("Capture not ok")
-	}
+	udpHeaderCaptureOk(api, c, testConst)
 }
 
 func udpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
@@ -91,11 +89,46 @@ func udpHeaderMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 		m.FramesRx() == expCount
 }
 
-func udpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interface{}) bool {
+func udpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interface{}) {
 	if !api.TestConfig().OtgCaptureCheck {
-		return true
+		return
 	}
-	api.GetCapture(c.Ports().Items()[1].Name())
+	expCount := int(tc["pktCount"].(int32))
+	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 
-	return true
+	for i := 0; i < expCount; i++ {
+		// ethernet header
+		if err := cPackets.ValidateField(i, 0, api.MacAddrToBytes(tc["rxMac"].(string))); err != nil {
+			api.Testing().Fatalf("ethernet rxMac not ok: %v\n", err)
+		}
+		if err := cPackets.ValidateField(i, 6, api.MacAddrToBytes(tc["txMac"].(string))); err != nil {
+			api.Testing().Fatalf("ethernet txMac not ok: %v\n", err)
+		}
+		if err := cPackets.ValidateField(i, 12, api.Uint64ToBytes(2048, 2)); err != nil {
+			api.Testing().Fatalf("ethernet type not ok: %v\n", err)
+		}
+		// ipv4 header
+		if err := cPackets.ValidateField(i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4), 2)); err != nil {
+			api.Testing().Fatalf("ipv4 totalLength not ok: %v\n", err)
+		}
+		if err := cPackets.ValidateField(i, 23, api.Uint64ToBytes(17, 1)); err != nil {
+			api.Testing().Fatalf("ipv4 protocol not ok: %v\n", err)
+		}
+		if err := cPackets.ValidateField(i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string))); err != nil {
+			api.Testing().Fatalf("ipv4 src not ok: %v\n", err)
+		}
+		if err := cPackets.ValidateField(i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string))); err != nil {
+			api.Testing().Fatalf("ipv4 dst not ok: %v\n", err)
+		}
+		// udp header
+		if err := cPackets.ValidateField(i, 34, api.Uint64ToBytes(uint64(tc["txUdpPort"].(int32)), 2)); err != nil {
+			api.Testing().Fatalf("udp src not ok: %v\n", err)
+		}
+		if err := cPackets.ValidateField(i, 36, api.Uint64ToBytes(uint64(tc["rxUdpPort"].(int32)), 2)); err != nil {
+			api.Testing().Fatalf("udp dst not ok: %v\n", err)
+		}
+		if err := cPackets.ValidateField(i, 38, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-20), 2)); err != nil {
+			api.Testing().Fatalf("udp length not ok: %v\n", err)
+		}
+	}
 }
