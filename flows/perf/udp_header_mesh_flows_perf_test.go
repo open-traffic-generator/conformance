@@ -1,4 +1,4 @@
-//go:build all || perf
+//go:build all || perf || b2b || free_perf
 
 package perf
 
@@ -10,7 +10,7 @@ import (
 	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
-func TestUdpHeaderMeshFlows(t *testing.T) {
+func TestUdpHeaderMeshFlowsPerf(t *testing.T) {
 	testConst := map[string]interface{}{
 		"flowCounts": []int{1, 10, 100, 250},
 		"flowCount":  1,
@@ -32,7 +32,7 @@ func TestUdpHeaderMeshFlows(t *testing.T) {
 		testCase := fmt.Sprintf("UdpHeader2Ports%dFlows", 2*flowCount)
 
 		api := otg.NewOtgApi(t)
-		c := udpHeaderMeshFlowsConfig(api, testConst)
+		c := udpHeaderMeshFlowsPerfConfig(api, testConst)
 
 		t.Log("TEST CASE: ", testCase)
 		for i := 1; i <= api.TestConfig().OtgIterations; i++ {
@@ -43,7 +43,7 @@ func TestUdpHeaderMeshFlows(t *testing.T) {
 			api.StartTransmit()
 
 			api.WaitFor(
-				func() bool { return udpHeaderMetricsOk(api) },
+				func() bool { return udpHeaderPerfMetricsOk(api) },
 				&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 			)
 
@@ -64,7 +64,7 @@ func TestUdpHeaderMeshFlows(t *testing.T) {
 	}
 }
 
-func udpHeaderMeshFlowsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func udpHeaderMeshFlowsPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 	p1 := c.Ports().Add().SetName("p1").SetLocation(api.TestConfig().OtgPorts[0])
 	p2 := c.Ports().Add().SetName("p2").SetLocation(api.TestConfig().OtgPorts[1])
@@ -124,7 +124,7 @@ func udpHeaderMeshFlowsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnap
 	return c
 }
 
-func udpHeaderMetricsOk(api *otg.OtgApi) bool {
+func udpHeaderPerfMetricsOk(api *otg.OtgApi) bool {
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||
 			m.FramesTx() != 10 ||

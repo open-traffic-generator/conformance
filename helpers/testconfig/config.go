@@ -7,6 +7,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"testing"
 
 	"gopkg.in/yaml.v2"
@@ -56,7 +57,11 @@ func NewTestConfig(t *testing.T) *TestConfig {
 	}
 
 	if err := tc.Load(t, path); err != nil {
-		t.Fatalf("Could not load test config: %v", err)
+		t.Fatalf("Could not load test config: %v\n", err)
+	}
+
+	if err := tc.FromEnv(); err != nil {
+		t.Fatalf("Could not load test config from env: %v\n", err)
 	}
 
 	return &tc
@@ -75,5 +80,33 @@ func (tc *TestConfig) Load(t *testing.T, path string) error {
 		return fmt.Errorf("could not unmarshal %s: %v", path, err)
 	}
 
+	return nil
+}
+
+func (tc *TestConfig) FromEnv() error {
+	if s := os.Getenv("OTG_HOST"); s != "" {
+		tc.OtgHost = s
+	}
+	if s := os.Getenv("OTG_ITERATIONS"); s != "" {
+		v, err := strconv.ParseInt(s, 10, 32)
+		if err != nil {
+			return fmt.Errorf("could not parse env OTG_ITERATIONS=%v: %v", v, err)
+		}
+		tc.OtgIterations = int(v)
+	}
+	if s := os.Getenv("OTG_CAPTURE_CHECK"); s != "" {
+		v, err := strconv.ParseBool(s)
+		if err != nil {
+			return fmt.Errorf("could not parse env OTG_CAPTURE_CHECK=%v: %v", v, err)
+		}
+		tc.OtgCaptureCheck = v
+	}
+	if s := os.Getenv("OTG_GRPC_TRANSPORT"); s != "" {
+		v, err := strconv.ParseBool(s)
+		if err != nil {
+			return fmt.Errorf("could not parse env OTG_GRPC_TRANSPORT=%v: %v", v, err)
+		}
+		tc.OtgGrpcTransport = v
+	}
 	return nil
 }

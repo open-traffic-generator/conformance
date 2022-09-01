@@ -22,7 +22,7 @@ jobs:
       - name: Run go tests
         run: |
           ./do.sh pregotest
-          ./do.sh gotest -tags=free
+          ./do.sh gotest -tags="free_feature"
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -30,11 +30,13 @@ jobs:
       - name: Run python tests
         run: |
           ./do.sh prepytest
-          ./do.sh pytest -m free
+          ./do.sh pytest -m free_feature
       - name: Get container logs
+        if: always()
         run: |
           ./do.sh topo logs
       - name: Archive logs
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: generated-artifacts

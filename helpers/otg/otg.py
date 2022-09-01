@@ -1,8 +1,11 @@
+import ipaddress
 import logging as log
 import datetime
+import tempfile
 import time
 
 import snappi
+from pcapfile import savefile as pcap_loader
 
 from helpers.table import table
 from helpers.testconfig import config as testconfig
@@ -14,7 +17,11 @@ class OtgApi(object):
         self.test_config = testconfig.TestConfig()
         log.info("OTG Host: %s", self.test_config.otg_host)
         log.info("OTG Ports: %s", self.test_config.otg_ports)
-        self.api = snappi.api(self.test_config.otg_host, verify=False)
+        self.api = snappi.api(
+            self.test_config.otg_host,
+            verify=False,
+            transport="grpc" if self.test_config.otg_grpc_transport else "http",
+        )
         self.plot = plot.Plot()
 
     def timer(self, fn_name, since):
@@ -41,6 +48,22 @@ class OtgApi(object):
                 time.sleep(interval_seconds)
         finally:
             self.timer(fn_name, start)
+
+    def mac_addr_to_bytes(self, mac):
+        splits = mac.split(":")
+        if len(splits) != 6:
+            raise Exception("Invalid MAC address: " + mac)
+
+        return bytearray([int(x, 16) for x in splits])
+
+    def ipv4_addr_to_bytes(self, ip):
+        return self.num_to_bytes(int(ipaddress.ip_address(ip)), 4)
+
+    def ipv6_addr_to_bytes(self, ip):
+        return self.num_to_bytes(int(ipaddress.ip_address(ip)), 16)
+
+    def num_to_bytes(self, num, size):
+        return num.to_bytes(size, "big")
 
     def log_warn(self, response):
         if response and response.warnings:
@@ -98,6 +121,32 @@ class OtgApi(object):
             self.log_warn(self.api.set_transmit_state(ts))
         finally:
             self.timer("stop_transmit", start)
+
+    def start_capture(self):
+        if not self.test_config.otg_capture_check:
+            log.info("Skipped start_capture")
+            return
+        start = datetime.datetime.now()
+        try:
+            log.info("Starting capture ...")
+            cs = self.api.capture_state()
+            cs.state = cs.START
+            self.log_warn(self.api.set_capture_state(cs))
+        finally:
+            self.timer("start_capture", start)
+
+    def stop_capture(self):
+        if not self.test_config.otg_capture_check:
+            log.info("Skipped stop_capture")
+            return
+        start = datetime.datetime.now()
+        try:
+            log.info("Stopping capture ...")
+            cs = self.api.capture_state()
+            cs.state = cs.STOP
+            self.log_warn(self.api.set_capture_state(cs))
+        finally:
+            self.timer("stop_capture", start)
 
     def get_flow_metrics(self):
         start = datetime.datetime.now()
@@ -174,3 +223,82 @@ class OtgApi(object):
             return metrics
         finally:
             self.timer("get_bgpv4_metrics", start)
+
+    def get_capture(self, port_name):
+        if not self.test_config.otg_capture_check:
+            log.info("Skipped get_capture")
+            return None
+
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting capture for port %s ...", port_name)
+            req = self.api.capture_request()
+            req.port_name = port_name
+
+            b = self.api.get_capture(req)
+            return CapturedPackets(b)
+        finally:
+            self.timer("get_capture", start)
+
+
+class CapturedPackets(object):
+    def __init__(self, pcap_bytes):
+        self.packets = []
+
+        tmp = tempfile.TemporaryFile()
+        try:
+            tmp.write(pcap_bytes.read())
+            tmp.seek(0)
+            pcap = pcap_loader.load_savefile(tmp)
+
+            for i, p in enumerate(pcap.packets):
+                # TODO: add timestamps and lengths
+                self.packets.append(CapturedPacket(i, p.raw()))
+        finally:
+            tmp.close()
+
+    def validate_field(self, name, sequence, start_offset, field):
+        if sequence >= len(self.packets):
+            raise Exception(
+                "%s: sequence %d >= len(packets) %d"
+                % (name, sequence, len(self.packets))
+            )
+
+        p = self.packets[sequence]
+        if start_offset < 0 or start_offset >= len(p.data):
+            raise Exception(
+                "%s: start_offset %d not in range [0, %d); data: %s"
+                % (name, sequence, len(p.data), p.data)
+            )
+
+        end_offset = start_offset + len(field) - 1
+        if end_offset < start_offset:
+            raise Exception(
+                "%s: start_offset %d > end_offset %d; field: %s"
+                % (name, start_offset, end_offset, field)
+            )
+
+        if end_offset >= len(p.data):
+            raise Exception(
+                "%s: end_offset %d not in range [0, %d); field: %s data: %s"
+                % (name, end_offset, len(p.data), field, p.data)
+            )
+
+        if field != p.data[start_offset : end_offset + 1]:
+            raise Exception(
+                "%s: field %s != actual_field %s; sequence: %d, start_offset: %d, data: %s"
+                % (
+                    name,
+                    field,
+                    p.data[start_offset : end_offset + 1],
+                    sequence,
+                    start_offset,
+                    p.data,
+                )
+            )
+
+
+class CapturedPacket(object):
+    def __init__(self, sequence, data):
+        self.sequence = sequence
+        self.data = data

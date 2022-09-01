@@ -3,7 +3,8 @@ import pytest
 from helpers.otg import otg
 
 
-@pytest.mark.lic
+@pytest.mark.all
+@pytest.mark.feature
 @pytest.mark.b2b
 def test_ebgpv4_route_install():
     test_const = {

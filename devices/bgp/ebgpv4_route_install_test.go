@@ -1,4 +1,4 @@
-//go:build all || lic || b2b
+//go:build all || feature || b2b
 
 package bgp
 

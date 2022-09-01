@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"testing"
 	"time"
 
 	"github.com/dreadl0ck/gopcap"
@@ -24,7 +25,7 @@ type CapturedPackets struct {
 	Packets []CapturedPacket
 }
 
-func (c *CapturedPackets) ValidateField(sequence int, startOffSet int, field []byte) error {
+func (c *CapturedPackets) CheckField(sequence int, startOffSet int, field []byte) error {
 	if sequence >= len(c.Packets) {
 		return fmt.Errorf("sequence %d >= len(capturedPackets) %d", sequence, len(c.Packets))
 	}
@@ -48,6 +49,12 @@ func (c *CapturedPackets) ValidateField(sequence int, startOffSet int, field []b
 	}
 
 	return nil
+}
+
+func (c *CapturedPackets) ValidateField(t *testing.T, name string, sequence int, startOffSet int, field []byte) {
+	if err := c.CheckField(sequence, startOffSet, field); err != nil {
+		t.Fatalf("%s: %v\n", name, err)
+	}
 }
 
 func (o *OtgApi) GetCapture(portName string) *CapturedPackets {

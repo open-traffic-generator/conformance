@@ -24,9 +24,11 @@ jobs:
           ./do.sh pregotest
           OTG_ITERATIONS=2 ./do.sh gotest -tags=perf
       - name: Get container logs
+        if: always()
         run: |
           ./do.sh topo logs lic
       - name: Archive logs
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: generated-artifacts

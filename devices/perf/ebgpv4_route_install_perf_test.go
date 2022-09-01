@@ -1,4 +1,4 @@
-//go:build all || perf
+//go:build all || perf || b2b
 
 package bgp
 
