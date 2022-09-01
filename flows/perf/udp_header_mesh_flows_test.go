@@ -12,7 +12,6 @@ import (
 
 func TestUdpHeaderMeshFlows(t *testing.T) {
 	testConst := map[string]interface{}{
-		"iterations": otg.Iterations(),
 		"flowCounts": []int{1, 10, 100, 250},
 		"flowCount":  1,
 		"pktRate":    int64(10),
@@ -36,7 +35,7 @@ func TestUdpHeaderMeshFlows(t *testing.T) {
 		c := udpHeaderMeshFlowsConfig(api, testConst)
 
 		t.Log("TEST CASE: ", testCase)
-		for i := 1; i <= testConst["iterations"].(int); i++ {
+		for i := 1; i <= api.TestConfig().OtgIterations; i++ {
 			t.Logf("ITERATION: %d\n\n", i)
 
 			api.SetConfig(c)

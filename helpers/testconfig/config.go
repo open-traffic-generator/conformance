@@ -13,9 +13,12 @@ import (
 )
 
 type TestConfig struct {
-	OtgHost  string   `yaml:"otg_host,omitempty"`
-	OtgPorts []string `yaml:"otg_ports,omitempty"`
-	OtgSpeed string   `yaml:"otg_speed,omitempty"`
+	OtgHost          string   `yaml:"otg_host,omitempty"`
+	OtgPorts         []string `yaml:"otg_ports,omitempty"`
+	OtgSpeed         string   `yaml:"otg_speed,omitempty"`
+	OtgIterations    int      `yaml:"otg_iterations,omitempty"`
+	OtgCaptureCheck  bool     `yaml:"otg_capture_check,omitempty"`
+	OtgGrpcTransport bool     `yaml:"otg_grpc_transport,omitempty"`
 }
 
 func testConfigPath() (string, error) {
@@ -39,9 +42,12 @@ func testConfigPath() (string, error) {
 
 func NewTestConfig(t *testing.T) *TestConfig {
 	tc := TestConfig{
-		OtgHost:  "https://localhost",
-		OtgPorts: []string{"localhost:5555", "localhost:5556"},
-		OtgSpeed: "speed_1_gbps",
+		OtgHost:          "https://localhost",
+		OtgPorts:         []string{"localhost:5555", "localhost:5556"},
+		OtgSpeed:         "speed_1_gbps",
+		OtgIterations:    100,
+		OtgCaptureCheck:  true,
+		OtgGrpcTransport: false,
 	}
 
 	path, err := testConfigPath()

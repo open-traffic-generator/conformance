@@ -27,12 +27,19 @@ func TestUdpHeader(t *testing.T) {
 
 	api.SetConfig(c)
 
+	api.StartCapture()
 	api.StartTransmit()
 
 	api.WaitFor(
-		func() bool { return udpHeaderMetricsOk(api) },
+		func() bool { return udpHeaderMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
+
+	api.StopCapture()
+
+	if !udpHeaderCaptureOk(api, c, testConst) {
+		t.Fatal("Capture not ok")
+	}
 }
 
 func udpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
@@ -44,6 +51,11 @@ func udpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config
 		SetName("ly").
 		SetPortNames([]string{p1.Name(), p2.Name()}).
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
+
+	c.Captures().Add().
+		SetName("ca").
+		SetPortNames([]string{p1.Name(), p2.Name()}).
+		SetFormat(gosnappi.CaptureFormat.PCAP)
 
 	f1 := c.Flows().Add().SetName("f1")
 	f1.TxRx().Port().
@@ -70,9 +82,20 @@ func udpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config
 	return c
 }
 
-func udpHeaderMetricsOk(api *otg.OtgApi) bool {
+func udpHeaderMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
+	expCount := int64(tc["pktCount"].(int32))
+
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
-		m.FramesTx() == 100 &&
-		m.FramesRx() == 100
+		m.FramesTx() == expCount &&
+		m.FramesRx() == expCount
+}
+
+func udpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interface{}) bool {
+	if !api.TestConfig().OtgCaptureCheck {
+		return true
+	}
+	api.GetCapture(c.Ports().Items()[1].Name())
+
+	return true
 }

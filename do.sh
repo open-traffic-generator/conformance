@@ -108,6 +108,9 @@ gen_config_b2b_free() {
           - localhost:5555
           - localhost:5556
         otg_speed: speed_1_gbps
+        otg_capture_check: true
+        otg_iterations: 100
+        otg_grpc_transport: false
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 }
@@ -122,6 +125,9 @@ gen_config_b2b_lic() {
           - ${OTG_PORTA}:5555+${OTG_PORTA}:50071
           - ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
         otg_speed: speed_1_gbps
+        otg_capture_check: true
+        otg_iterations: 100
+        otg_grpc_transport: false
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 }

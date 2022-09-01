@@ -13,7 +13,6 @@ import (
 func TestEbgpv4RouteInstallPerf(t *testing.T) {
 
 	testConst := map[string]interface{}{
-		"iterations":   otg.Iterations(),
 		"pktRate":      int64(50),
 		"pktCount":     int32(100),
 		"pktSize":      int32(128),
@@ -46,7 +45,7 @@ func TestEbgpv4RouteInstallPerf(t *testing.T) {
 	c := ebgpv4RouteInstallPerfConfig(api, testConst)
 
 	t.Log("TEST CASE: ", testCase)
-	for i := 1; i <= testConst["iterations"].(int); i++ {
+	for i := 1; i <= api.TestConfig().OtgIterations; i++ {
 		t.Logf("ITERATION: %d\n\n", i)
 
 		api.SetConfig(c)
