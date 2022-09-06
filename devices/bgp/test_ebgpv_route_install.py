@@ -3,7 +3,8 @@ import pytest
 from helpers.otg import otg
 
 
-@pytest.mark.lic
+@pytest.mark.all
+@pytest.mark.feature
 @pytest.mark.b2b
 def test_ebgpv4_route_install():
     test_const = {
@@ -40,7 +41,8 @@ def test_ebgpv4_route_install():
     api.start_protocols()
 
     api.wait_for(
-        fn=lambda: bgp_metrics_ok(api, test_const), fn_name="wait_for_bgp_metrics"
+        fn=lambda: bgp_metrics_ok(api, test_const),
+        fn_name="wait_for_bgp_metrics",
     )
 
     api.start_transmit()

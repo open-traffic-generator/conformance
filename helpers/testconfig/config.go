@@ -7,15 +7,19 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"testing"
 
 	"gopkg.in/yaml.v2"
 )
 
 type TestConfig struct {
-	OtgHost  string   `yaml:"otg_host,omitempty"`
-	OtgPorts []string `yaml:"otg_ports,omitempty"`
-	OtgSpeed string   `yaml:"otg_speed,omitempty"`
+	OtgHost          string   `yaml:"otg_host,omitempty"`
+	OtgPorts         []string `yaml:"otg_ports,omitempty"`
+	OtgSpeed         string   `yaml:"otg_speed,omitempty"`
+	OtgIterations    int      `yaml:"otg_iterations,omitempty"`
+	OtgCaptureCheck  bool     `yaml:"otg_capture_check,omitempty"`
+	OtgGrpcTransport bool     `yaml:"otg_grpc_transport,omitempty"`
 }
 
 func testConfigPath() (string, error) {
@@ -39,9 +43,12 @@ func testConfigPath() (string, error) {
 
 func NewTestConfig(t *testing.T) *TestConfig {
 	tc := TestConfig{
-		OtgHost:  "https://localhost",
-		OtgPorts: []string{"localhost:5555", "localhost:5556"},
-		OtgSpeed: "speed_1_gbps",
+		OtgHost:          "https://localhost",
+		OtgPorts:         []string{"localhost:5555", "localhost:5556"},
+		OtgSpeed:         "speed_1_gbps",
+		OtgIterations:    100,
+		OtgCaptureCheck:  true,
+		OtgGrpcTransport: false,
 	}
 
 	path, err := testConfigPath()
@@ -50,7 +57,11 @@ func NewTestConfig(t *testing.T) *TestConfig {
 	}
 
 	if err := tc.Load(t, path); err != nil {
-		t.Fatalf("Could not load test config: %v", err)
+		t.Fatalf("Could not load test config: %v\n", err)
+	}
+
+	if err := tc.FromEnv(); err != nil {
+		t.Fatalf("Could not load test config from env: %v\n", err)
 	}
 
 	return &tc
@@ -69,5 +80,33 @@ func (tc *TestConfig) Load(t *testing.T, path string) error {
 		return fmt.Errorf("could not unmarshal %s: %v", path, err)
 	}
 
+	return nil
+}
+
+func (tc *TestConfig) FromEnv() error {
+	if s := os.Getenv("OTG_HOST"); s != "" {
+		tc.OtgHost = s
+	}
+	if s := os.Getenv("OTG_ITERATIONS"); s != "" {
+		v, err := strconv.ParseInt(s, 10, 32)
+		if err != nil {
+			return fmt.Errorf("could not parse env OTG_ITERATIONS=%v: %v", v, err)
+		}
+		tc.OtgIterations = int(v)
+	}
+	if s := os.Getenv("OTG_CAPTURE_CHECK"); s != "" {
+		v, err := strconv.ParseBool(s)
+		if err != nil {
+			return fmt.Errorf("could not parse env OTG_CAPTURE_CHECK=%v: %v", v, err)
+		}
+		tc.OtgCaptureCheck = v
+	}
+	if s := os.Getenv("OTG_GRPC_TRANSPORT"); s != "" {
+		v, err := strconv.ParseBool(s)
+		if err != nil {
+			return fmt.Errorf("could not parse env OTG_GRPC_TRANSPORT=%v: %v", v, err)
+		}
+		tc.OtgGrpcTransport = v
+	}
 	return nil
 }

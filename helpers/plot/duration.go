@@ -3,7 +3,7 @@ package plot
 import "time"
 
 type Duration struct {
-	ApiName  string
-	Duration time.Duration
-	Time     time.Time
+	ApiName  string        `json:"api_name"`
+	Duration time.Duration `json:"duration"`
+	Time     time.Time     `json:"time"`
 }

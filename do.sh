@@ -3,8 +3,8 @@
 # update for any release using
 # curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v0.0.1-2994/versions.yaml
 VERSIONS_YAML="versions.yaml"
-VETH_A="veth-a"
-VETH_Z="veth-z"
+VETH_A="vetha"
+VETH_Z="vethz"
 
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
@@ -108,6 +108,9 @@ gen_config_b2b_free() {
           - localhost:5555
           - localhost:5556
         otg_speed: speed_1_gbps
+        otg_capture_check: true
+        otg_iterations: 100
+        otg_grpc_transport: false
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 }
@@ -122,6 +125,9 @@ gen_config_b2b_lic() {
           - ${OTG_PORTA}:5555+${OTG_PORTA}:50071
           - ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
         otg_speed: speed_1_gbps
+        otg_capture_check: true
+        otg_iterations: 100
+        otg_grpc_transport: false
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 }
@@ -162,7 +168,7 @@ rm_ixia_c_b2b_free() {
     docker stop ixia-c-traffic-engine-${VETH_Z}
     docker rm ixia-c-traffic-engine-${VETH_Z}
     docker ps -a
-    rm_veth_pair veth-a veth-z
+    rm_veth_pair ${VETH_A} ${VETH_Z}
 }
 
 create_ixia_c_b2b_licensed() {
@@ -286,7 +292,7 @@ gotest() {
     mkdir -p logs
     log=logs/gotest.log
 
-    CGO_ENABLED=0 go test -v -count=1 ${@} ./... | tee ${log}
+    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./... | tee ${log}
 
     echo "Summary:"
     grep ": Test" ${log}
@@ -308,11 +314,16 @@ help() {
     grep "() {" ${0} | cut -d\  -f1
 }
 
+usage() {
+    echo "usage: $0 [name of any function in script]"
+    exit 1
+}
+
 case $1 in
     *   )
         # shift positional arguments so that arg 2 becomes arg 1, etc.
         cmd=${1}
         shift 1
-        ${cmd} ${@} || echo "usage: $0 [name of any function in script]"
+        ${cmd} ${@} || usage
     ;;
 esac

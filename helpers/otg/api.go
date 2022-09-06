@@ -22,7 +22,11 @@ func NewOtgApi(t *testing.T) *OtgApi {
 	t.Logf("OTG Port: %v\n", tc.OtgPorts)
 
 	api := gosnappi.NewApi()
-	api.NewHttpTransport().SetLocation(tc.OtgHost).SetVerify(false)
+	if tc.OtgGrpcTransport {
+		api.NewGrpcTransport().SetLocation(tc.OtgHost)
+	} else {
+		api.NewHttpTransport().SetLocation(tc.OtgHost).SetVerify(false)
+	}
 
 	p := plot.NewPlot()
 
@@ -106,5 +110,31 @@ func (o *OtgApi) StopTransmit() {
 
 	ts := o.Api().NewTransmitState().SetState(gosnappi.TransmitStateState.STOP)
 	res, err := o.Api().SetTransmitState(ts)
+	o.LogWrnErr(res, err, true)
+}
+
+func (o *OtgApi) StartCapture() {
+	if !o.TestConfig().OtgCaptureCheck {
+		o.Testing().Log("Skipped StartCapture")
+		return
+	}
+	o.Testing().Log("Starting capture ...")
+	defer o.Timer(time.Now(), "StartCapture")
+
+	cs := o.Api().NewCaptureState().SetState(gosnappi.CaptureStateState.START)
+	res, err := o.Api().SetCaptureState(cs)
+	o.LogWrnErr(res, err, true)
+}
+
+func (o *OtgApi) StopCapture() {
+	if !o.TestConfig().OtgCaptureCheck {
+		o.Testing().Log("Skipped StopCapture")
+		return
+	}
+	o.Testing().Log("Stopping capture ...")
+	defer o.Timer(time.Now(), "StopCapture")
+
+	cs := o.Api().NewCaptureState().SetState(gosnappi.CaptureStateState.STOP)
+	res, err := o.Api().SetCaptureState(cs)
 	o.LogWrnErr(res, err, true)
 }

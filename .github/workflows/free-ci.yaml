@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -22,19 +22,21 @@ jobs:
       - name: Run go tests
         run: |
           ./do.sh pregotest
-          ./do.sh gotest -tags=free
+          ./do.sh gotest -tags="free_feature"
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.6"
+          python-version: "3.8"
       - name: Run python tests
         run: |
           ./do.sh prepytest
-          ./do.sh pytest -m free
+          ./do.sh pytest -m free_feature
       - name: Get container logs
+        if: always()
         run: |
           ./do.sh topo logs
       - name: Archive logs
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: generated-artifacts

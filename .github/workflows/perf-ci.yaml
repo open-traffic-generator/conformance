@@ -1,4 +1,4 @@
-name: Licensed CI
+name: Perf CI
 
 on:
   push:
@@ -22,15 +22,7 @@ jobs:
       - name: Run go tests
         run: |
           ./do.sh pregotest
-          ./do.sh gotest -tags="feature"
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-      - name: Run python tests
-        run: |
-          ./do.sh prepytest
-          ./do.sh pytest -m feature
+          OTG_ITERATIONS=2 ./do.sh gotest -tags=perf
       - name: Get container logs
         if: always()
         run: |

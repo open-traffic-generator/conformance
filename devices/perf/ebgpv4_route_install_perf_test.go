@@ -1,15 +1,16 @@
-//go:build all || feature || b2b
+//go:build all || perf || b2b
 
 package bgp
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
 	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
-func TestEbgpv4RouteInstall(t *testing.T) {
+func TestEbgpv4RouteInstallPerf(t *testing.T) {
 
 	testConst := map[string]interface{}{
 		"pktRate":      int64(50),
@@ -37,27 +38,48 @@ func TestEbgpv4RouteInstall(t *testing.T) {
 		"rxAdvRouteV6": "::20:20:20:01",
 	}
 
+	distTables := []string{}
+	testCase := fmt.Sprintf("Ebgpv4TcpHeader2Ports2Devices4Flows")
+
 	api := otg.NewOtgApi(t)
-	c := ebgpv4RouteInstallConfig(api, testConst)
+	c := ebgpv4RouteInstallPerfConfig(api, testConst)
 
-	api.SetConfig(c)
+	t.Log("TEST CASE: ", testCase)
+	for i := 1; i <= api.TestConfig().OtgIterations; i++ {
+		t.Logf("ITERATION: %d\n\n", i)
 
-	api.StartProtocols()
+		api.SetConfig(c)
 
-	api.WaitFor(
-		func() bool { return ebgpv4RouteInstallBgpMetricsOk(api, testConst) },
-		&otg.WaitForOpts{FnName: "WaitForBgpv4Metrics"},
-	)
+		api.StartProtocols()
 
-	api.StartTransmit()
+		api.WaitFor(
+			func() bool { return ebgpv4RouteInstallPerfBgpMetricsOk(api, testConst) },
+			&otg.WaitForOpts{FnName: "WaitForBgpv4Metrics"},
+		)
 
-	api.WaitFor(
-		func() bool { return ebgpv4RouteInstallFlowMetricsOk(api, testConst) },
-		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
-	)
+		api.StartTransmit()
+
+		api.WaitFor(
+			func() bool { return ebgpv4RouteInstallPerfFlowMetricsOk(api, testConst) },
+			&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
+		)
+
+		api.Plot().AppendZero()
+	}
+	api.LogPlot(testCase)
+
+	tb, err := api.Plot().ToTable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	distTables = append(distTables, tb)
+
+	for _, d := range distTables {
+		t.Log(d)
+	}
 }
 
-func ebgpv4RouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func ebgpv4RouteInstallPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
@@ -331,7 +353,7 @@ func ebgpv4RouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnap
 	return c
 }
 
-func ebgpv4RouteInstallBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func ebgpv4RouteInstallPerfBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	for _, m := range api.GetBgpv4Metrics() {
 		if m.SessionState() == gosnappi.Bgpv4MetricSessionState.DOWN ||
 			m.RoutesAdvertised() != 2*tc["txRouteCount"].(int32) ||
@@ -342,7 +364,7 @@ func ebgpv4RouteInstallBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) 
 	return true
 }
 
-func ebgpv4RouteInstallFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func ebgpv4RouteInstallPerfFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	pktCount := int64(tc["pktCount"].(int32))
 
 	for _, m := range api.GetFlowMetrics() {
