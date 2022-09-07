@@ -138,3 +138,75 @@ func (o *OtgApi) StopCapture() {
 	res, err := o.Api().SetCaptureState(cs)
 	o.LogWrnErr(res, err, true)
 }
+
+func (o *OtgApi) NewConfigFromJson(jsonStr string) gosnappi.Config {
+	o.Testing().Log("Loading config from JSON ...")
+	defer o.Timer(time.Now(), "NewConfigFromJson")
+
+	c := o.Api().NewConfig()
+	if err := c.FromJson(jsonStr); err != nil {
+		o.Testing().Fatal("ERROR: ", err)
+	}
+
+	return c
+}
+
+func (o *OtgApi) NewConfigFromYaml(yamlStr string) gosnappi.Config {
+	o.Testing().Log("Loading config from YAML ...")
+	defer o.Timer(time.Now(), "NewConfigFromYaml")
+
+	c := o.Api().NewConfig()
+	if err := c.FromYaml(yamlStr); err != nil {
+		o.Testing().Fatal("ERROR: ", err)
+	}
+
+	return c
+}
+
+func (o *OtgApi) NewConfigFromPbText(pbStr string) gosnappi.Config {
+	o.Testing().Log("Loading config from pb text ...")
+	defer o.Timer(time.Now(), "NewConfigFromPbText")
+
+	c := o.Api().NewConfig()
+	if err := c.FromPbText(pbStr); err != nil {
+		o.Testing().Fatal("ERROR: ", err)
+	}
+
+	return c
+}
+
+func (o *OtgApi) ConfigToJson(config gosnappi.Config) string {
+	o.Testing().Log("Serializing config to JSON ...")
+	defer o.Timer(time.Now(), "ConfigToJson")
+
+	v, err := config.ToJson()
+	if err != nil {
+		o.Testing().Fatal("ERROR: ", err)
+	}
+
+	return v
+}
+
+func (o *OtgApi) ConfigToYaml(config gosnappi.Config) string {
+	o.Testing().Log("Serializing config to YAML ...")
+	defer o.Timer(time.Now(), "ConfigToYaml")
+
+	v, err := config.ToYaml()
+	if err != nil {
+		o.Testing().Fatal("ERROR: ", err)
+	}
+
+	return v
+}
+
+func (o *OtgApi) ConfigToPbText(config gosnappi.Config) string {
+	o.Testing().Log("Serializing config to pb text ...")
+	defer o.Timer(time.Now(), "ConfigToPbText")
+
+	v, err := config.ToPbText()
+	if err != nil {
+		o.Testing().Fatal("ERROR: ", err)
+	}
+
+	return v
+}
