@@ -3,14 +3,20 @@
 package bgp
 
 import (
+	"os"
 	"testing"
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
 	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
+func skipCI(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		t.Skip("Skipping testing in CI environment")
+	}
+}
 func TestEbgpv4RouteInstall(t *testing.T) {
-
+	skipCI(t)
 	testConst := map[string]interface{}{
 		"pktRate":      int64(50),
 		"pktCount":     int32(100),
