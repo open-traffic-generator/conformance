@@ -3,8 +3,8 @@
 # update for any release using
 # curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v0.0.1-2994/versions.yaml
 VERSIONS_YAML="versions.yaml"
-VETH_A="vetha"
-VETH_Z="vethz"
+VETH_A="veth-a"
+VETH_Z="veth-z"
 
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
@@ -63,23 +63,27 @@ container_ip() {
     docker inspect --format="{{json .NetworkSettings.IPAddress}}" ${1} | cut -d\" -f 2
 }
 
+ixia_c_img() {
+    path=$(grep -A 2 ${1} ${VERSIONS_YAML} | grep path | cut -d: -f2 | cut -d\  -f2)
+    tag=$(grep -A 2 ${1} ${VERSIONS_YAML} | grep tag | cut -d: -f2 | cut -d\  -f2)
+    echo "${path}:${tag}"
+}
+
 ixia_c_traffic_engine_img() {
-    path="ghcr.io/open-traffic-generator/ixia-c-traffic-engine"
-    echo "${path}:$(grep traffic-engine ${VERSIONS_YAML} | cut -d\  -f2)"
+    ixia_c_img traffic-engine
 }
 
 ixia_c_protocol_engine_img() {
-    path="ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine"
-    echo "${path}:$(grep protocol-engine ${VERSIONS_YAML} | cut -d\  -f2)"
+    ixia_c_img protocol-engine
 }
 
 ixia_c_controller_img() {
-    path="ghcr.io/open-traffic-generator/ixia-c-controller"
     if [ "$1" = "lic" ]
     then
-        path="ghcr.io/open-traffic-generator/licensed/ixia-c-controller"
+        ixia_c_img controller-licensed
+    else
+        ixia_c_img controller-free
     fi
-    echo "${path}:$(grep controller ${VERSIONS_YAML} | cut -d\  -f2)"
 }
 
 login_ghcr() {
