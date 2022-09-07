@@ -3,8 +3,8 @@
 # update for any release using
 # curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v0.0.1-2994/versions.yaml
 VERSIONS_YAML="versions.yaml"
-VETH_A="vetha"
-VETH_Z="vethz"
+VETH_A="veth-a"
+VETH_Z="veth-z"
 
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
