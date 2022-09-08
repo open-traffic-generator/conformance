@@ -1,3 +1,9 @@
+import datetime
+import json
+
+from helpers.table import table
+
+
 class Distribution(object):
     def __init__(self, api_name, duration, typ):
         self.api_name = api_name
@@ -39,7 +45,7 @@ class Plot(object):
             self.durations.append(duration)
 
     def append_zero(self):
-        self.durations.append(Duration(None, 0, None))
+        self.durations.append(Duration("", 0, None))
 
     def calculate_iterations(self):
         self.iterations = 0
@@ -65,7 +71,7 @@ class Plot(object):
         return api_dur_map
 
     def get_percentile_duration(self, durations, percent):
-        return durations[int(percent * len(durations)) / 100]
+        return durations[int((percent * len(durations)) / 100)]
 
     def calc_distributions(self):
         api_dur_map = self.api_duration_map()
@@ -93,7 +99,28 @@ class Plot(object):
         self.calc_distributions()
 
     def to_json(self):
-        pass
+        return json.dumps(
+            self,
+            default=lambda o: o.microsecond * 1000
+            if isinstance(o, datetime.datetime)
+            else o.__dict__,
+            indent="  ",
+        )
 
     def to_table(self):
-        pass
+        tb = table.Table(
+            "Distribution: %s (Iterations %d)" % (self.name, self.iterations),
+            ["Dist"] + [d.api_name for d in self.distributions],
+            col_width=25,
+        )
+
+        tb.append_row(["min"] + [d.min for d in self.distributions])
+        tb.append_row(["avg"] + [d.avg for d in self.distributions])
+        tb.append_row(["max"] + [d.max for d in self.distributions])
+        tb.append_row(["p50"] + [d.p50 for d in self.distributions])
+        tb.append_row(["p75"] + [d.p75 for d in self.distributions])
+        tb.append_row(["p90"] + [d.p90 for d in self.distributions])
+        tb.append_row(["p95"] + [d.p95 for d in self.distributions])
+        tb.append_row(["p99"] + [d.p99 for d in self.distributions])
+
+        return str(tb)

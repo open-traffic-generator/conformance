@@ -23,12 +23,12 @@ class Table(object):
         out += "\n"
 
         for h in self.headers:
-            out += "%-15s" % str(h)
+            out += ("%%-%ds" % self.col_width) % str(h)
         out += "\n"
 
         for row in self.rows:
             for r in row:
-                out += "%-15s" % str(r)
+                out += ("%%-%ds" % self.col_width) % str(r)
             out += "\n"
         out += border
         out += "\n\n"

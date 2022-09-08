@@ -25,7 +25,7 @@ class OtgApi(object):
         self.plot = plot.Plot()
 
     def timer(self, fn_name, since):
-        elapsed = (datetime.datetime.now() - since).microseconds
+        elapsed = (datetime.datetime.now() - since).microseconds * 1000
         self.plot.append_duration(plot.Duration(fn_name, elapsed, since))
         log.info("Elapsed duration %s: %d ms", fn_name, elapsed)
 
@@ -69,6 +69,46 @@ class OtgApi(object):
         if response and response.warnings:
             for w in response.warnings:
                 log.warning(w)
+
+    def log_plot(self, name):
+        self.plot.analyze(name)
+        log.info("plot: %s\n", self.plot.to_json())
+
+    def new_config_from_json(self, json_str):
+        start = datetime.datetime.now()
+        try:
+            log.info("Loading config from JSON ...")
+            c = self.api.config()
+            c.deserialize(json_str)
+            return c
+        finally:
+            self.timer("new_config_from_json", start)
+
+    def new_config_from_yaml(self, yaml_str):
+        start = datetime.datetime.now()
+        try:
+            log.info("Loading config from YAML ...")
+            c = self.api.config()
+            c.deserialize(yaml_str)
+            return c
+        finally:
+            self.timer("new_config_from_yaml", start)
+
+    def config_to_json(self, c):
+        start = datetime.datetime.now()
+        try:
+            log.info("Serializing config to JSON ...")
+            return c.serialize(encoding=c.JSON)
+        finally:
+            self.timer("config_to_json", start)
+
+    def config_to_yaml(self, c):
+        start = datetime.datetime.now()
+        try:
+            log.info("Serializing config to YAML ...")
+            return c.serialize(encoding=c.YAML)
+        finally:
+            self.timer("config_to_yaml", start)
 
     def set_config(self, c):
         start = datetime.datetime.now()
