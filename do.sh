@@ -39,7 +39,7 @@ push_ifc_to_container() {
     orgPath=/proc/${cpid}/ns/net
     newPath=/var/run/netns/${cid}
     
-    sudo mkdir -p /var/run/netn
+    sudo mkdir -p /var/run/netns
     echo "Creating symlink ${orgPath} -> ${newPath}"
     sudo ln -s ${orgPath} ${newPath} \
     && sudo ip link set ${1} netns ${cid} \
