@@ -96,9 +96,17 @@ def capture_ok(api, c, tc):
     if not api.test_config.otg_capture_check:
         return
 
+    ignored_count = 0
     captured_packets = api.get_capture(c.ports[1].name)
 
     for i, p in enumerate(captured_packets.packets):
+        # ignore unexpected packets based on ethernet src MAC
+        if not captured_packets.has_field(
+            "ethernet src", i, 6, api.mac_addr_to_bytes(tc["txMac"])
+        ):
+            ignored_count += 1
+            continue
+
         # ethernet header
         captured_packets.validate_field(
             "ethernet dst", i, 0, api.mac_addr_to_bytes(tc["rxMac"])
@@ -142,3 +150,8 @@ def capture_ok(api, c, tc):
         captured_packets.validate_field(
             "udp length", i, 38, api.num_to_bytes(tc["pktSize"] - 14 - 4 - 20, 2)
         )
+
+    exp_count = tc["pktCount"]
+    act_count = len(captured_packets.packets) - ignored_count
+    if exp_count != act_count:
+        raise Exception("exp_count %d != act_count %d" % (exp_count, act_count))

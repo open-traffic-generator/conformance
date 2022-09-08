@@ -96,11 +96,16 @@ func tcpHeaderValuelistPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map
 	if !api.TestConfig().OtgCaptureCheck {
 		return
 	}
-	expCount := int(tc["pktCount"].(int32))
+	ignoredCount := 0
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 
-	for i := 0; i < expCount; i++ {
+	for i := 0; i < len(cPackets.Packets); i++ {
+		// ignore unexpected packets based on ethernet src MAC
+		if !cPackets.HasField(t, "ethernet src", i, 6, api.MacAddrToBytes(tc["txMac"].(string))) {
+			ignoredCount += 1
+			continue
+		}
 		// ethernet header
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet src", i, 6, api.MacAddrToBytes(tc["txMac"].(string)))
@@ -113,5 +118,10 @@ func tcpHeaderValuelistPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map
 		// tcp header
 		cPackets.ValidateField(t, "tcp src", i, 34, api.Uint64ToBytes(uint64(tc["txTcpPortValueList"].([]int32)[i%len(tc["txTcpPortValueList"].([]int32))]), 2))
 		cPackets.ValidateField(t, "tcp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxTcpPortValueList"].([]int32)[i%len(tc["rxTcpPortValueList"].([]int32))]), 2))
+	}
+	expCount := int(tc["pktCount"].(int32))
+	actCount := len(cPackets.Packets) - ignoredCount
+	if expCount != actCount {
+		t.Fatalf("ERROR: actCount %d != actCount %d\n", expCount, actCount)
 	}
 }
