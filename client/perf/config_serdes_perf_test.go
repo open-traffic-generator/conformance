@@ -36,15 +36,15 @@ func TestConfigSerdesPerf(t *testing.T) {
 
 		cJson, err := c.ToJson()
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal("ERROR:", err)
 		}
 		cYaml, err := c.ToYaml()
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal("ERROR:", err)
 		}
 		cPbText, err := c.ToPbText()
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal("ERROR:", err)
 		}
 
 		t.Log("TEST CASE: ", testCase)
@@ -62,7 +62,7 @@ func TestConfigSerdesPerf(t *testing.T) {
 
 		tb, err := api.Plot().ToTable()
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal("ERROR:", err)
 		}
 		distTables = append(distTables, tb)
 	}
@@ -127,5 +127,7 @@ func configSerdesPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 		udp.SrcPort().SetValue(tc["rxUdpPort"].(int32))
 		udp.DstPort().SetValue(tc["txUdpPort"].(int32))
 	}
+
+	api.Testing().Logf("Config:\n%v\n", c)
 	return c
 }

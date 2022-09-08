@@ -54,7 +54,7 @@ func TestUdpHeaderMeshFlowsPerf(t *testing.T) {
 
 		tb, err := api.Plot().ToTable()
 		if err != nil {
-			t.Fatal(err)
+			t.Fatal("ERROR:", err)
 		}
 		distTables = append(distTables, tb)
 	}

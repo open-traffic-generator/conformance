@@ -51,7 +51,7 @@ func (o *OtgApi) WaitFor(fn func() bool, opts *WaitForOpts) {
 		}
 
 		if time.Since(start) > opts.Timeout {
-			t.Fatalf("Timeout occurred while waiting for %s\n", opts.FnName)
+			t.Fatalf("ERROR: Timeout occurred while waiting for %s\n", opts.FnName)
 		}
 		time.Sleep(opts.Interval)
 	}
@@ -81,7 +81,7 @@ func (o *OtgApi) LogPlot(name string) {
 
 	out, err := o.Plot().ToJson()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("ERROR:", err)
 	}
 	t.Logf("plot: %s\n", out)
 }

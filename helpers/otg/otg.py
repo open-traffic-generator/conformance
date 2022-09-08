@@ -25,7 +25,7 @@ class OtgApi(object):
         self.plot = plot.Plot()
 
     def timer(self, fn_name, since):
-        elapsed = (datetime.datetime.now() - since).microseconds / 1000
+        elapsed = (datetime.datetime.now() - since).microseconds
         self.plot.append_duration(plot.Duration(fn_name, elapsed, since))
         log.info("Elapsed duration %s: %d ms", fn_name, elapsed)
 
@@ -296,6 +296,14 @@ class CapturedPackets(object):
                     p.data,
                 )
             )
+
+    def has_field(self, name, sequence, start_offset, field):
+        try:
+            self.validate_field(name, sequence, start_offset, field)
+            return True
+        except Exception as e:
+            log.warning(e)
+            return False
 
 
 class CapturedPacket(object):

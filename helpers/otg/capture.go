@@ -53,8 +53,17 @@ func (c *CapturedPackets) CheckField(sequence int, startOffSet int, field []byte
 
 func (c *CapturedPackets) ValidateField(t *testing.T, name string, sequence int, startOffSet int, field []byte) {
 	if err := c.CheckField(sequence, startOffSet, field); err != nil {
-		t.Fatalf("%s: %v\n", name, err)
+		t.Fatalf("ERROR: %s: %v\n", name, err)
 	}
+}
+
+func (c *CapturedPackets) HasField(t *testing.T, name string, sequence int, startOffSet int, field []byte) bool {
+	if err := c.CheckField(sequence, startOffSet, field); err != nil {
+		t.Logf("WARNING: %s: %v\n", name, err)
+		return false
+	}
+
+	return true
 }
 
 func (o *OtgApi) GetCapture(portName string) *CapturedPackets {
@@ -74,18 +83,18 @@ func (o *OtgApi) GetCapture(portName string) *CapturedPackets {
 
 	f, err := os.CreateTemp(".", "pcap")
 	if err != nil {
-		t.Fatalf("Could not create temporary pcap file: %v\n", err)
+		t.Fatalf("ERROR: Could not create temporary pcap file: %v\n", err)
 	}
 	defer os.Remove(f.Name())
 
 	if _, err := f.Write(res); err != nil {
-		t.Fatalf("Could not write bytes to pcap file: %v\n", err)
+		t.Fatalf("ERROR: Could not write bytes to pcap file: %v\n", err)
 	}
 	f.Close()
 
 	r, err := gopcap.Open(f.Name())
 	if err != nil {
-		t.Fatalf("Could not open pcap file %s: %v\n", f.Name(), err)
+		t.Fatalf("ERROR: Could not open pcap file %s: %v\n", f.Name(), err)
 	}
 	defer r.Close()
 
@@ -98,7 +107,7 @@ func (o *OtgApi) GetCapture(portName string) *CapturedPackets {
 			if err == io.EOF {
 				break
 			}
-			t.Fatalf("Could not read next packet: %v\n", err)
+			t.Fatalf("ERROR: Could not read next packet: %v\n", err)
 		}
 		p := CapturedPacket{
 			Sequence:       i,
@@ -116,7 +125,7 @@ func (o *OtgApi) GetCapture(portName string) *CapturedPackets {
 func (o *OtgApi) MacAddrToBytes(mac string) []byte {
 	hw, err := net.ParseMAC(mac)
 	if err != nil {
-		o.Testing().Fatalf("Could not parse MacAddr %s: %v\n", mac, err)
+		o.Testing().Fatalf("ERROR: Could not parse MacAddr %s: %v\n", mac, err)
 	}
 
 	return hw
@@ -125,12 +134,12 @@ func (o *OtgApi) MacAddrToBytes(mac string) []byte {
 func (o *OtgApi) Ipv4AddrToBytes(ip string) []byte {
 	parsedIp := net.ParseIP(ip)
 	if parsedIp == nil {
-		o.Testing().Fatalf("Could not parse IPv4Addr %s\n", ip)
+		o.Testing().Fatalf("ERROR: Could not parse IPv4Addr %s\n", ip)
 	}
 
 	v4 := parsedIp.To4()
 	if v4 == nil {
-		o.Testing().Fatalf("Could not parse IPv4Addr %s\n", ip)
+		o.Testing().Fatalf("ERROR: Could not parse IPv4Addr %s\n", ip)
 	}
 
 	return v4
@@ -139,12 +148,12 @@ func (o *OtgApi) Ipv4AddrToBytes(ip string) []byte {
 func (o *OtgApi) Ipv6AddrToBytes(ip string) []byte {
 	parsedIp := net.ParseIP(ip)
 	if parsedIp == nil {
-		o.Testing().Fatalf("Could not parse IPv6Addr %s\n", ip)
+		o.Testing().Fatalf("ERROR: Could not parse IPv6Addr %s\n", ip)
 	}
 
 	v6 := parsedIp.To16()
 	if v6 == nil {
-		o.Testing().Fatalf("Could not parse IPv6Addr %s\n", ip)
+		o.Testing().Fatalf("ERROR: Could not parse IPv6Addr %s\n", ip)
 	}
 
 	return v6

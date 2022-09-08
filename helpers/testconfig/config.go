@@ -53,15 +53,15 @@ func NewTestConfig(t *testing.T) *TestConfig {
 
 	path, err := testConfigPath()
 	if err != nil {
-		t.Fatalf("Could not get test config path: %v\n", err)
+		t.Fatalf("ERROR: Could not get test config path: %v\n", err)
 	}
 
 	if err := tc.Load(t, path); err != nil {
-		t.Fatalf("Could not load test config: %v\n", err)
+		t.Fatalf("ERROR: Could not load test config: %v\n", err)
 	}
 
 	if err := tc.FromEnv(); err != nil {
-		t.Fatalf("Could not load test config from env: %v\n", err)
+		t.Fatalf("ERROR: Could not load test config from env: %v\n", err)
 	}
 
 	return &tc
