@@ -6,7 +6,6 @@ from helpers.otg import otg
 @pytest.mark.all
 @pytest.mark.feature
 @pytest.mark.b2b
-@pytest.mark.skip(reason="licensed test will fail")
 def test_ebgpv4_route_install():
     test_const = {
         "pktRate": 50,
