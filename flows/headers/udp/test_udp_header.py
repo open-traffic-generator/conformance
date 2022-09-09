@@ -97,6 +97,13 @@ def capture_ok(api, c, tc):
             ignored_count += 1
             continue
 
+        # packet size
+        if len(captured_packets.packets[i].data) != tc["pktSize"]:
+            raise Exception(
+                "Expected Packet Size %d != Actual Packet Size %d"
+                % (len(captured_packets.packets[i].data), tc["pktSize"])
+            )
+
         # ethernet header
         captured_packets.validate_field(
             "ethernet dst", i, 0, api.mac_addr_to_bytes(tc["rxMac"])

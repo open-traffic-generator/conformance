@@ -111,6 +111,10 @@ func udpHeaderIncrDecrPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[
 			ignoredCount += 1
 			continue
 		}
+		// packet size
+		if int32(len(cPackets.Packets[i].Data)) != tc["pktSize"].(int32) {
+			t.Fatalf("ERROR: Expected Packet Size %d != Actual Packet Size %d\n", int32(len(cPackets.Packets[i].Data)), tc["pktSize"].(int32))
+		}
 		// ethernet header
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet src", i, 6, api.MacAddrToBytes(tc["txMac"].(string)))
