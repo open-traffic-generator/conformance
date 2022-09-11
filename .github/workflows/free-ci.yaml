@@ -11,7 +11,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v2
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker-practice/actions-setup-docker@v1.0.11
       - name: Deploy back-to-back free distribution of ixia-c
         run: |
           ./do.sh topo new
