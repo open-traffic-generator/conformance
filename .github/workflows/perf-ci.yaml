@@ -34,7 +34,7 @@ jobs:
       - name: Run python tests
         run: |
           ./do.sh prepytest
-          OTG_ITERATIONS=10 ./do.sh pytest -m perf
+          OTG_ITERATIONS=2 ./do.sh pytest -m perf
       - name: Get container logs
         if: always()
         run: |
