@@ -1,6 +1,6 @@
 //go:build all || client || perf
 
-package perf
+package client
 
 import (
 	"fmt"

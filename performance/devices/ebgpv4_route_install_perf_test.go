@@ -1,6 +1,6 @@
 //go:build all || perf || b2b
 
-package bgp
+package device
 
 import (
 	"fmt"

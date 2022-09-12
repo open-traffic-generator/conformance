@@ -1,6 +1,6 @@
 //go:build all || perf || b2b || free_perf
 
-package perf
+package flows
 
 import (
 	"fmt"
