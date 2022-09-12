@@ -85,3 +85,26 @@ func (o *OtgApi) LogPlot(name string) {
 	}
 	t.Logf("plot: %s\n", out)
 }
+
+func (o *OtgApi) Layer1SpeedToMpbs(speed string) int {
+	switch gosnappi.Layer1SpeedEnum(speed) {
+	case gosnappi.Layer1Speed.SPEED_1_GBPS:
+		return 1000
+	case gosnappi.Layer1Speed.SPEED_10_GBPS:
+		return 10000
+	case gosnappi.Layer1Speed.SPEED_25_GBPS:
+		return 25000
+	case gosnappi.Layer1Speed.SPEED_40_GBPS:
+		return 40000
+	case gosnappi.Layer1Speed.SPEED_50_GBPS:
+		return 50000
+	case gosnappi.Layer1Speed.SPEED_100_GBPS:
+		return 100000
+	case gosnappi.Layer1Speed.SPEED_200_GBPS:
+		return 200000
+	case gosnappi.Layer1Speed.SPEED_400_GBPS:
+		return 400000
+	default:
+		return 0
+	}
+}
