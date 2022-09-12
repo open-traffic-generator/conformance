@@ -86,6 +86,7 @@ func udpHeaderIncrDecrPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[
 		return
 	}
 	ignoredCount := 0
+	reqPacketIdx := -1
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 	for i := 0; i < len(cPackets.Packets); i++ {
@@ -94,6 +95,7 @@ func udpHeaderIncrDecrPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[
 			ignoredCount += 1
 			continue
 		}
+		reqPacketIdx += 1
 		// packet size
 		if int32(len(cPackets.Packets[i].Data)) != tc["pktSize"].(int32) {
 			t.Fatalf("ERROR: Expected Packet Size %d != Actual Packet Size %d\n", int32(len(cPackets.Packets[i].Data)), tc["pktSize"].(int32))
@@ -108,8 +110,8 @@ func udpHeaderIncrDecrPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[
 		cPackets.ValidateField(t, "ipv4 src", i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv4 dst", i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// udp header
-		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(tc["txUdpPortStart"].(int32)+(int32(i)%tc["txUdpPortCount"].(int32))*tc["txUdpPortStep"].(int32)), 2))
-		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxUdpPortStart"].(int32)-(int32(i)%tc["rxUdpPortCount"].(int32))*tc["rxUdpPortStep"].(int32)), 2))
+		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(tc["txUdpPortStart"].(int32)+(int32(reqPacketIdx)%tc["txUdpPortCount"].(int32))*tc["txUdpPortStep"].(int32)), 2))
+		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxUdpPortStart"].(int32)-(int32(reqPacketIdx)%tc["rxUdpPortCount"].(int32))*tc["rxUdpPortStep"].(int32)), 2))
 		cPackets.ValidateField(t, "udp length", i, 38, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-20), 2))
 		expCount := int(tc["pktCount"].(int32))
 		actCount := len(cPackets.Packets) - ignoredCount

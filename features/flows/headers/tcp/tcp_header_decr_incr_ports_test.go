@@ -86,6 +86,7 @@ func tcpHeaderDecrIncrPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[
 		return
 	}
 	ignoredCount := 0
+	reqPacketIdx := -1
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 	for i := 0; i < len(cPackets.Packets); i++ {
@@ -94,6 +95,7 @@ func tcpHeaderDecrIncrPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[
 			ignoredCount += 1
 			continue
 		}
+		reqPacketIdx += 1
 		// packet size
 		if int32(len(cPackets.Packets[i].Data)) != tc["pktSize"].(int32) {
 			t.Fatalf("ERROR: Expected Packet Size %d != Actual Packet Size %d\n", int32(len(cPackets.Packets[i].Data)), tc["pktSize"].(int32))
@@ -108,8 +110,8 @@ func tcpHeaderDecrIncrPortsCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[
 		cPackets.ValidateField(t, "ipv4 src", i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv4 dst", i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// tcp header
-		cPackets.ValidateField(t, "tcp src", i, 34, api.Uint64ToBytes(uint64(tc["txTcpPortStart"].(int32)-(int32(i)%tc["txTcpPortCount"].(int32))*tc["txTcpPortStep"].(int32)), 2))
-		cPackets.ValidateField(t, "tcp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxTcpPortStart"].(int32)+(int32(i)%tc["rxTcpPortCount"].(int32))*tc["rxTcpPortStep"].(int32)), 2))
+		cPackets.ValidateField(t, "tcp src", i, 34, api.Uint64ToBytes(uint64(tc["txTcpPortStart"].(int32)-(int32(reqPacketIdx)%tc["txTcpPortCount"].(int32))*tc["txTcpPortStep"].(int32)), 2))
+		cPackets.ValidateField(t, "tcp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxTcpPortStart"].(int32)+(int32(reqPacketIdx)%tc["rxTcpPortCount"].(int32))*tc["rxTcpPortStep"].(int32)), 2))
 	}
 	expCount := int(tc["pktCount"].(int32))
 	actCount := len(cPackets.Packets) - ignoredCount

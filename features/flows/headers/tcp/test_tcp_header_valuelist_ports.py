@@ -72,6 +72,7 @@ def capture_ok(api, c, tc):
     if not api.test_config.otg_capture_check:
         return
     ignored_count = 0
+    reqPacketIdx = -1
     captured_packets = api.get_capture(c.ports[1].name)
     for i, p in enumerate(captured_packets.packets):
         # ignore unexpected packets based on ethernet src MAC
@@ -81,6 +82,7 @@ def capture_ok(api, c, tc):
             ignored_count += 1
             continue
 
+        reqPacketIdx += 1
         # packet size
         if len(captured_packets.packets[i].data) != tc["pktSize"]:
             raise Exception(
@@ -115,7 +117,8 @@ def capture_ok(api, c, tc):
             i,
             34,
             api.num_to_bytes(
-                tc["txTcpPortValueList"][i % len(tc["txTcpPortValueList"])], 2
+                tc["txTcpPortValueList"][reqPacketIdx % len(tc["txTcpPortValueList"])],
+                2,
             ),
         )
         captured_packets.validate_field(
@@ -123,7 +126,8 @@ def capture_ok(api, c, tc):
             i,
             36,
             api.num_to_bytes(
-                tc["rxTcpPortValueList"][i % len(tc["rxTcpPortValueList"])], 2
+                tc["rxTcpPortValueList"][reqPacketIdx % len(tc["rxTcpPortValueList"])],
+                2,
             ),
         )
     exp_count = tc["pktCount"]
