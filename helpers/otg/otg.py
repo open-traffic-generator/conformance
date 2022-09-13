@@ -264,6 +264,36 @@ class OtgApi(object):
         finally:
             self.timer("get_bgpv4_metrics", start)
 
+    def get_lag_metrics(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting lag metrics ...")
+            req = self.api.metrics_request()
+            req.lag.lag_names = []
+
+            metrics = self.api.get_metrics(req).lag_metrics
+
+            tb = table.Table(
+                "ISIS Metrics",
+                [
+                    "Name",
+                    "Oper Status",
+                ],
+            )
+
+            for m in metrics:
+                tb.append_row(
+                    [
+                        m.name,
+                        m.oper_status,
+                    ]
+                )
+
+            log.info(tb)
+            return metrics
+        finally:
+            self.timer("get_lag_metrics", start)
+
     def get_capture(self, port_name):
         if not self.test_config.otg_capture_check:
             log.info("Skipped get_capture")
