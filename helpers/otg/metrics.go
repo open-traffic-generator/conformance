@@ -127,36 +127,3 @@ func (o *OtgApi) GetIsIsMetrics() []gosnappi.IsisMetric {
 	t.Log(tb.String())
 	return res.IsisMetrics().Items()
 }
-
-func (o *OtgApi) GetLagMetrics() []gosnappi.LagMetric {
-	t := o.Testing()
-	api := o.Api()
-
-	t.Log("Getting lag metrics ...")
-	defer o.Timer(time.Now(), "GetLagMetrics")
-
-	mr := api.NewMetricsRequest()
-	mr.Lag()
-	res, err := api.GetMetrics(mr)
-	o.LogWrnErr(nil, err, true)
-
-	tb := table.NewTable(
-		"ISIS Metrics",
-		[]string{
-			"Name",
-			"Oper Status",
-		},
-		15,
-	)
-	for _, v := range res.LagMetrics().Items() {
-		if v != nil {
-			tb.AppendRow([]interface{}{
-				v.Name(),
-				v.OperStatus(),
-			})
-		}
-	}
-
-	t.Log(tb.String())
-	return res.LagMetrics().Items()
-}
