@@ -51,6 +51,20 @@ func (c *CapturedPackets) CheckField(sequence int, startOffSet int, field []byte
 	return nil
 }
 
+func (c *CapturedPackets) CheckSize(sequence int, size int) error {
+	if len(c.Packets[sequence].Data) != size {
+		return fmt.Errorf("expSize %d != actSize %d", size, len(c.Packets[sequence].Data))
+	}
+
+	return nil
+}
+
+func (c *CapturedPackets) ValidateSize(t *testing.T, sequence int, size int) {
+	if err := c.CheckSize(sequence, size); err != nil {
+		t.Fatalf("ERROR: %v\n", err)
+	}
+}
+
 func (c *CapturedPackets) ValidateField(t *testing.T, name string, sequence int, startOffSet int, field []byte) {
 	if err := c.CheckField(sequence, startOffSet, field); err != nil {
 		t.Fatalf("ERROR: %s: %v\n", name, err)
