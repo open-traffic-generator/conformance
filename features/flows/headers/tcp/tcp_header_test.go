@@ -21,16 +21,22 @@ func TestTcpHeader(t *testing.T) {
 		"txTcpPort": int32(5000),
 		"rxTcpPort": int32(6000),
 	}
+
 	api := otg.NewOtgApi(t)
 	c := tcpHeaderConfig(api, testConst)
+
 	api.SetConfig(c)
+
 	api.StartCapture()
 	api.StartTransmit()
+
 	api.WaitFor(
 		func() bool { return tcpHeaderMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
+
 	api.StopCapture()
+
 	tcpHeaderCaptureOk(api, c, testConst)
 }
 
@@ -38,16 +44,19 @@ func tcpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config
 	c := api.Api().NewConfig()
 	p1 := c.Ports().Add().SetName("p1").SetLocation(api.TestConfig().OtgPorts[0])
 	p2 := c.Ports().Add().SetName("p2").SetLocation(api.TestConfig().OtgPorts[1])
+
 	c.Layer1().Add().
 		SetName("ly").
 		SetPortNames([]string{p1.Name(), p2.Name()}).
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
+
 	if api.TestConfig().OtgCaptureCheck {
 		c.Captures().Add().
 			SetName("ca").
 			SetPortNames([]string{p1.Name(), p2.Name()}).
 			SetFormat(gosnappi.CaptureFormat.PCAP)
 	}
+
 	f1 := c.Flows().Add().SetName("f1")
 	f1.TxRx().Port().
 		SetTxName(p1.Name()).
@@ -56,12 +65,15 @@ func tcpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config
 	f1.Rate().SetPps(tc["pktRate"].(int64))
 	f1.Size().SetFixed(tc["pktSize"].(int32))
 	f1.Metrics().SetEnable(true)
+
 	eth := f1.Packet().Add().Ethernet()
 	eth.Src().SetValue(tc["txMac"].(string))
 	eth.Dst().SetValue(tc["rxMac"].(string))
+
 	ip := f1.Packet().Add().Ipv4()
 	ip.Src().SetValue(tc["txIp"].(string))
 	ip.Dst().SetValue(tc["rxIp"].(string))
+
 	tcp := f1.Packet().Add().Tcp()
 	tcp.SrcPort().SetValue(tc["txTcpPort"].(int32))
 	tcp.DstPort().SetValue(tc["rxTcpPort"].(int32))
@@ -72,6 +84,7 @@ func tcpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config
 func tcpHeaderMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
 	expCount := int64(tc["pktCount"].(int32))
+
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&
 		m.FramesRx() == expCount
@@ -84,6 +97,7 @@ func tcpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interf
 	ignoredCount := 0
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
+
 	for i := 0; i < len(cPackets.Packets); i++ {
 		// ignore unexpected packets based on ethernet src MAC
 		if !cPackets.HasField(t, "ethernet src", i, 6, api.MacAddrToBytes(tc["txMac"].(string))) {
@@ -91,9 +105,7 @@ func tcpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interf
 			continue
 		}
 		// packet size
-		if int32(len(cPackets.Packets[i].Data)) != tc["pktSize"].(int32) {
-			t.Fatalf("ERROR: Expected Packet Size %d != Actual Packet Size %d\n", int32(len(cPackets.Packets[i].Data)), tc["pktSize"].(int32))
-		}
+		cPackets.ValidateSize(t, i, int(tc["pktSize"].(int32)))
 		// ethernet header
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet src", i, 6, api.MacAddrToBytes(tc["txMac"].(string)))
@@ -107,6 +119,7 @@ func tcpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interf
 		cPackets.ValidateField(t, "tcp src", i, 34, api.Uint64ToBytes(uint64(tc["txTcpPort"].(int32)), 2))
 		cPackets.ValidateField(t, "tcp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxTcpPort"].(int32)), 2))
 	}
+
 	expCount := int(tc["pktCount"].(int32))
 	actCount := len(cPackets.Packets) - ignoredCount
 	if expCount != actCount {
