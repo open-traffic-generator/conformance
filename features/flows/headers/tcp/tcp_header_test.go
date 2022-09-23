@@ -77,6 +77,7 @@ func tcpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config
 	tcp := f1.Packet().Add().Tcp()
 	tcp.SrcPort().SetValue(tc["txTcpPort"].(int32))
 	tcp.DstPort().SetValue(tc["rxTcpPort"].(int32))
+
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
 }
@@ -108,7 +109,6 @@ func tcpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interf
 		cPackets.ValidateSize(t, i, int(tc["pktSize"].(int32)))
 		// ethernet header
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
-		cPackets.ValidateField(t, "ethernet src", i, 6, api.MacAddrToBytes(tc["txMac"].(string)))
 		cPackets.ValidateField(t, "ethernet type", i, 12, api.Uint64ToBytes(2048, 2))
 		// ipv4 header
 		cPackets.ValidateField(t, "ipv4 total length", i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4), 2))
