@@ -7,7 +7,7 @@ from helpers.otg import otg
 @pytest.mark.feature
 @pytest.mark.b2b
 @pytest.mark.free_feature
-def test_udp_header():
+def test_udp_header_port_incr_decr():
     test_const = {
         "pktRate": 50,
         "pktCount": 100,
@@ -16,12 +16,15 @@ def test_udp_header():
         "rxMac": "00:00:01:01:01:02",
         "txIp": "1.1.1.1",
         "rxIp": "1.1.1.2",
-        "txUdpPort": 5000,
-        "rxUdpPort": 6000,
+        "txUdpPortStart": 5000,
+        "txUdpPortStep": 2,
+        "txUdpPortCount": 10,
+        "rxUdpPortStart": 6000,
+        "rxUdpPortStep": 2,
+        "rxUdpPortCount": 10,
     }
-
     api = otg.OtgApi()
-    c = udp_header_config(api, test_const)
+    c = udp_header_port_incr_decr_config(api, test_const)
 
     api.set_config(c)
 
@@ -37,7 +40,7 @@ def test_udp_header():
     capture_ok(api, c, test_const)
 
 
-def udp_header_config(api, tc):
+def udp_header_port_incr_decr_config(api, tc):
     c = api.api.config()
     p1 = c.ports.add(name="p1", location=api.test_config.otg_ports[0])
     p2 = c.ports.add(name="p2", location=api.test_config.otg_ports[1])
@@ -65,8 +68,12 @@ def udp_header_config(api, tc):
     ip.src.value = tc["txIp"]
     ip.dst.value = tc["rxIp"]
 
-    udp.src_port.value = tc["txUdpPort"]
-    udp.dst_port.value = tc["rxUdpPort"]
+    udp.src_port.increment.start = tc["txUdpPortStart"]
+    udp.src_port.increment.step = tc["txUdpPortStep"]
+    udp.src_port.increment.count = tc["txUdpPortCount"]
+    udp.dst_port.decrement.start = tc["rxUdpPortStart"]
+    udp.dst_port.decrement.step = tc["rxUdpPortStep"]
+    udp.dst_port.decrement.count = tc["rxUdpPortCount"]
 
     log.info("Config:\n%s", c)
     return c
@@ -119,11 +126,24 @@ def capture_ok(api, c, tc):
             "ipv4 dst", i, 30, api.ipv4_addr_to_bytes(tc["rxIp"])
         )
         # udp header
+        j = i - ignored_count
         captured_packets.validate_field(
-            "udp src", i, 34, api.num_to_bytes(tc["txUdpPort"], 2)
+            "udp src",
+            i,
+            34,
+            api.num_to_bytes(
+                tc["txUdpPortStart"] + (j % tc["txUdpPortCount"]) * tc["txUdpPortStep"],
+                2,
+            ),
         )
         captured_packets.validate_field(
-            "udp dst", i, 36, api.num_to_bytes(tc["rxUdpPort"], 2)
+            "udp dst",
+            i,
+            36,
+            api.num_to_bytes(
+                tc["rxUdpPortStart"] - (j % tc["rxUdpPortCount"]) * tc["rxUdpPortStep"],
+                2,
+            ),
         )
         captured_packets.validate_field(
             "udp length", i, 38, api.num_to_bytes(tc["pktSize"] - 14 - 4 - 20, 2)

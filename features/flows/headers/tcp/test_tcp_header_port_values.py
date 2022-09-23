@@ -7,7 +7,7 @@ from helpers.otg import otg
 @pytest.mark.feature
 @pytest.mark.b2b
 @pytest.mark.free_feature
-def test_udp_header():
+def test_tcp_header_port_values():
     test_const = {
         "pktRate": 50,
         "pktCount": 100,
@@ -16,12 +16,11 @@ def test_udp_header():
         "rxMac": "00:00:01:01:01:02",
         "txIp": "1.1.1.1",
         "rxIp": "1.1.1.2",
-        "txUdpPort": 5000,
-        "rxUdpPort": 6000,
+        "txTcpPortValues": [5000, 5010, 5020, 5030],
+        "rxTcpPortValues": [6000, 6010, 6020, 6030],
     }
-
     api = otg.OtgApi()
-    c = udp_header_config(api, test_const)
+    c = tcp_header_port_values_config(api, test_const)
 
     api.set_config(c)
 
@@ -37,7 +36,7 @@ def test_udp_header():
     capture_ok(api, c, test_const)
 
 
-def udp_header_config(api, tc):
+def tcp_header_port_values_config(api, tc):
     c = api.api.config()
     p1 = c.ports.add(name="p1", location=api.test_config.otg_ports[0])
     p2 = c.ports.add(name="p2", location=api.test_config.otg_ports[1])
@@ -57,7 +56,7 @@ def udp_header_config(api, tc):
     f1.size.fixed = tc["pktSize"]
     f1.metrics.enable = True
 
-    eth, ip, udp = f1.packet.ethernet().ipv4().udp()
+    eth, ip, tcp = f1.packet.ethernet().ipv4().tcp()
 
     eth.src.value = tc["txMac"]
     eth.dst.value = tc["rxMac"]
@@ -65,8 +64,8 @@ def udp_header_config(api, tc):
     ip.src.value = tc["txIp"]
     ip.dst.value = tc["rxIp"]
 
-    udp.src_port.value = tc["txUdpPort"]
-    udp.dst_port.value = tc["rxUdpPort"]
+    tcp.src_port.values = tc["txTcpPortValues"]
+    tcp.dst_port.values = tc["rxTcpPortValues"]
 
     log.info("Config:\n%s", c)
     return c
@@ -111,22 +110,32 @@ def capture_ok(api, c, tc):
         captured_packets.validate_field(
             "ipv4 total length", i, 16, api.num_to_bytes(tc["pktSize"] - 14 - 4, 2)
         )
-        captured_packets.validate_field("ipv4 protocol", i, 23, api.num_to_bytes(17, 1))
+        captured_packets.validate_field("ipv4 protocol", i, 23, api.num_to_bytes(6, 1))
         captured_packets.validate_field(
             "ipv4 src", i, 26, api.ipv4_addr_to_bytes(tc["txIp"])
         )
         captured_packets.validate_field(
             "ipv4 dst", i, 30, api.ipv4_addr_to_bytes(tc["rxIp"])
         )
-        # udp header
+        # tcp header
+        j = i - ignored_count
         captured_packets.validate_field(
-            "udp src", i, 34, api.num_to_bytes(tc["txUdpPort"], 2)
+            "tcp src",
+            i,
+            34,
+            api.num_to_bytes(
+                tc["txTcpPortValues"][j % len(tc["txTcpPortValues"])],
+                2,
+            ),
         )
         captured_packets.validate_field(
-            "udp dst", i, 36, api.num_to_bytes(tc["rxUdpPort"], 2)
-        )
-        captured_packets.validate_field(
-            "udp length", i, 38, api.num_to_bytes(tc["pktSize"] - 14 - 4 - 20, 2)
+            "tcp dst",
+            i,
+            36,
+            api.num_to_bytes(
+                tc["rxTcpPortValues"][j % len(tc["rxTcpPortValues"])],
+                2,
+            ),
         )
 
     exp_count = tc["pktCount"]
