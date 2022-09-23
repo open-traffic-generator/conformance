@@ -36,6 +36,7 @@ func TestUdpHeaderPortValues(t *testing.T) {
 	)
 
 	api.StopCapture()
+
 	udpHeaderPortValuesCaptureOk(api, c, testConst)
 }
 
