@@ -7,7 +7,7 @@ from helpers.otg import otg
 @pytest.mark.feature
 @pytest.mark.b2b
 @pytest.mark.free_feature
-def test_tcp_header_valuelist_ports():
+def test_tcp_header_port_values():
     test_const = {
         "pktRate": 50,
         "pktCount": 100,
@@ -16,30 +16,38 @@ def test_tcp_header_valuelist_ports():
         "rxMac": "00:00:01:01:01:02",
         "txIp": "1.1.1.1",
         "rxIp": "1.1.1.2",
-        "txTcpPortValueList": [5000, 5010, 5020, 5030],
-        "rxTcpPortValueList": [6000, 6010, 6020, 6030],
+        "txTcpPortValues": [5000, 5010, 5020, 5030],
+        "rxTcpPortValues": [6000, 6010, 6020, 6030],
     }
     api = otg.OtgApi()
-    c = tcp_header_valuelist_ports_config(api, test_const)
+    c = tcp_header_port_values_config(api, test_const)
+
     api.set_config(c)
+
     api.start_capture()
     api.start_transmit()
+
     api.wait_for(
         fn=lambda: metrics_ok(api, test_const), fn_name="wait_for_flow_metrics"
     )
+
     api.stop_capture()
+
     capture_ok(api, c, test_const)
 
 
-def tcp_header_valuelist_ports_config(api, tc):
+def tcp_header_port_values_config(api, tc):
     c = api.api.config()
     p1 = c.ports.add(name="p1", location=api.test_config.otg_ports[0])
     p2 = c.ports.add(name="p2", location=api.test_config.otg_ports[1])
+
     ly = c.layer1.add(name="ly", port_names=[p1.name, p2.name])
     ly.speed = api.test_config.otg_speed
+
     if api.test_config.otg_capture_check:
         ca = c.captures.add(name="ca", port_names=[p1.name, p2.name])
         ca.format = ca.PCAP
+
     f1 = c.flows.add(name="f1")
     f1.tx_rx.port.tx_name = p1.name
     f1.tx_rx.port.rx_name = p2.name
@@ -47,13 +55,18 @@ def tcp_header_valuelist_ports_config(api, tc):
     f1.rate.pps = tc["pktRate"]
     f1.size.fixed = tc["pktSize"]
     f1.metrics.enable = True
+
     eth, ip, tcp = f1.packet.ethernet().ipv4().tcp()
+
     eth.src.value = tc["txMac"]
     eth.dst.value = tc["rxMac"]
+
     ip.src.value = tc["txIp"]
     ip.dst.value = tc["rxIp"]
-    tcp.src_port.values = tc["txTcpPortValueList"]
-    tcp.dst_port.values = tc["rxTcpPortValueList"]
+
+    tcp.src_port.values = tc["txTcpPortValues"]
+    tcp.dst_port.values = tc["rxTcpPortValues"]
+
     log.info("Config:\n%s", c)
     return c
 
@@ -71,9 +84,10 @@ def metrics_ok(api, tc):
 def capture_ok(api, c, tc):
     if not api.test_config.otg_capture_check:
         return
+
     ignored_count = 0
-    reqPacketIdx = -1
     captured_packets = api.get_capture(c.ports[1].name)
+
     for i, p in enumerate(captured_packets.packets):
         # ignore unexpected packets based on ethernet src MAC
         if not captured_packets.has_field(
@@ -82,16 +96,12 @@ def capture_ok(api, c, tc):
             ignored_count += 1
             continue
 
-        reqPacketIdx += 1
         # packet size
         captured_packets.validate_size(i, tc["pktSize"])
 
         # ethernet header
         captured_packets.validate_field(
             "ethernet dst", i, 0, api.mac_addr_to_bytes(tc["rxMac"])
-        )
-        captured_packets.validate_field(
-            "ethernet src", i, 6, api.mac_addr_to_bytes(tc["txMac"])
         )
         captured_packets.validate_field(
             "ethernet type", i, 12, api.num_to_bytes(2048, 2)
@@ -108,12 +118,13 @@ def capture_ok(api, c, tc):
             "ipv4 dst", i, 30, api.ipv4_addr_to_bytes(tc["rxIp"])
         )
         # tcp header
+        j = i - ignored_count
         captured_packets.validate_field(
             "tcp src",
             i,
             34,
             api.num_to_bytes(
-                tc["txTcpPortValueList"][reqPacketIdx % len(tc["txTcpPortValueList"])],
+                tc["txTcpPortValues"][j % len(tc["txTcpPortValues"])],
                 2,
             ),
         )
@@ -122,10 +133,11 @@ def capture_ok(api, c, tc):
             i,
             36,
             api.num_to_bytes(
-                tc["rxTcpPortValueList"][reqPacketIdx % len(tc["rxTcpPortValueList"])],
+                tc["rxTcpPortValues"][j % len(tc["rxTcpPortValues"])],
                 2,
             ),
         )
+
     exp_count = tc["pktCount"]
     act_count = len(captured_packets.packets) - ignored_count
     if exp_count != act_count:
