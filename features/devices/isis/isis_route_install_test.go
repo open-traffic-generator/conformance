@@ -3,7 +3,6 @@
 package isis
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -14,35 +13,38 @@ import (
 func TestIsIsRouteInstall(t *testing.T) {
 
 	testConst := map[string]interface{}{
-		"pktRate":      int64(50),
-		"pktCount":     int32(100),
-		"pktSize":      int32(128),
-		"txMac":        "00:00:01:01:01:01",
-		"txIp":         "1.1.1.1",
-		"txGateway":    "1.1.1.2",
-		"txPrefix":     int32(24),
-		"txIpv6":       "1100::1",
-		"txv6Gateway":  "1100::2",
-		"txv6Prefix":   int32(64),
-		"rxMac":        "00:00:01:01:01:02",
-		"rxIp":         "1.1.1.2",
-		"rxGateway":    "1.1.1.1",
-		"rxPrefix":     int32(24),
-		"rxIpv6":       "1100::2",
-		"rxv6Gateway":  "1100::1",
-		"rxv6Prefix":   int32(64),
-		"txRouteCount": int32(1),
-		"rxRouteCount": int32(1),
-		"txAdvRouteV4": "10.10.10.1",
-		"rxAdvRouteV4": "20.20.20.1",
-		"txAdvRouteV6": "::10:10:10:01",
-		"rxAdvRouteV6": "::20:20:20:01",
+		"pktRate":           int64(50),
+		"pktCount":          int32(100),
+		"pktSize":           int32(128),
+		"txMac":             "00:00:01:01:01:01",
+		"txIp":              "1.1.1.1",
+		"txGateway":         "1.1.1.2",
+		"txPrefix":          int32(24),
+		"txIpv6":            "1100::1",
+		"txv6Gateway":       "1100::2",
+		"txv6Prefix":        int32(64),
+		"txIsisSystemId":    "640000000001",
+		"txIsisAreaAddress": []string{"490001"},
+		"rxMac":             "00:00:01:01:01:02",
+		"rxIp":              "1.1.1.2",
+		"rxGateway":         "1.1.1.1",
+		"rxPrefix":          int32(24),
+		"rxIpv6":            "1100::2",
+		"rxv6Gateway":       "1100::1",
+		"rxv6Prefix":        int32(64),
+		"rxIsisSystemId":    "640000000001",
+		"rxIsisAreaAddress": []string{"490001"},
+		"txRouteCount":      int32(1),
+		"rxRouteCount":      int32(1),
+		"txAdvRouteV4":      "10.10.10.1",
+		"rxAdvRouteV4":      "20.20.20.1",
+		"txAdvRouteV6":      "::10:10:10:01",
+		"rxAdvRouteV6":      "::20:20:20:01",
 	}
 
 	api := otg.NewOtgApi(t)
 	c := isisRouteInstallConfig(api, testConst)
 
-	fmt.Println(c.ToJson())
 	api.SetConfig(c)
 
 	api.StartProtocols()
@@ -72,50 +74,50 @@ func isisRouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 		SetPortNames([]string{ptx.Name(), prx.Name()}).
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
 
-	tx := c.Devices().Add().SetName("tx")
-	rx := c.Devices().Add().SetName("rx")
+	dtx := c.Devices().Add().SetName("dtx")
+	drx := c.Devices().Add().SetName("drx")
 
 	// transmit
-	txEth := tx.Ethernets().
+	dtxEth := dtx.Ethernets().
 		Add().
-		SetName("txEth").
+		SetName("dtxEth").
 		SetPortName(ptx.Name()).
 		SetMac(tc["txMac"].(string)).
 		SetMtu(1500)
 
-	txEth.
+	dtxEth.
 		Ipv4Addresses().
 		Add().
-		SetName("txIp").
+		SetName("dtxIp").
 		SetAddress(tc["txIp"].(string)).
 		SetGateway(tc["txGateway"].(string)).
 		SetPrefix(tc["txPrefix"].(int32))
 
-	txEth.
+	dtxEth.
 		Ipv6Addresses().
 		Add().
-		SetName("txIpv6").
+		SetName("dtxIpv6").
 		SetAddress(tc["txIpv6"].(string)).
 		SetGateway(tc["txv6Gateway"].(string)).
 		SetPrefix(tc["txv6Prefix"].(int32))
 
-	txIsis := tx.Isis().
-		SetSystemId("640000000001").
-		SetName("tx_isis")
+	dtxIsis := dtx.Isis().
+		SetSystemId(tc["txIsisSystemId"].(string)).
+		SetName("dtxIsis")
 
-	txIsis.Basic().
+	dtxIsis.Basic().
 		SetIpv4TeRouterId(tc["txIp"].(string)).
-		SetHostname("ixia-c-port1")
+		SetHostname(dtxIsis.Name())
 
-	txIsis.Advanced().
-		SetAreaAddresses([]string{"490001"}).
+	dtxIsis.Advanced().
+		SetAreaAddresses(tc["txIsisAreaAddress"].([]string)).
 		SetLspRefreshRate(900).
 		SetEnableAttachedBit(false)
 
-	txIsis.Interfaces().
+	dtxIsis.Interfaces().
 		Add().
-		SetEthName(txEth.Name()).
-		SetName("tx_isis_int").
+		SetEthName(dtxEth.Name()).
+		SetName("dtxIsisInt").
 		SetNetworkType(gosnappi.IsisInterfaceNetworkType.POINT_TO_POINT).
 		SetLevelType(gosnappi.IsisInterfaceLevelType.LEVEL_1_2).
 		L2Settings().
@@ -123,67 +125,67 @@ func isisRouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 		SetHelloInterval(10).
 		SetPriority(0)
 
-	txIsisRrV4 := txIsis.
+	dtxIsisRrV4 := dtxIsis.
 		V4Routes().
-		Add().SetName("tx_isis_rr4").SetLinkMetric(10)
+		Add().SetName("dtxIsisRr4").SetLinkMetric(10)
 
-	txIsisRrV4.Addresses().Add().
+	dtxIsisRrV4.Addresses().Add().
 		SetAddress(tc["txAdvRouteV4"].(string)).
 		SetPrefix(32).
 		SetCount(tc["txRouteCount"].(int32)).
 		SetStep(1)
 
-	txIsisRrV6 := txIsis.
+	dtxIsisRrV6 := dtxIsis.
 		V6Routes().
-		Add().SetName("tx_isis_rr6").SetLinkMetric(10)
+		Add().SetName("dtxIsisRr6").SetLinkMetric(10)
 
-	txIsisRrV6.Addresses().Add().
+	dtxIsisRrV6.Addresses().Add().
 		SetAddress(tc["txAdvRouteV6"].(string)).
 		SetPrefix(32).
 		SetCount(tc["txRouteCount"].(int32)).
 		SetStep(1)
 
 	// recieve
-	rxEth := rx.Ethernets().
+	drxEth := drx.Ethernets().
 		Add().
-		SetName("rxEth").
+		SetName("drxEth").
 		SetPortName(prx.Name()).
 		SetMac(tc["rxMac"].(string)).
 		SetMtu(1500)
 
-	rxEth.
+	drxEth.
 		Ipv4Addresses().
 		Add().
-		SetName("rxIp").
+		SetName("drxIp").
 		SetAddress(tc["rxIp"].(string)).
 		SetGateway(tc["rxGateway"].(string)).
 		SetPrefix(tc["rxPrefix"].(int32))
 
-	rxEth.
+	drxEth.
 		Ipv6Addresses().
 		Add().
-		SetName("rxIpv6").
+		SetName("drxIpv6").
 		SetAddress(tc["rxIpv6"].(string)).
 		SetGateway(tc["rxv6Gateway"].(string)).
 		SetPrefix(tc["rxv6Prefix"].(int32))
 
-	rxIsis := rx.Isis().
-		SetSystemId("640000000001").
-		SetName("rx_isis")
+	drxIsis := drx.Isis().
+		SetSystemId(tc["rxIsisSystemId"].(string)).
+		SetName("drxIsis")
 
-	rxIsis.Basic().
+	drxIsis.Basic().
 		SetIpv4TeRouterId(tc["rxIp"].(string)).
-		SetHostname("ixia-c-port2")
+		SetHostname(drxIsis.Name())
 
-	rxIsis.Advanced().
-		SetAreaAddresses([]string{"490001"}).
+	drxIsis.Advanced().
+		SetAreaAddresses(tc["rxIsisAreaAddress"].([]string)).
 		SetLspRefreshRate(900).
 		SetEnableAttachedBit(false)
 
-	rxIsis.Interfaces().
+	drxIsis.Interfaces().
 		Add().
-		SetEthName(rxEth.Name()).
-		SetName("rx_isis_int").
+		SetEthName(drxEth.Name()).
+		SetName("drxIsisInt").
 		SetNetworkType(gosnappi.IsisInterfaceNetworkType.POINT_TO_POINT).
 		SetLevelType(gosnappi.IsisInterfaceLevelType.LEVEL_1_2).
 		L2Settings().
@@ -191,21 +193,21 @@ func isisRouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 		SetHelloInterval(10).
 		SetPriority(0)
 
-	rxIsisRrV4 := rxIsis.
+	drxIsisRrV4 := drxIsis.
 		V4Routes().
-		Add().SetName("rx_isis_rr4").SetLinkMetric(10)
+		Add().SetName("drxIsisRr4").SetLinkMetric(10)
 
-	rxIsisRrV4.Addresses().Add().
+	drxIsisRrV4.Addresses().Add().
 		SetAddress(tc["rxAdvRouteV4"].(string)).
 		SetPrefix(32).
 		SetCount(tc["rxRouteCount"].(int32)).
 		SetStep(1)
 
-	rxIsisRrV6 := rxIsis.
+	drxIsisRrV6 := drxIsis.
 		V6Routes().
-		Add().SetName("rx_isis_rr6").SetLinkMetric(10)
+		Add().SetName("drxIsisRr6").SetLinkMetric(10)
 
-	rxIsisRrV6.Addresses().Add().
+	drxIsisRrV6.Addresses().Add().
 		SetAddress(tc["rxAdvRouteV6"].(string)).
 		SetPrefix(32).
 		SetCount(tc["rxRouteCount"].(int32)).
@@ -222,11 +224,11 @@ func isisRouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 	ftxV4 := c.Flows().Items()[0]
 	ftxV4.SetName("ftxV4")
 	ftxV4.TxRx().Device().
-		SetTxNames([]string{txIsisRrV4.Name()}).
-		SetRxNames([]string{rxIsisRrV4.Name()})
+		SetTxNames([]string{dtxIsisRrV4.Name()}).
+		SetRxNames([]string{drxIsisRrV4.Name()})
 
 	ftxV4Eth := ftxV4.Packet().Add().Ethernet()
-	ftxV4Eth.Src().SetValue(txEth.Mac())
+	ftxV4Eth.Src().SetValue(dtxEth.Mac())
 
 	ftxV4Ip := ftxV4.Packet().Add().Ipv4()
 	ftxV4Ip.Src().SetValue(tc["txAdvRouteV4"].(string))
@@ -239,11 +241,11 @@ func isisRouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 	ftxV6 := c.Flows().Items()[1]
 	ftxV6.SetName("ftxV6")
 	ftxV6.TxRx().Device().
-		SetTxNames([]string{txIsisRrV6.Name()}).
-		SetRxNames([]string{rxIsisRrV6.Name()})
+		SetTxNames([]string{dtxIsisRrV6.Name()}).
+		SetRxNames([]string{drxIsisRrV6.Name()})
 
 	ftxV6Eth := ftxV6.Packet().Add().Ethernet()
-	ftxV6Eth.Src().SetValue(txEth.Mac())
+	ftxV6Eth.Src().SetValue(dtxEth.Mac())
 
 	ftxV6Ip := ftxV6.Packet().Add().Ipv6()
 	ftxV6Ip.Src().SetValue(tc["txAdvRouteV6"].(string))
@@ -256,11 +258,11 @@ func isisRouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 	frxV4 := c.Flows().Items()[2]
 	frxV4.SetName("frxV4")
 	frxV4.TxRx().Device().
-		SetTxNames([]string{rxIsisRrV4.Name()}).
-		SetRxNames([]string{txIsisRrV4.Name()})
+		SetTxNames([]string{drxIsisRrV4.Name()}).
+		SetRxNames([]string{dtxIsisRrV4.Name()})
 
 	frxV4Eth := frxV4.Packet().Add().Ethernet()
-	frxV4Eth.Src().SetValue(rxEth.Mac())
+	frxV4Eth.Src().SetValue(drxEth.Mac())
 
 	frxV4Ip := frxV4.Packet().Add().Ipv4()
 	frxV4Ip.Src().SetValue(tc["rxAdvRouteV4"].(string))
@@ -273,11 +275,11 @@ func isisRouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 	frxV6 := c.Flows().Items()[3]
 	frxV6.SetName("frxV6")
 	frxV6.TxRx().Device().
-		SetTxNames([]string{rxIsisRrV6.Name()}).
-		SetRxNames([]string{txIsisRrV6.Name()})
+		SetTxNames([]string{drxIsisRrV6.Name()}).
+		SetRxNames([]string{dtxIsisRrV6.Name()})
 
 	frxV6Eth := frxV6.Packet().Add().Ethernet()
-	frxV6Eth.Src().SetValue(rxEth.Mac())
+	frxV6Eth.Src().SetValue(drxEth.Mac())
 
 	frxV6Ip := frxV6.Packet().Add().Ipv6()
 	frxV6Ip.Src().SetValue(tc["rxAdvRouteV6"].(string))
@@ -292,6 +294,8 @@ func isisRouteInstallConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 }
 
 func isisRouteInstallMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+	// TODO:  L1/L2 database size check does not ensure that routes are correctly advertised.
+	// Hence, for that, one MUST rely on isis states (not supported as of now).
 	for _, m := range api.GetIsIsMetrics() {
 		if m.L1SessionsUp() != 1 || m.L2SessionsUp() != 1 ||
 			m.L1DatabaseSize() != 1 || m.L2DatabaseSize() != 1 {

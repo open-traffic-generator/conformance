@@ -110,7 +110,7 @@ func (o *OtgApi) GetIsIsMetrics() []gosnappi.IsisMetric {
 			"L1 Database Size",
 			"L2 Database Size",
 		},
-		15,
+		20,
 	)
 	for _, v := range res.IsisMetrics().Items() {
 		if v != nil {
