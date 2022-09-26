@@ -9,21 +9,21 @@ import (
 	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
-func TestUdpHeader(t *testing.T) {
+func TestUdpHeaderPortValues(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":   int64(50),
-		"pktCount":  int32(100),
-		"pktSize":   int32(128),
-		"txMac":     "00:00:01:01:01:01",
-		"rxMac":     "00:00:01:01:01:02",
-		"txIp":      "1.1.1.1",
-		"rxIp":      "1.1.1.2",
-		"txUdpPort": int32(5000),
-		"rxUdpPort": int32(6000),
+		"pktRate":         int64(50),
+		"pktCount":        int32(100),
+		"pktSize":         int32(128),
+		"txMac":           "00:00:01:01:01:01",
+		"rxMac":           "00:00:01:01:01:02",
+		"txIp":            "1.1.1.1",
+		"rxIp":            "1.1.1.2",
+		"txUdpPortValues": []int32{5000, 5010, 5020, 5030},
+		"rxUdpPortValues": []int32{6000, 6010, 6020, 6030},
 	}
 
 	api := otg.NewOtgApi(t)
-	c := udpHeaderConfig(api, testConst)
+	c := udpHeaderPortValuesConfig(api, testConst)
 
 	api.SetConfig(c)
 
@@ -31,16 +31,16 @@ func TestUdpHeader(t *testing.T) {
 	api.StartTransmit()
 
 	api.WaitFor(
-		func() bool { return udpHeaderMetricsOk(api, testConst) },
+		func() bool { return udpHeaderPortValuesMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
 
 	api.StopCapture()
 
-	udpHeaderCaptureOk(api, c, testConst)
+	udpHeaderPortValuesCaptureOk(api, c, testConst)
 }
 
-func udpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func udpHeaderPortValuesConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 	p1 := c.Ports().Add().SetName("p1").SetLocation(api.TestConfig().OtgPorts[0])
 	p2 := c.Ports().Add().SetName("p2").SetLocation(api.TestConfig().OtgPorts[1])
@@ -75,14 +75,14 @@ func udpHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config
 	ip.Dst().SetValue(tc["rxIp"].(string))
 
 	udp := f1.Packet().Add().Udp()
-	udp.SrcPort().SetValue(tc["txUdpPort"].(int32))
-	udp.DstPort().SetValue(tc["rxUdpPort"].(int32))
+	udp.SrcPort().SetValues(tc["txUdpPortValues"].([]int32))
+	udp.DstPort().SetValues(tc["rxUdpPortValues"].([]int32))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
 }
 
-func udpHeaderMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func udpHeaderPortValuesMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
 	expCount := int64(tc["pktCount"].(int32))
 
@@ -91,11 +91,13 @@ func udpHeaderMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 		m.FramesRx() == expCount
 }
 
-func udpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interface{}) {
+func udpHeaderPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interface{}) {
 	if !api.TestConfig().OtgCaptureCheck {
 		return
 	}
 	ignoredCount := 0
+	txUdpPortValues := tc["txUdpPortValues"].([]int32)
+	rxUdpPortValues := tc["rxUdpPortValues"].([]int32)
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 
@@ -116,8 +118,9 @@ func udpHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interf
 		cPackets.ValidateField(t, "ipv4 src", i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv4 dst", i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// udp header
-		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(tc["txUdpPort"].(int32)), 2))
-		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxUdpPort"].(int32)), 2))
+		j := i - ignoredCount
+		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(txUdpPortValues[j%len(txUdpPortValues)]), 2))
+		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(rxUdpPortValues[j%len(rxUdpPortValues)]), 2))
 		cPackets.ValidateField(t, "udp length", i, 38, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-20), 2))
 	}
 

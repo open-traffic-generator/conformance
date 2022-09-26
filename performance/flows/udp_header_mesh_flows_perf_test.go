@@ -43,7 +43,7 @@ func TestUdpHeaderMeshFlowsPerf(t *testing.T) {
 			api.StartTransmit()
 
 			api.WaitFor(
-				func() bool { return udpHeaderPerfMetricsOk(api) },
+				func() bool { return udpHeaderPerfMetricsOk(api, testConst) },
 				&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 			)
 
@@ -124,11 +124,12 @@ func udpHeaderMeshFlowsPerfConfig(api *otg.OtgApi, tc map[string]interface{}) go
 	return c
 }
 
-func udpHeaderPerfMetricsOk(api *otg.OtgApi) bool {
+func udpHeaderPerfMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+	pktCount := int64(tc["pktCount"].(int32))
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||
-			m.FramesTx() != 10 ||
-			m.FramesRx() != 10 {
+			m.FramesTx() != pktCount ||
+			m.FramesRx() != pktCount {
 			return false
 		}
 	}

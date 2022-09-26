@@ -367,6 +367,12 @@ class CapturedPackets(object):
                 )
             )
 
+    def validate_size(self, sequence, size):
+        if len(self.packets[sequence].data) != size:
+            raise Exception(
+                "exp_size %d != act_size %d" % (size, len(self.packets[sequence].data))
+            )
+
     def has_field(self, name, sequence, start_offset, field):
         try:
             self.validate_field(name, sequence, start_offset, field)
