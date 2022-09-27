@@ -5,6 +5,8 @@
 VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
+VETH_B="veth-b"
+VETH_Y="veth-y"
 
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
@@ -123,11 +125,15 @@ gen_config_b2b_lic() {
     OTG_HOST=$(container_ip ixia-c-controller)
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
+    OTG_PORTB=$(container_ip ixia-c-traffic-engine-${VETH_B})
+    OTG_PORTY=$(container_ip ixia-c-traffic-engine-${VETH_Y})
 
     yml="otg_host: https://${OTG_HOST}
         otg_ports:
-          - ${OTG_PORTA}:5555+${OTG_PORTA}:50071
-          - ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
+          - ${OTG_PORTA}:5555;1+${OTG_PORTA}:50071
+          - ${OTG_PORTZ}:5555;1+${OTG_PORTZ}:50071
+          - ${OTG_PORTA}:5555;2+${OTG_PORTA}:50071
+          - ${OTG_PORTZ}:5555;2+${OTG_PORTZ}:50071
         otg_speed: speed_1_gbps
         otg_capture_check: true
         otg_iterations: 100
@@ -187,7 +193,7 @@ create_ixia_c_b2b_licensed() {
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
-        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_A}"     \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_A},${VETH_B}"     \
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
         -e WAIT_FOR_IFACE="Yes"                             \
@@ -195,12 +201,12 @@ create_ixia_c_b2b_licensed() {
     && docker run --privileged -d                           \
         --net=container:ixia-c-traffic-engine-${VETH_A}     \
         --name=ixia-c-protocol-engine-${VETH_A}             \
-        -e INTF_LIST="${VETH_A}"                            \
+        -e INTF_LIST="${VETH_A},${VETH_B}"                            \
         $(ixia_c_protocol_engine_img)                       \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_Z}              \
         -e OPT_LISTEN_PORT="5555"                           \
-        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_Z}"     \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_Z},${VETH_Y}"     \
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
         -e WAIT_FOR_IFACE="Yes"                             \
@@ -208,12 +214,15 @@ create_ixia_c_b2b_licensed() {
     && docker run --privileged -d                           \
         --net=container:ixia-c-traffic-engine-${VETH_Z}     \
         --name=ixia-c-protocol-engine-${VETH_Z}             \
-        -e INTF_LIST="${VETH_Z}"                            \
+        -e INTF_LIST="${VETH_Z},${VETH_Y}"                            \
         $(ixia_c_protocol_engine_img)                       \
     && docker ps -a                                         \
     && create_veth_pair ${VETH_A} ${VETH_Z}                 \
+    && create_veth_pair ${VETH_B} ${VETH_Y}                 \
     && push_ifc_to_container ${VETH_A} ixia-c-traffic-engine-${VETH_A}  \
-    && push_ifc_to_container ${VETH_Z} ixia-c-traffic-engine-${VETH_Z}  \
+    && push_ifc_to_container ${VETH_Z} ixia-c-traffic-engine-${VETH_Z}  \                \
+    && push_ifc_to_container ${VETH_B} ixia-c-traffic-engine-${VETH_A}  \
+    && push_ifc_to_container ${VETH_Y} ixia-c-traffic-engine-${VETH_Z}  \
     && gen_config_b2b_lic                                   \
     && docker ps -a \
     && echo "Successfully deployed !"
