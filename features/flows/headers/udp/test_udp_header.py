@@ -6,7 +6,7 @@ from helpers.otg import otg
 @pytest.mark.all
 @pytest.mark.feature
 @pytest.mark.b2b
-@pytest.mark.free_feature
+@pytest.mark.dp_feature
 def test_udp_header():
     test_const = {
         "pktRate": 50,

@@ -78,12 +78,18 @@ ixia_c_protocol_engine_img() {
 }
 
 ixia_c_controller_img() {
-    if [ "$1" = "lic" ]
-    then
-        ixia_c_img controller-licensed
-    else
-        ixia_c_img controller-free
-    fi
+    case $1 in
+        dp  )
+            ixia_c_img controller-dp
+        ;;
+        cpdp)
+            ixia_c_img controller-cpdp
+        ;;
+        *   )
+            echo "unsupported image type: ${1}"
+            exit 1
+        ;;
+    esac
 }
 
 login_ghcr() {
@@ -106,7 +112,7 @@ logout_ghcr() {
     docker logout ghcr.io
 }
 
-gen_config_b2b_free() {
+gen_config_b2b_dp() {
     yml="otg_host: https://localhost
         otg_ports:
           - localhost:5555
@@ -119,12 +125,11 @@ gen_config_b2b_free() {
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 }
 
-gen_config_b2b_lic() {
-    OTG_HOST=$(container_ip ixia-c-controller)
+gen_config_b2b_cpdp() {
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
 
-    yml="otg_host: https://${OTG_HOST}
+    yml="otg_host: https://localhost
         otg_ports:
           - ${OTG_PORTA}:5555+${OTG_PORTA}:50071
           - ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
@@ -136,12 +141,12 @@ gen_config_b2b_lic() {
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 }
 
-create_ixia_c_b2b_free() {
-    echo "Setting up back-to-back with free distribution of ixia-c ..."
+create_ixia_c_b2b_dp() {
+    echo "Setting up back-to-back with DP distribution of ixia-c ..."
     create_veth_pair ${VETH_A} ${VETH_Z}                    \
     && docker run --net=host  -d                            \
         --name=ixia-c-controller                            \
-        $(ixia_c_controller_img)                            \
+        $(ixia_c_controller_img dp)                            \
         --accept-eula                                       \
         --debug                                             \
         --disable-app-usage-reporter                        \
@@ -160,12 +165,12 @@ create_ixia_c_b2b_free() {
         -e OPT_NO_PINNING="Yes"                             \
         $(ixia_c_traffic_engine_img)                        \
     && docker ps -a                                         \
-    && gen_config_b2b_free                                  \
+    && gen_config_b2b_dp                                    \
     && echo "Successfully deployed !"
 }
 
-rm_ixia_c_b2b_free() {
-    echo "Tearing down back-to-back with free distribution of ixia-c ..."
+rm_ixia_c_b2b_dp() {
+    echo "Tearing down back-to-back with DP distribution of ixia-c ..."
     docker stop ixia-c-controller && docker rm ixia-c-controller
     docker stop ixia-c-traffic-engine-${VETH_A}
     docker rm ixia-c-traffic-engine-${VETH_A}
@@ -175,14 +180,14 @@ rm_ixia_c_b2b_free() {
     rm_veth_pair ${VETH_A} ${VETH_Z}
 }
 
-create_ixia_c_b2b_licensed() {
-    echo "Setting up back-to-back with licensed distribution of ixia-c ..."
+create_ixia_c_b2b_cpdp() {
+    echo "Setting up back-to-back with CP/DP distribution of ixia-c ..."
     login_ghcr                                              \
     && docker run -d                                        \
         --name=ixia-c-controller                            \
         --publish 0.0.0.0:443:443                           \
         --publish 0.0.0.0:40051:40051                       \
-        $(ixia_c_controller_img lic)                        \
+        $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
         --debug                                             \
         --disable-app-usage-reporter                        \
@@ -216,13 +221,13 @@ create_ixia_c_b2b_licensed() {
     && create_veth_pair ${VETH_A} ${VETH_Z}                 \
     && push_ifc_to_container ${VETH_A} ixia-c-traffic-engine-${VETH_A}  \
     && push_ifc_to_container ${VETH_Z} ixia-c-traffic-engine-${VETH_Z}  \
-    && gen_config_b2b_lic                                   \
+    && gen_config_b2b_cpdp                                  \
     && docker ps -a \
     && echo "Successfully deployed !"
 }
 
-rm_ixia_c_b2b_licensed() {
-    echo "Tearing down back-to-back with licensed distribution of ixia-c ..."
+rm_ixia_c_b2b_cpdp() {
+    echo "Tearing down back-to-back with CP/DP distribution of ixia-c ..."
     docker stop ixia-c-controller && docker rm ixia-c-controller
 
     docker stop ixia-c-traffic-engine-${VETH_A}
@@ -241,20 +246,32 @@ rm_ixia_c_b2b_licensed() {
 topo() {
     case $1 in
         new )
-            if [ "${2}" = "lic" ]
-            then
-                create_ixia_c_b2b_licensed
-            else
-                create_ixia_c_b2b_free
-            fi
+            case $2 in
+                dp  )
+                    create_ixia_c_b2b_dp
+                ;;
+                cpdp)
+                    create_ixia_c_b2b_cpdp
+                ;;
+                *   )
+                    echo "unsupported topo type: ${2}"
+                    exit 1
+                ;;
+            esac
         ;;
         rm  )
-            if [ "${2}" = "lic" ]
-            then
-                rm_ixia_c_b2b_licensed
-            else
-                rm_ixia_c_b2b_free
-            fi
+            case $2 in
+                dp  )
+                    rm_ixia_c_b2b_dp
+                ;;
+                cpdp)
+                    rm_ixia_c_b2b_cpdp
+                ;;
+                *   )
+                    echo "unsupported topo type: ${2}"
+                    exit 1
+                ;;
+            esac
         ;;
         logs    )
             mkdir -p logs/ixia-c-controller
@@ -263,7 +280,7 @@ topo() {
             mkdir -p logs/ixia-c-traffic-engine-${VETH_Z}
             docker cp ixia-c-traffic-engine-${VETH_A}:/var/log/usstream/ logs/ixia-c-traffic-engine-${VETH_A}
             docker cp ixia-c-traffic-engine-${VETH_Z}:/var/log/usstream/ logs/ixia-c-traffic-engine-${VETH_Z}
-            if [ "${2}" = "lic" ]
+            if [ "${2}" = "cpdp" ]
             then
                 mkdir -p logs/ixia-c-protocol-engine-${VETH_A}
                 mkdir -p logs/ixia-c-protocol-engine-${VETH_Z}

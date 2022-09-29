@@ -12,9 +12,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Setup docker
         uses: docker-practice/actions-setup-docker@master
-      - name: Deploy back-to-back licensed distribution of ixia-c
+      - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new lic
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -38,7 +38,7 @@ jobs:
       - name: Get container logs
         if: always()
         run: |
-          ./do.sh topo logs lic
+          ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v2
@@ -46,6 +46,6 @@ jobs:
           name: generated-artifacts
           path: |
             logs
-      - name: Teardown back-to-back licensed distribution of ixia-c
+      - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm lic
+          ./do.sh topo rm cpdp
