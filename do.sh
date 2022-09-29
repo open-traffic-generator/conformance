@@ -180,6 +180,8 @@ create_ixia_c_b2b_licensed() {
     login_ghcr                                              \
     && docker run -d                                        \
         --name=ixia-c-controller                            \
+        --publish 0.0.0.0:443:443                           \
+        --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img lic)                        \
         --accept-eula                                       \
         --debug                                             \
