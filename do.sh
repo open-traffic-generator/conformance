@@ -112,41 +112,73 @@ logout_ghcr() {
     docker logout ghcr.io
 }
 
-gen_config_b2b_dp() {
-    yml="otg_host: https://localhost
-        otg_ports:
-          - localhost:5555
-          - localhost:5556
-        otg_speed: speed_1_gbps
-        otg_capture_check: true
-        otg_iterations: 100
-        otg_grpc_transport: false
+gen_controller_config_b2b_dp() {
+    configdir=/home/keysight/ixia-c/controller/config
+    yml="location_map:
+          - location: ${VETH_A}
+            endpoint: localhost:5555
+          - location: ${VETH_Z}
+            endpoint: localhost:5556
         "
-    echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+    echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
+    && docker exec ixia-c-controller mkdir -p ${configdir} \
+    && docker cp ./config.yaml ixia-c-controller:${configdir}/ \
+    && rm -rf ./config.yaml
 }
 
-gen_config_b2b_cpdp() {
+gen_controller_config_b2b_cpdp() {
+    configdir=/home/keysight/ixia-c/controller/config
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
 
+    yml="location_map:
+          - location: ${VETH_A}
+            endpoint: ${OTG_PORTA}:5555+${OTG_PORTA}:50071
+          - location: ${VETH_Z}
+            endpoint: ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
+    && docker exec ixia-c-controller mkdir -p ${configdir} \
+    && docker cp ./config.yaml ixia-c-controller:${configdir}/ \
+    && rm -rf ./config.yaml
+}
+
+gen_config_common() {
     yml="otg_host: https://localhost
-        otg_ports:
-          - ${OTG_PORTA}:5555+${OTG_PORTA}:50071
-          - ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
         otg_speed: speed_1_gbps
         otg_capture_check: true
         otg_iterations: 100
         otg_grpc_transport: false
         "
+    echo -n "$yml" | sed "s/^        //g" | tee -a ./test-config.yaml > /dev/null
+}
+
+gen_config_b2b_dp() {
+    yml="otg_ports:
+          - ${VETH_A}
+          - ${VETH_Z}
+        "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+
+    gen_config_common
+}
+
+gen_config_b2b_cpdp() {
+    yml="otg_ports:
+          - ${VETH_A}
+          - ${VETH_Z}
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+
+    gen_config_common
 }
 
 create_ixia_c_b2b_dp() {
-    echo "Setting up back-to-back with DP distribution of ixia-c ..."
+    echo "Setting up back-to-back with DP-only distribution of ixia-c ..."
     create_veth_pair ${VETH_A} ${VETH_Z}                    \
     && docker run --net=host  -d                            \
         --name=ixia-c-controller                            \
-        $(ixia_c_controller_img dp)                            \
+        $(ixia_c_controller_img dp)                         \
         --accept-eula                                       \
         --debug                                             \
         --disable-app-usage-reporter                        \
@@ -165,12 +197,13 @@ create_ixia_c_b2b_dp() {
         -e OPT_NO_PINNING="Yes"                             \
         $(ixia_c_traffic_engine_img)                        \
     && docker ps -a                                         \
+    && gen_controller_config_b2b_dp                         \
     && gen_config_b2b_dp                                    \
     && echo "Successfully deployed !"
 }
 
 rm_ixia_c_b2b_dp() {
-    echo "Tearing down back-to-back with DP distribution of ixia-c ..."
+    echo "Tearing down back-to-back with DP-only distribution of ixia-c ..."
     docker stop ixia-c-controller && docker rm ixia-c-controller
     docker stop ixia-c-traffic-engine-${VETH_A}
     docker rm ixia-c-traffic-engine-${VETH_A}
@@ -221,6 +254,7 @@ create_ixia_c_b2b_cpdp() {
     && create_veth_pair ${VETH_A} ${VETH_Z}                 \
     && push_ifc_to_container ${VETH_A} ixia-c-traffic-engine-${VETH_A}  \
     && push_ifc_to_container ${VETH_Z} ixia-c-traffic-engine-${VETH_Z}  \
+    && gen_controller_config_b2b_cpdp                       \
     && gen_config_b2b_cpdp                                  \
     && docker ps -a \
     && echo "Successfully deployed !"
