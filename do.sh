@@ -5,6 +5,11 @@
 VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
+# additional member ports for LAG
+VETH_B="veth-b"
+VETH_C="veth-c"
+VETH_X="veth-x"
+VETH_Y="veth-y"
 
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
@@ -143,6 +148,31 @@ gen_controller_config_b2b_cpdp() {
     && rm -rf ./config.yaml
 }
 
+gen_controller_config_b2b_lag() {
+    configdir=/home/keysight/ixia-c/controller/config
+    OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
+    OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
+
+    yml="location_map:
+          - location: ${VETH_A}
+            endpoint: ${OTG_PORTA}:5555;1+${OTG_PORTA}:50071
+          - location: ${VETH_B}
+            endpoint: ${OTG_PORTA}:5555;2+${OTG_PORTA}:50071
+          - location: ${VETH_C}
+            endpoint: ${OTG_PORTA}:5555;3+${OTG_PORTA}:50071
+          - location: ${VETH_Z}
+            endpoint: ${OTG_PORTZ}:5555;1+${OTG_PORTZ}:50071
+          - location: ${VETH_Y}
+            endpoint: ${OTG_PORTZ}:5555;2+${OTG_PORTZ}:50071
+          - location: ${VETH_X}
+            endpoint: ${OTG_PORTZ}:5555;3+${OTG_PORTZ}:50071
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
+    && docker exec ixia-c-controller mkdir -p ${configdir} \
+    && docker cp ./config.yaml ixia-c-controller:${configdir}/ \
+    && rm -rf ./config.yaml
+}
+
 gen_config_common() {
     yml="otg_host: https://localhost
         otg_speed: speed_1_gbps
@@ -167,6 +197,20 @@ gen_config_b2b_cpdp() {
     yml="otg_ports:
           - ${VETH_A}
           - ${VETH_Z}
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+
+    gen_config_common
+}
+
+gen_config_b2b_lag() {
+    yml="otg_ports:
+          - ${VETH_A}
+          - ${VETH_B}
+          - ${VETH_C}
+          - ${VETH_Z}
+          - ${VETH_Y}
+          - ${VETH_X}
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
@@ -277,6 +321,61 @@ rm_ixia_c_b2b_cpdp() {
     docker ps -a
 }
 
+create_ixia_c_b2b_lag() {
+    echo "Setting up back-to-back LAG with CP/DP distribution of ixia-c ..."
+    login_ghcr                                              \
+    && docker run -d                                        \
+        --name=ixia-c-controller                            \
+        --publish 0.0.0.0:443:443                           \
+        --publish 0.0.0.0:40051:40051                       \
+        $(ixia_c_controller_img cpdp)                       \
+        --accept-eula                                       \
+        --debug                                             \
+        --disable-app-usage-reporter                        \
+    && docker run --privileged -d                           \
+        --name=ixia-c-traffic-engine-${VETH_A}              \
+        -e OPT_LISTEN_PORT="5555"                           \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_A} virtual@af_packet,${VETH_B} virtual@af_packet,${VETH_C}"     \
+        -e OPT_NO_HUGEPAGES="Yes"                           \
+        -e OPT_NO_PINNING="Yes"                             \
+        -e WAIT_FOR_IFACE="Yes"                             \
+        -e OPT_MEMORY="1024"                                \
+        $(ixia_c_traffic_engine_img)                        \
+    && docker run --privileged -d                           \
+        --net=container:ixia-c-traffic-engine-${VETH_A}     \
+        --name=ixia-c-protocol-engine-${VETH_A}             \
+        -e INTF_LIST="${VETH_A},${VETH_B},${VETH_C}"        \
+        $(ixia_c_protocol_engine_img)                       \
+    && docker run --privileged -d                           \
+        --name=ixia-c-traffic-engine-${VETH_Z}              \
+        -e OPT_LISTEN_PORT="5555"                           \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_Z} virtual@af_packet,${VETH_Y} virtual@af_packet,${VETH_X}"     \
+        -e OPT_NO_HUGEPAGES="Yes"                           \
+        -e OPT_NO_PINNING="Yes"                             \
+        -e WAIT_FOR_IFACE="Yes"                             \
+        -e OPT_MEMORY="1024"                                \
+        $(ixia_c_traffic_engine_img)                        \
+    && docker run --privileged -d                           \
+        --net=container:ixia-c-traffic-engine-${VETH_Z}     \
+        --name=ixia-c-protocol-engine-${VETH_Z}             \
+        -e INTF_LIST="${VETH_Z},${VETH_Y},${VETH_X}"        \
+        $(ixia_c_protocol_engine_img)                       \
+    && docker ps -a                                         \
+    && create_veth_pair ${VETH_A} ${VETH_Z}                 \
+    && create_veth_pair ${VETH_B} ${VETH_Y}                 \
+    && create_veth_pair ${VETH_C} ${VETH_X}                 \
+    && push_ifc_to_container ${VETH_A} ixia-c-traffic-engine-${VETH_A}  \
+    && push_ifc_to_container ${VETH_Z} ixia-c-traffic-engine-${VETH_Z}  \
+    && push_ifc_to_container ${VETH_B} ixia-c-traffic-engine-${VETH_A}  \
+    && push_ifc_to_container ${VETH_Y} ixia-c-traffic-engine-${VETH_Z}  \
+    && push_ifc_to_container ${VETH_C} ixia-c-traffic-engine-${VETH_A}  \
+    && push_ifc_to_container ${VETH_X} ixia-c-traffic-engine-${VETH_Z}  \
+    && gen_controller_config_b2b_lag                        \
+    && gen_config_b2b_lag                                   \
+    && docker ps -a \
+    && echo "Successfully deployed !"
+}
+
 topo() {
     case $1 in
         new )
@@ -286,6 +385,9 @@ topo() {
                 ;;
                 cpdp)
                     create_ixia_c_b2b_cpdp
+                ;;
+                lag )
+                    create_ixia_c_b2b_lag
                 ;;
                 *   )
                     echo "unsupported topo type: ${2}"
@@ -301,6 +403,9 @@ topo() {
                 cpdp)
                     rm_ixia_c_b2b_cpdp
                 ;;
+                lag )
+                    rm_ixia_c_b2b_cpdp
+                ;;
                 *   )
                     echo "unsupported topo type: ${2}"
                     exit 1
@@ -310,6 +415,7 @@ topo() {
         logs    )
             mkdir -p logs/ixia-c-controller
             docker cp ixia-c-controller:/home/keysight/ixia-c/controller/logs/ logs/ixia-c-controller
+            docker cp ixia-c-controller:/home/keysight/ixia-c/controller/config/config.yaml logs/ixia-c-controller
             mkdir -p logs/ixia-c-traffic-engine-${VETH_A}
             mkdir -p logs/ixia-c-traffic-engine-${VETH_Z}
             docker cp ixia-c-traffic-engine-${VETH_A}:/var/log/usstream/ logs/ixia-c-traffic-engine-${VETH_A}
