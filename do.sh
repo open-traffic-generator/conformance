@@ -119,6 +119,10 @@ logout_ghcr() {
 
 gen_controller_config_b2b_dp() {
     configdir=/home/keysight/ixia-c/controller/config
+
+    wait_for_sock localhost 5555
+    wait_for_sock localhost 5556
+
     yml="location_map:
           - location: ${VETH_A}
             endpoint: localhost:5555
@@ -136,6 +140,11 @@ gen_controller_config_b2b_cpdp() {
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
 
+    wait_for_sock ${OTG_PORTA} 5555
+    wait_for_sock ${OTG_PORTA} 50071
+    wait_for_sock ${OTG_PORTZ} 5555
+    wait_for_sock ${OTG_PORTZ} 50071
+
     yml="location_map:
           - location: ${VETH_A}
             endpoint: ${OTG_PORTA}:5555+${OTG_PORTA}:50071
@@ -152,6 +161,11 @@ gen_controller_config_b2b_lag() {
     configdir=/home/keysight/ixia-c/controller/config
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
+
+    wait_for_sock ${OTG_PORTA} 5555
+    wait_for_sock ${OTG_PORTA} 50071
+    wait_for_sock ${OTG_PORTZ} 5555
+    wait_for_sock ${OTG_PORTZ} 50071
 
     yml="location_map:
           - location: ${VETH_A}
@@ -215,6 +229,29 @@ gen_config_b2b_lag() {
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
     gen_config_common
+}
+
+wait_for_sock() {
+    start=$SECONDS
+    TIMEOUT_SECONDS=30
+    if [ ! -z "${3}" ]
+    then
+        TIMEOUT_SECONDS=${3}
+    fi
+    echo "Waiting for ${1}:${2} to be ready (timeout=${TIMEOUT_SECONDS}s)..."
+    while true
+    do
+        nc -z -v ${1} ${2} && return 0
+
+        elapsed=$(( SECONDS - start ))
+        if [ $elapsed -gt ${TIMEOUT_SECONDS} ]
+        then
+            echo "${1}:${2} to be ready after ${TIMEOUT_SECONDS}s"
+            exit 1
+        fi
+        sleep 0.1
+    done
+
 }
 
 create_ixia_c_b2b_dp() {
