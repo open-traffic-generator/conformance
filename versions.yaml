@@ -1,14 +1,14 @@
-release: 0.0.1-3383
+release: 0.0.1-3423
 images:
-  - name: controller-free
+  - name: controller-dp
     path: ghcr.io/open-traffic-generator/ixia-c-controller
-    tag: 0.0.1-3383
-  - name: controller-licensed
+    tag: 0.0.1-3423
+  - name: controller-cpdp
     path: ghcr.io/open-traffic-generator/licensed/ixia-c-controller
-    tag: 0.0.1-3383
+    tag: 0.0.1-3423
   - name: traffic-engine
     path: ghcr.io/open-traffic-generator/ixia-c-traffic-engine
-    tag: 1.6.0.17
+    tag: 1.6.0.19
   - name: protocol-engine
     path: ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine
-    tag: 1.00.0.225
+    tag: 1.00.0.232

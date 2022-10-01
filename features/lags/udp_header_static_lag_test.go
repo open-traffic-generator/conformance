@@ -1,6 +1,6 @@
-//go:build all || feature || b2b || dp_feature
+//go:build all || b2b || lag_feature
 
-package udp
+package lags
 
 import (
 	"testing"
@@ -9,58 +9,97 @@ import (
 	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
-func TestUdpHeaderPortValues(t *testing.T) {
+func TestUdpHeaderStaticLag(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":         int64(50),
-		"pktCount":        int32(100),
-		"pktSize":         int32(128),
-		"txMac":           "00:00:01:01:01:01",
-		"rxMac":           "00:00:01:01:01:02",
-		"txIp":            "1.1.1.1",
-		"rxIp":            "1.1.1.2",
-		"txUdpPortValues": []int32{5000, 5010, 5020, 5030},
-		"rxUdpPortValues": []int32{6000, 6010, 6020, 6030},
+		"pktRate":   int64(50),
+		"pktCount":  int32(100),
+		"pktSize":   int32(128),
+		"txMac":     "00:00:01:01:01:01",
+		"txIp":      "1.1.1.1",
+		"rxMac":     "00:00:01:01:01:02",
+		"rxIp":      "1.1.1.2",
+		"txUdpPort": int32(5000),
+		"rxUdpPort": int32(6000),
 	}
 
 	api := otg.NewOtgApi(t)
-	c := udpHeaderPortValuesConfig(api, testConst)
+	c := udpHeaderStaticLagConfig(api, testConst)
 
 	api.SetConfig(c)
 
 	api.StartCapture()
+	// TODO: do we need to wait after starting protocols ?
+	api.StartProtocols()
+	// TODO: do we need to check LAG metrics ?
 	api.StartTransmit()
 
 	api.WaitFor(
-		func() bool { return udpHeaderPortValuesMetricsOk(api, testConst) },
+		func() bool { return udpHeaderStaticLagMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
 
 	api.StopCapture()
 
-	udpHeaderPortValuesCaptureOk(api, c, testConst)
+	// TODO: check capture on correct port
+	// udpHeaderStaticLagCaptureOk(api, c, testConst)
 }
 
-func udpHeaderPortValuesConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func udpHeaderStaticLagConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 	p1 := c.Ports().Add().SetName("p1").SetLocation(api.TestConfig().OtgPorts[0])
 	p2 := c.Ports().Add().SetName("p2").SetLocation(api.TestConfig().OtgPorts[1])
+	p3 := c.Ports().Add().SetName("p3").SetLocation(api.TestConfig().OtgPorts[2])
+	p4 := c.Ports().Add().SetName("p4").SetLocation(api.TestConfig().OtgPorts[3])
+	p5 := c.Ports().Add().SetName("p5").SetLocation(api.TestConfig().OtgPorts[4])
+	p6 := c.Ports().Add().SetName("p6").SetLocation(api.TestConfig().OtgPorts[5])
+
+	l1 := c.Lags().Add().SetName("l1").SetMinLinks(2)
+	l1.Protocol().Static().SetLagId(1)
+	l1p1 := l1.Ports().Add().SetPortName(p1.Name())
+	l1p1.Ethernet().
+		SetMac("00:00:00:00:00:01").
+		SetName(l1.Name() + p1.Name())
+	l1p2 := l1.Ports().Add().SetPortName(p2.Name())
+	l1p2.Ethernet().
+		SetMac("00:00:00:00:00:02").
+		SetName(l1.Name() + p2.Name())
+	l1p3 := l1.Ports().Add().SetPortName(p3.Name())
+	l1p3.Ethernet().
+		SetMac("00:00:00:00:00:03").
+		SetName(l1.Name() + p3.Name())
+
+	l2 := c.Lags().Add().SetName("l2").SetMinLinks(2)
+	l2.Protocol().Static().SetLagId(1)
+	l2p4 := l2.Ports().Add().SetPortName(p4.Name())
+	l2p4.Ethernet().
+		SetMac("00:00:00:00:00:04").
+		SetName(l2.Name() + p4.Name())
+	l2p5 := l2.Ports().Add().SetPortName(p5.Name())
+	l2p5.Ethernet().
+		SetMac("00:00:00:00:00:05").
+		SetName(l2.Name() + p5.Name())
+	l2p6 := l2.Ports().Add().SetPortName(p6.Name())
+	l2p6.Ethernet().
+		SetMac("00:00:00:00:00:06").
+		SetName(l2.Name() + p6.Name())
 
 	c.Layer1().Add().
 		SetName("ly").
-		SetPortNames([]string{p1.Name(), p2.Name()}).
+		SetPortNames([]string{p1.Name(), p2.Name(), p3.Name(), p4.Name(), p5.Name(), p6.Name()}).
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
 
 	if api.TestConfig().OtgCaptureCheck {
 		c.Captures().Add().
 			SetName("ca").
-			SetPortNames([]string{p1.Name(), p2.Name()}).
+			SetPortNames([]string{p1.Name(), p4.Name()}).
 			SetFormat(gosnappi.CaptureFormat.PCAP)
 	}
 
 	f1 := c.Flows().Add().SetName("f1")
 	f1.TxRx().Port().
-		SetTxName(p1.Name()).
-		SetRxName(p2.Name())
+		SetTxName(l1.Name()).
+		SetRxName(l2.Name())
+
 	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
 	f1.Rate().SetPps(tc["pktRate"].(int64))
 	f1.Size().SetFixed(tc["pktSize"].(int32))
@@ -75,14 +114,14 @@ func udpHeaderPortValuesConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 	ip.Dst().SetValue(tc["rxIp"].(string))
 
 	udp := f1.Packet().Add().Udp()
-	udp.SrcPort().SetValues(tc["txUdpPortValues"].([]int32))
-	udp.DstPort().SetValues(tc["rxUdpPortValues"].([]int32))
+	udp.SrcPort().SetValue(tc["txUdpPort"].(int32))
+	udp.DstPort().SetValue(tc["rxUdpPort"].(int32))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
 }
 
-func udpHeaderPortValuesMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func udpHeaderStaticLagMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
 	expCount := int64(tc["pktCount"].(int32))
 
@@ -91,14 +130,12 @@ func udpHeaderPortValuesMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bo
 		m.FramesRx() == expCount
 }
 
-func udpHeaderPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interface{}) {
+func udpHeaderStaticLagCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interface{}) {
 	if !api.TestConfig().OtgCaptureCheck {
 		return
 	}
 	ignoredCount := 0
-	txUdpPortValues := tc["txUdpPortValues"].([]int32)
-	rxUdpPortValues := tc["rxUdpPortValues"].([]int32)
-	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
+	cPackets := api.GetCapture(c.Ports().Items()[3].Name())
 	t := api.Testing()
 
 	for i := 0; i < len(cPackets.Packets); i++ {
@@ -118,9 +155,8 @@ func udpHeaderPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[str
 		cPackets.ValidateField(t, "ipv4 src", i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv4 dst", i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// udp header
-		j := i - ignoredCount
-		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(txUdpPortValues[j%len(txUdpPortValues)]), 2))
-		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(rxUdpPortValues[j%len(rxUdpPortValues)]), 2))
+		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(tc["txUdpPort"].(int32)), 2))
+		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxUdpPort"].(int32)), 2))
 		cPackets.ValidateField(t, "udp length", i, 38, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-20), 2))
 	}
 

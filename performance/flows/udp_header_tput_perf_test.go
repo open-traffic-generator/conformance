@@ -1,4 +1,4 @@
-//go:build all || perf || b2b || free_perf
+//go:build all || perf || b2b || dp_perf
 
 package flows
 

@@ -23,12 +23,12 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 2. Deploy topology
 
     ```sh
-    # use free distribution of ixia-c
-    ./do.sh topo new
+    # use DP-only distribution of ixia-c
+    ./do.sh topo new dp
 
-    # use licensed distribution of ixia-c
+    # use CP/DP distribution of ixia-c
     # enter GITHUB PAT instead of password when prompted for credentials
-    ./do.sh topo new lic
+    ./do.sh topo new cpdp
     ```
 
     > Once deployment is done, `test-config.yaml` is automatically generated in present working directory and can be used to customize test run
@@ -39,9 +39,9 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     # setup test requirements
     ./do.sh pregotest
 
-    # run all feature tests against free distribution of ixia-c
-    ./do.sh gotest -tags="free_feature"
-    # run all feature tests against licensed distribution of ixia-c
+    # run all feature tests against DP-only distribution of ixia-c
+    ./do.sh gotest -tags="dp_feature"
+    # run all feature tests against CP/DP distribution of ixia-c
     ./do.sh gotest -tags="feature"
 
     # run single test
@@ -54,9 +54,9 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     # setup test requirements
     ./do.sh prepytest
 
-    # run all tests against free distribution of ixia-c
-    ./do.sh pytest -m free_feature
-    # run all tests against licensed distribution of ixia-c
+    # run all tests against DP-only distribution of ixia-c
+    ./do.sh pytest -m dp_feature
+    # run all tests against CP/DP distribution of ixia-c
     ./do.sh pytest -m feature
 
     # run single test
@@ -66,11 +66,11 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 5. Teardown topology
 
     ```sh
-    # remove free distribution of ixia-c
-    ./do.sh topo rm
+    # remove DP-only distribution of ixia-c
+    ./do.sh topo rm dp
 
-    # remove licensed distribution of ixia-c
-    ./do.sh topo rm lic
+    # remove CP/DP distribution of ixia-c
+    ./do.sh topo rm cpdp
     ```
 
 ### Advanced Usage:
