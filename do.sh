@@ -11,6 +11,14 @@ VETH_C="veth-c"
 VETH_X="veth-x"
 VETH_Y="veth-y"
 
+KIND_VERSION=v0.16.0
+METALLB_VERSION=v0.13.6
+MESHNET_COMMIT=f26c193
+MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
+IXIA_C_OPERATOR_VERSION="0.2.1"
+IXIA_C_OPERATOR_YAML="https://github.com/open-traffic-generator/ixia-c-operator/releases/download/v${IXIA_C_OPERATOR_VERSION}/ixiatg-operator.yaml"
+KNE_COMMIT=a20cc6f
+
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
     then
@@ -188,8 +196,7 @@ gen_controller_config_b2b_lag() {
 }
 
 gen_config_common() {
-    yml="otg_host: https://localhost
-        otg_speed: speed_1_gbps
+    yml="otg_speed: speed_1_gbps
         otg_capture_check: true
         otg_iterations: 100
         otg_grpc_transport: false
@@ -198,7 +205,8 @@ gen_config_common() {
 }
 
 gen_config_b2b_dp() {
-    yml="otg_ports:
+    yml="otg_host: https://localhost
+        otg_ports:
           - ${VETH_A}
           - ${VETH_Z}
         "
@@ -208,7 +216,8 @@ gen_config_b2b_dp() {
 }
 
 gen_config_b2b_cpdp() {
-    yml="otg_ports:
+    yml="otg_host: https://localhost
+        otg_ports:
           - ${VETH_A}
           - ${VETH_Z}
         "
@@ -218,13 +227,28 @@ gen_config_b2b_cpdp() {
 }
 
 gen_config_b2b_lag() {
-    yml="otg_ports:
+    yml="otg_host: https://localhost
+        otg_ports:
           - ${VETH_A}
           - ${VETH_B}
           - ${VETH_C}
           - ${VETH_Z}
           - ${VETH_Y}
           - ${VETH_X}
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+
+    gen_config_common
+}
+
+gen_config_kne() {
+    ADDR=$(kubectl get service -n ixia-c service-https-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    ETH1=$(grep a_int deployments/kne/otg-b2b.yaml | cut -d\: -f2 | cut -d\  -f2)
+    ETH2=$(grep z_int deployments/kne/otg-b2b.yaml | cut -d\: -f2 | cut -d\  -f2)
+    yml="otg_host: https://${ADDR}
+        otg_ports:
+          - ${ETH1}
+          - ${ETH2}
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
@@ -413,6 +437,195 @@ create_ixia_c_b2b_lag() {
     && echo "Successfully deployed !"
 }
 
+sudo_docker() {
+    groups | grep docker > /dev/null 2>&1 && return
+    sudo groupadd docker
+    sudo usermod -aG docker $USER
+
+    sudo docker version
+    echo "Please logout, login again and re-execute previous command"
+    exit 0
+}
+
+get_kind() {
+    which kind > /dev/null 2>&1 && return
+    echo "Installing kind ${KIND_VERSION} ..."
+    go install sigs.k8s.io/kind@${KIND_VERSION}
+}
+
+kind_cluster_exists() {
+    kind get clusters | grep kind > /dev/null 2>&1
+}
+
+kind_create_cluster() {
+    kind_cluster_exists && return
+    echo "Creating kind cluster ..."
+    kind create cluster --config=deployments/kne/kind.yaml --wait 60s
+}
+
+kind_get_kubectl() {
+    echo "Copying kubectl from kind cluster to host ..."
+    rm -rf kubectl
+    docker cp kind-control-plane:/usr/bin/kubectl ./ \
+    && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && sudo cp -r $HOME/.kube /root/ \
+    && rm -rf kubectl
+}
+
+setup_kind_cluster() {
+    echo "Setting up kind cluster ..."
+    kind_create_cluster \
+    && kind_get_kubectl
+}
+
+mk_metallb_config() {
+    prefix=$(docker network inspect -f '{{.IPAM.Config}}' kind | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+" | tail -n 1)
+
+    yml="apiVersion: metallb.io/v1beta1
+        kind: IPAddressPool
+        metadata:
+          name: kne-pool
+          namespace: metallb-system
+        spec:
+          addresses:
+            - ${prefix}.100 - ${prefix}.250
+
+        ---
+        apiVersion: metallb.io/v1beta1
+        kind: L2Advertisement
+        metadata:
+          name: kne-l2-adv
+          namespace: metallb-system
+        spec:
+          ipAddressPools:
+            - kne-pool
+    "
+
+    echo "$yml" | sed "s/^        //g" | tee deployments/kne/metallb.yaml > /dev/null
+}
+
+kind_get_metallb() {
+    echo "Setting up metallb ..."
+    kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/${METALLB_VERSION}/config/manifests/metallb-native.yaml \
+    && wait_for_pods metallb-system \
+    && mk_metallb_config \
+    && echo "Applying metallb config map for exposing internal services via public IP addresses ..." \
+    && cat deployments/kne/metallb.yaml \
+    && kubectl apply -f deployments/kne/metallb.yaml
+}
+
+get_meshnet() {
+    echo "Installing meshnet-cni (${MESHNET_COMMIT}) ..."
+    rm -rf deployments/kne/meshnet-cni
+    oldpwd=${PWD}
+    cd deployments/kne
+
+    git clone https://github.com/networkop/meshnet-cni && cd meshnet-cni && git checkout ${MESHNET_COMMIT} \
+    && cat manifests/base/daemonset.yaml | sed "s#image: networkop/meshnet:latest#image: ${MESHNET_IMAGE}#g" | tee manifests/base/daemonset.yaml.patched > /dev/null \
+    && mv manifests/base/daemonset.yaml.patched manifests/base/daemonset.yaml \
+    && kubectl apply -k manifests/base \
+    && wait_for_pods meshnet \
+    && cd ${oldpwd}
+}
+
+get_ixia_c_operator() {
+    echo "Installing ixia-c-operator ${IXIA_C_OPERATOR_YAML} ..."
+    kubectl apply -f ${IXIA_C_OPERATOR_YAML} \
+    && wait_for_pods ixiatg-op-system
+}
+
+get_kne() {
+    which kne_cli > /dev/null 2>&1 && return
+    echo "Installing KNE ${KNE_COMMIT} ..."
+    CGO_ENBLED=0 go install github.com/openconfig/kne/kne_cli@${KNE_COMMIT}
+}
+
+get_kubemod() {
+    return
+    kubectl label namespace kube-system admission.kubemod.io/ignore=true --overwrite \
+    && kubectl apply -f https://raw.githubusercontent.com/kubemod/kubemod/v0.15.3/bundle.yaml \
+    && wait_for_pods kubemod-system
+}
+
+setup_kne_deps() {
+    echo "Setting up KNE deps ..."
+    kind_get_metallb \
+    && get_meshnet \
+    && get_ixia_c_operator \
+    && get_kubemod \
+    && get_kne
+}
+
+ixia_c_image_path() {
+    grep "${1}" -A 1 deployments/kne/ixia-c-config.yaml | grep path | cut -d\" -f4
+}
+
+ixia_c_image_tag() {
+    grep "${1}" -A 1 deployments/kne/ixia-c-config.yaml | grep tag | cut -d\" -f4
+}
+
+load_ixia_c_images() {
+    echo "Loading ixia-c images ..."
+    login_ghcr
+    for name in controller gnmi-server traffic-engine protocol-engine
+    do
+        img=$(ixia_c_image_path ${name}):$(ixia_c_image_tag ${name})
+        echo "Loading ${img}"
+        docker pull ${img} \
+        && kind load docker-image ${img}
+    done
+}
+
+wait_for_pods() {
+    for n in $(kubectl get namespaces -o 'jsonpath={.items[*].metadata.name}')
+    do
+        if [ ! -z "$1" ] && [ "$1" != "$n" ]
+        then
+            continue
+        fi
+        for p in $(kubectl get pods -n ${n} -o 'jsonpath={.items[*].metadata.name}')
+        do
+            if [ ! -z "$2" ] && [ "$2" != "$p" ]
+            then
+                continue
+            fi
+            echo "Waiting for pod/${p} in namespace ${n} (timeout=60s)..."
+            kubectl wait -n ${n} pod/${p} --for condition=ready --timeout=60s
+        done
+    done
+}
+
+new_kne_cluster() {
+    sudo_docker \
+    && get_kind \
+    && setup_kind_cluster \
+    && setup_kne_deps \
+    && load_ixia_c_images
+}
+
+rm_kne_cluster() {
+    echo "Deleting kind cluster ..."
+    kind delete cluster 2> /dev/null
+    rm -rf $HOME/.kube
+}
+
+create_ixia_c_kne() {
+    echo "Creating KNE otg-b2b topology ..."
+    ns=$(grep -E "^name" deployments/kne/otg-b2b.yaml | cut -d\  -f2 | sed -e s/\"//g)
+    kubectl apply -f deployments/kne/ixia-c-config.yaml \
+    && kne_cli create deployments/kne/otg-b2b.yaml \
+    && wait_for_pods ${ns} \
+    && kubectl get pods -A \
+    && kubectl get services -A \
+    && gen_config_kne \
+    && echo "Successfully deployed !"
+}
+
+rm_ixia_c_kne() {
+    echo "Removing KNE otg-b2b topology ..."
+    kne_cli delete deployments/kne/otg-b2b.yaml
+}
+
 topo() {
     case $1 in
         new )
@@ -425,6 +638,9 @@ topo() {
                 ;;
                 lag )
                     create_ixia_c_b2b_lag
+                ;;
+                kne )
+                    create_ixia_c_kne
                 ;;
                 *   )
                     echo "unsupported topo type: ${2}"
@@ -442,6 +658,9 @@ topo() {
                 ;;
                 lag )
                     rm_ixia_c_b2b_cpdp
+                ;;
+                kne )
+                    rm_ixia_c_kne
                 ;;
                 *   )
                     echo "unsupported topo type: ${2}"

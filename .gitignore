@@ -4,3 +4,6 @@ __pycache__/
 logs/
 /test-config.yaml
 /config.yaml
+/deployments/kne/metallb.yaml
+/deployments/kne/meshnet-cni
+/deployments/kne/mod.yaml
