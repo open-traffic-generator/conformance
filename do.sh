@@ -11,6 +11,7 @@ VETH_C="veth-c"
 VETH_X="veth-x"
 VETH_Y="veth-y"
 
+GO_VERSION=1.19
 KIND_VERSION=v0.16.0
 METALLB_VERSION=v0.13.6
 MESHNET_COMMIT=f26c193
@@ -18,6 +19,96 @@ MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
 IXIA_C_OPERATOR_VERSION="0.2.1"
 IXIA_C_OPERATOR_YAML="https://github.com/open-traffic-generator/ixia-c-operator/releases/download/v${IXIA_C_OPERATOR_VERSION}/ixiatg-operator.yaml"
 KNE_COMMIT=a20cc6f
+
+TIMEOUT_SECONDS=300
+APT_GET_UPDATE=true
+
+
+apt_update() {
+    if [ "${APT_UPDATE}" = "true" ]
+    then
+        sudo apt-get update
+        APT_GET_UPDATE=false
+    fi
+}
+
+apt_install() {
+    echo "Installing ${1} ..."
+    apt_update \
+    && sudo apt-get install -y --no-install-recommends ${1}
+}
+
+apt_install_curl() {
+    curl --version > /dev/null 2>&1 && return
+    apt_install curl
+}
+
+apt_install_vim() {
+    dpkg -s vim > /dev/null 2>&1 && return
+    apt_install vim
+}
+
+apt_install_git() {
+    git version > /dev/null 2>&1 && return
+    apt_install git
+}
+
+apt_install_lsb_release() {
+    lsb_release -v > /dev/null 2>&1 && return
+    apt_install lsb_release
+}
+
+apt_install_gnupg() {
+    gpg -k > /dev/null 2>&1 && return
+    apt_install gnupg
+}
+
+apt_install_ca_certs() {
+    dpkg -s ca-certificates > /dev/null 2>&1 && return
+    apt_install gnupg ca-certificates
+}
+
+apt_install_pkgs() {
+    uname -a | grep -i linux > /dev/null 2>&1 || return 0
+    apt_install_curl \
+    && apt_install_vim \
+    && apt_install_git \
+    && apt_install_lsb_release \
+    && apt_install_gnupg \
+    && apt_install_ca_certs
+}
+
+get_go() {
+    which go > /dev/null 2>&1 && return
+    echo "Installing Go ${GO_VERSION} ..."
+    # install golang per https://golang.org/doc/install#tarball
+    curl -kL https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz | sudo tar -C /usr/local/ -xzf - \
+    && echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.profile \
+    && . $HOME/.profile \
+    && go version
+}
+
+get_docker() {
+    which docker > /dev/null 2>&1 && return
+    echo "Installing docker ..."
+    sudo apt-get remove docker docker-engine docker.io containerd runc 2> /dev/null
+
+    curl -kfsSL https://download.docker.com/linux/ubuntu/gpg \
+        | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+        | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    sudo apt-get update \
+    && sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+}
+
+common_install() {
+    apt_install_pkgs \
+    && get_go \
+    && get_docker \
+    && sudo_docker
+}
 
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
@@ -243,8 +334,9 @@ gen_config_b2b_lag() {
 
 gen_config_kne() {
     ADDR=$(kubectl get service -n ixia-c service-https-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-    ETH1=$(grep a_int deployments/kne/otg-b2b.yaml | cut -d\: -f2 | cut -d\  -f2)
-    ETH2=$(grep z_int deployments/kne/otg-b2b.yaml | cut -d\: -f2 | cut -d\  -f2)
+    # TODO: only works for B2B topology
+    ETH1=$(grep a_int deployments/k8s/kne-manifests/${1}.yaml | cut -d\: -f2 | cut -d\  -f2)
+    ETH2=$(grep z_int deployments/k8s/kne-manifests/${1}.yaml | cut -d\: -f2 | cut -d\  -f2)
     yml="otg_host: https://${ADDR}
         otg_ports:
           - ${ETH1}
@@ -253,6 +345,49 @@ gen_config_kne() {
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
     gen_config_common
+}
+
+gen_config_k8s() {
+    ADDR=$(kubectl get service -n ixia-c service-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    ETH1=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | head -n1 | cut -d\: -f2 | cut -d\  -f2)
+    ETH2=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | tail -n1 | cut -d\: -f2 | cut -d\  -f2)
+    yml="otg_host: https://${ADDR}
+        otg_ports:
+          - ${ETH1}
+          - ${ETH2}
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+
+    gen_config_common
+
+    gen_config_k8s_test_const ${1}
+}
+
+gen_config_k8s_test_const() {
+    if [ "${1}" = "ixia-c-b2b-eth0" ]
+    then
+        rxUdpPort=7000
+        txIp=$(kubectl get pod -n ixia-c otg-port-eth1 -o 'jsonpath={.status.podIP}')
+        rxIp=$(kubectl get pod -n ixia-c otg-port-eth2 -o 'jsonpath={.status.podIP}')
+        # send ping to flood arp table and extract gateway MAC
+        kubectl exec -n ixia-c otg-port-eth1 -c otg-port-eth1-protocol-engine -- ping -c 1 ${rxIp}
+        gatewayMac=$(kubectl exec -n ixia-c otg-port-eth1 -c otg-port-eth1-protocol-engine -- arp -a | head -n 1 | cut -d\  -f4)
+        txMac=$(kubectl exec -n ixia-c otg-port-eth1 -c otg-port-eth1-protocol-engine -- ifconfig eth0 | grep ether | sed 's/  */_/g' | cut -d_ -f3)
+        rxMac=$(kubectl exec -n ixia-c otg-port-eth2 -c otg-port-eth2-protocol-engine -- ifconfig eth0 | grep ether | sed 's/  */_/g' | cut -d_ -f3)
+        # drop UDP packets on given dst port
+        kubectl exec -n ixia-c otg-port-eth2 -c otg-port-eth2-protocol-engine -- apt-get install -y iptables
+        kubectl exec -n ixia-c otg-port-eth2 -c otg-port-eth2-protocol-engine -- iptables -A INPUT -p udp --destination-port ${rxUdpPort} -j DROP
+
+        yml="otg_test_const:
+              txMac: ${txMac}
+              rxMac: ${rxMac}
+              gatewayMac: ${gatewayMac}
+              txIp: ${txIp}
+              rxIp: ${rxIp}
+              rxUdpPort: ${rxUdpPort}
+            "
+        echo -n "$yml" | sed "s/^            //g" | tee -a ./test-config.yaml > /dev/null
+    fi
 }
 
 wait_for_sock() {
@@ -460,7 +595,7 @@ kind_cluster_exists() {
 kind_create_cluster() {
     kind_cluster_exists && return
     echo "Creating kind cluster ..."
-    kind create cluster --config=deployments/kne/kind.yaml --wait 60s
+    kind create cluster --config=deployments/k8s/kind.yaml --wait ${TIMEOUT_SECONDS}s
 }
 
 kind_get_kubectl() {
@@ -474,7 +609,8 @@ kind_get_kubectl() {
 
 setup_kind_cluster() {
     echo "Setting up kind cluster ..."
-    kind_create_cluster \
+    get_kind \
+    && kind_create_cluster \
     && kind_get_kubectl
 }
 
@@ -501,24 +637,24 @@ mk_metallb_config() {
             - kne-pool
     "
 
-    echo "$yml" | sed "s/^        //g" | tee deployments/kne/metallb.yaml > /dev/null
+    echo "$yml" | sed "s/^        //g" | tee deployments/k8s/metallb.yaml > /dev/null
 }
 
-kind_get_metallb() {
+get_metallb() {
     echo "Setting up metallb ..."
     kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/${METALLB_VERSION}/config/manifests/metallb-native.yaml \
     && wait_for_pods metallb-system \
     && mk_metallb_config \
     && echo "Applying metallb config map for exposing internal services via public IP addresses ..." \
-    && cat deployments/kne/metallb.yaml \
-    && kubectl apply -f deployments/kne/metallb.yaml
+    && cat deployments/k8s/metallb.yaml \
+    && kubectl apply -f deployments/k8s/metallb.yaml
 }
 
 get_meshnet() {
     echo "Installing meshnet-cni (${MESHNET_COMMIT}) ..."
-    rm -rf deployments/kne/meshnet-cni
+    rm -rf deployments/k8s/meshnet-cni
     oldpwd=${PWD}
-    cd deployments/kne
+    cd deployments/k8s
 
     git clone https://github.com/networkop/meshnet-cni && cd meshnet-cni && git checkout ${MESHNET_COMMIT} \
     && cat manifests/base/daemonset.yaml | sed "s#image: networkop/meshnet:latest#image: ${MESHNET_IMAGE}#g" | tee manifests/base/daemonset.yaml.patched > /dev/null \
@@ -547,32 +683,42 @@ get_kubemod() {
     && wait_for_pods kubemod-system
 }
 
-setup_kne_deps() {
-    echo "Setting up KNE deps ..."
-    kind_get_metallb \
-    && get_meshnet \
-    && get_ixia_c_operator \
-    && get_kubemod \
-    && get_kne
+setup_k8s_plugins() {
+    echo "Setting up K8S plugins for ${1} ..."
+    case $1 in
+        kne  )
+            get_metallb \
+            && get_meshnet \
+            && get_ixia_c_operator
+        ;;
+        *   )
+            get_metallb
+        ;;
+    esac
 }
 
 ixia_c_image_path() {
-    grep "${1}" -A 1 deployments/kne/ixia-c-config.yaml | grep path | cut -d\" -f4
+    grep "\"${1}\"" -A 1 deployments/ixia-c-config.yaml | grep path | cut -d\" -f4
 }
 
 ixia_c_image_tag() {
-    grep "${1}" -A 1 deployments/kne/ixia-c-config.yaml | grep tag | cut -d\" -f4
+    grep "\"${1}\"" -A 2 deployments/ixia-c-config.yaml | grep tag | cut -d\" -f4
 }
 
 load_ixia_c_images() {
-    echo "Loading ixia-c images ..."
+    echo "Loading ixia-c images in cluster ..."
     login_ghcr
     for name in controller gnmi-server traffic-engine protocol-engine
     do
-        img=$(ixia_c_image_path ${name}):$(ixia_c_image_tag ${name})
+        p=$(ixia_c_image_path ${name})
+        t=$(ixia_c_image_tag ${name})
+        img=${p}:${t}
+        limg=${p}:local
         echo "Loading ${img}"
         docker pull ${img} \
-        && kind load docker-image ${img}
+        && docker tag ${img} ${limg} \
+        && kind load docker-image ${img} \
+        && kind load docker-image ${limg}
     done
 }
 
@@ -589,41 +735,96 @@ wait_for_pods() {
             then
                 continue
             fi
-            echo "Waiting for pod/${p} in namespace ${n} (timeout=60s)..."
-            kubectl wait -n ${n} pod/${p} --for condition=ready --timeout=60s
+            echo "Waiting for pod/${p} in namespace ${n} (timeout=${TIMEOUT_SECONDS}s)..."
+            kubectl wait -n ${n} pod/${p} --for condition=ready --timeout=${TIMEOUT_SECONDS}s
         done
     done
 }
 
-new_kne_cluster() {
-    sudo_docker \
-    && get_kind \
+wait_for_no_namespace() {
+    start=$SECONDS
+    echo "Waiting for namespace ${1} to be deleted (timeout=${TIMEOUT_SECONDS}s)..."
+    while true
+    do
+        found=""
+        for n in $(kubectl get namespaces -o 'jsonpath={.items[*].metadata.name}')
+        do
+            if [ "$1" = "$n" ]
+            then
+                found="$n"
+                break
+            fi
+        done
+
+        if [ -z "$found" ]
+        then
+            return 0
+        fi
+
+        elapsed=$(( SECONDS - start ))
+        if [ $elapsed -gt ${TIMEOUT_SECONDS} ]
+        then
+            err "Namespace ${1} not deleted after ${TIMEOUT_SECONDS}s" 1
+        fi
+    done
+}
+
+new_k8s_cluster() {
+    common_install \
     && setup_kind_cluster \
-    && setup_kne_deps \
+    && setup_k8s_plugins ${1} \
     && load_ixia_c_images
 }
 
-rm_kne_cluster() {
+rm_k8s_cluster() {
     echo "Deleting kind cluster ..."
     kind delete cluster 2> /dev/null
     rm -rf $HOME/.kube
 }
 
+kne_namespace() {
+    grep -E "^name" deployments/k8s/kne-manifests/${1}.yaml | cut -d\  -f2 | sed -e s/\"//g
+}
+ 
 create_ixia_c_kne() {
-    echo "Creating KNE otg-b2b topology ..."
-    ns=$(grep -E "^name" deployments/kne/otg-b2b.yaml | cut -d\  -f2 | sed -e s/\"//g)
-    kubectl apply -f deployments/kne/ixia-c-config.yaml \
-    && kne_cli create deployments/kne/otg-b2b.yaml \
+    echo "Creating KNE ${1} topology ..."
+    ns=$(kne_namespace ${1})
+    kubectl apply -f deployments/ixia-c-config.yaml \
+    && kne_cli create deployments/k8s/kne-manifests/${1}.yaml \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
-    && gen_config_kne \
+    && gen_config_kne ${1} \
     && echo "Successfully deployed !"
 }
 
 rm_ixia_c_kne() {
-    echo "Removing KNE otg-b2b topology ..."
-    kne_cli delete deployments/kne/otg-b2b.yaml
+    echo "Removing KNE ${1} topology ..."
+    ns=$(kne_namespace ${1})
+    kne_cli delete deployments/k8s/kne-manifests/${1}.yaml \
+    && wait_for_no_namespace ${ns}
+}
+
+k8s_namespace() {
+    grep namespace deployments/k8s/manifests/${1}.yaml -m 1 | cut -d \: -f2 | cut -d \  -f 2
+}
+
+create_ixia_c_k8s() {
+    echo "Creating K8S ${1} topology ..."
+    ns=$(k8s_namespace ${1})
+    kubectl apply -f deployments/k8s/manifests/${1}.yaml \
+    && wait_for_pods ${ns} \
+    && kubectl get pods -A \
+    && kubectl get services -A \
+    && gen_config_k8s ${1} \
+    && echo "Successfully deployed !"
+}
+
+rm_ixia_c_k8s() {
+    echo "Removing K8S ${1} topology ..."
+    ns=$(k8s_namespace ${1})
+    kubectl delete -f deployments/k8s/manifests/${1}.yaml \
+    && wait_for_no_namespace ${ns}
 }
 
 topo() {
@@ -639,8 +840,11 @@ topo() {
                 lag )
                     create_ixia_c_b2b_lag
                 ;;
-                kne )
-                    create_ixia_c_kne
+                kneb2b )
+                    create_ixia_c_kne ixia-c-b2b
+                ;;
+                k8seth0 )
+                    create_ixia_c_k8s ixia-c-b2b-eth0
                 ;;
                 *   )
                     echo "unsupported topo type: ${2}"
@@ -659,8 +863,11 @@ topo() {
                 lag )
                     rm_ixia_c_b2b_cpdp
                 ;;
-                kne )
-                    rm_ixia_c_kne
+                kneb2b )
+                    rm_ixia_c_kne ixia-c-b2b
+                ;;
+                k8seth0 )
+                    rm_ixia_c_k8s ixia-c-b2b-eth0
                 ;;
                 *   )
                     echo "unsupported topo type: ${2}"

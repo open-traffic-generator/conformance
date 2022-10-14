@@ -14,12 +14,13 @@ import (
 )
 
 type TestConfig struct {
-	OtgHost          string   `yaml:"otg_host,omitempty"`
-	OtgPorts         []string `yaml:"otg_ports,omitempty"`
-	OtgSpeed         string   `yaml:"otg_speed,omitempty"`
-	OtgIterations    int      `yaml:"otg_iterations,omitempty"`
-	OtgCaptureCheck  bool     `yaml:"otg_capture_check,omitempty"`
-	OtgGrpcTransport bool     `yaml:"otg_grpc_transport,omitempty"`
+	OtgHost          string                 `yaml:"otg_host,omitempty"`
+	OtgPorts         []string               `yaml:"otg_ports,omitempty"`
+	OtgSpeed         string                 `yaml:"otg_speed,omitempty"`
+	OtgIterations    int                    `yaml:"otg_iterations,omitempty"`
+	OtgCaptureCheck  bool                   `yaml:"otg_capture_check,omitempty"`
+	OtgGrpcTransport bool                   `yaml:"otg_grpc_transport,omitempty"`
+	OtgTestConst     map[string]interface{} `yaml:"otg_test_const,omitempty"`
 }
 
 func testConfigPath() (string, error) {
@@ -109,4 +110,22 @@ func (tc *TestConfig) FromEnv() error {
 		tc.OtgGrpcTransport = v
 	}
 	return nil
+}
+
+func (tc *TestConfig) PatchTestConst(t *testing.T, testConst map[string]interface{}) {
+	if tc.OtgTestConst == nil {
+		return
+	}
+
+	for k := range testConst {
+		if v := tc.OtgTestConst[k]; v != nil {
+			if testConst[k] != nil {
+				testConst[k] = v
+			}
+		}
+	}
+
+	t.Log(tc.OtgTestConst)
+	t.Log(testConst)
+	return
 }

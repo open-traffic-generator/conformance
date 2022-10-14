@@ -1,4 +1,4 @@
-name: KNE CI
+name: KNE B2B eth0 CI
 
 on:
   push:
@@ -18,22 +18,14 @@ jobs:
           go-version: "1.18"
       - name: Setup KNE cluster
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_kne_cluster
-      - name: Deploy KNE OTG back-to-back topology
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster
+      - name: Deploy OTG back-to-back topology with eth0
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new kne
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new k8seth0
       - name: Run go tests
         run: |
           ./do.sh pregotest
-          ./do.sh gotest -tags="feature"
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-      - name: Run python tests
-        run: |
-          ./do.sh prepytest
-          ./do.sh pytest -m feature
+          ./do.sh gotest -tags="all" -run="^TestUdpHeaderEth0$"
       # - name: Get container logs
       #   if: always()
       #   run: |
@@ -45,6 +37,6 @@ jobs:
           name: generated-artifacts
           path: |
             logs
-      - name: Teardown KNE OTG back-to-back topology
+      - name: Teardown OTG back-to-back topology with eth0
         run: |
-          ./do.sh topo rm kne
+          ./do.sh topo rm k8seth0
