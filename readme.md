@@ -85,3 +85,39 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     # run single perf test with lesser number of iterations (default=100)
     OTG_ITERATIONS=2 ./do.sh gotest -tags=perf -run=TestUdpHeaderMeshFlowsPerf
     ```
+
+2. Run tests against ixia-c B2B deployed on K8S cluster using eth0 as test interface
+
+    ```sh
+    # setup K8S cluster
+    ./do.sh new_k8s_cluster
+    # create topology
+    ./do.sh topo new k8seth0
+    # setup Go tests
+    ./do.sh pregotest
+    # run single test
+    ./do.sh gotest -tags="all" -run="^TestUdpHeaderEth0$"
+    # delete topology
+    ./do.sh topo rm k8seth0
+    # delete K8S cluster
+    ./do.sh rm_k8s_cluster
+    ```
+
+3. Run tests against KNE cluster
+
+    ```sh
+    # setup KNE cluster
+    ./do.sh new_k8s_cluster kne
+    # create KNE topology
+    ./do.sh topo new kneb2b
+    # setup Go tests
+    ./do.sh pregotest
+    # run single test
+    ./do.sh gotest -tags="all" -run="^TestEbgpv4RouteInstall$"
+    # run all Go tests
+    ./do.sh gotest -tags="feature"
+    # delete KNE topology
+    ./do.sh topo rm kneb2b
+    # delete KNE cluster
+    ./do.sh rm_k8s_cluster kne
+    ```
