@@ -689,7 +689,8 @@ setup_k8s_plugins() {
         kne  )
             get_metallb \
             && get_meshnet \
-            && get_ixia_c_operator
+            && get_ixia_c_operator \
+            && get_kne
         ;;
         *   )
             get_metallb
