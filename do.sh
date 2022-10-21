@@ -420,6 +420,7 @@ create_ixia_c_b2b_lag() {
 }
 
 topo() {
+    echo "$(docker inspect bridge | grep "EnableIPv6")"
     if [ "${3}" = "enable_ipv6" ]
     then 
         enable_ipv6=true
