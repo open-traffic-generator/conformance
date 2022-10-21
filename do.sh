@@ -10,6 +10,7 @@ VETH_B="veth-b"
 VETH_C="veth-c"
 VETH_X="veth-x"
 VETH_Y="veth-y"
+enable_ipv6=false
 
 create_veth_pair() {
     if [ -z "${1}" ] || [ -z "${2}" ]
@@ -65,7 +66,12 @@ container_pid() {
 }
 
 container_ip() {
-    docker inspect --format="{{json .NetworkSettings.IPAddress}}" ${1} | cut -d\" -f 2
+    if [ ${enable_ipv6} = true ]
+    then
+        docker inspect --format="{{json .NetworkSettings.GlobalIPv6Address}}" ${1} | cut -d\" -f 2
+    else
+        docker inspect --format="{{json .NetworkSettings.IPAddress}}" ${1} | cut -d\" -f 2
+    fi
 }
 
 ixia_c_img() {
@@ -125,9 +131,9 @@ gen_controller_config_b2b_dp() {
 
     yml="location_map:
           - location: ${VETH_A}
-            endpoint: localhost:5555
+            endpoint: \"[localhost]:5555\"
           - location: ${VETH_Z}
-            endpoint: localhost:5556
+            endpoint: \"[localhost]:5556\"
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
     && docker exec ixia-c-controller mkdir -p ${configdir} \
@@ -147,9 +153,9 @@ gen_controller_config_b2b_cpdp() {
 
     yml="location_map:
           - location: ${VETH_A}
-            endpoint: ${OTG_PORTA}:5555+${OTG_PORTA}:50071
+            endpoint: \"[${OTG_PORTA}]:5555+[${OTG_PORTA}]:50071\"
           - location: ${VETH_Z}
-            endpoint: ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
+            endpoint: \"[${OTG_PORTZ}]:5555+[${OTG_PORTZ}]:50071\"
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
     && docker exec ixia-c-controller mkdir -p ${configdir} \
@@ -169,17 +175,17 @@ gen_controller_config_b2b_lag() {
 
     yml="location_map:
           - location: ${VETH_A}
-            endpoint: ${OTG_PORTA}:5555;1+${OTG_PORTA}:50071
+            endpoint: \"[${OTG_PORTA}]:5555;1+[${OTG_PORTA}]:50071\"
           - location: ${VETH_B}
-            endpoint: ${OTG_PORTA}:5555;2+${OTG_PORTA}:50071
+            endpoint: \"[${OTG_PORTA}]:5555;2+[${OTG_PORTA}]:50071\"
           - location: ${VETH_C}
-            endpoint: ${OTG_PORTA}:5555;3+${OTG_PORTA}:50071
+            endpoint: \"[${OTG_PORTA}]:5555;3+[${OTG_PORTA}]:50071\"
           - location: ${VETH_Z}
-            endpoint: ${OTG_PORTZ}:5555;1+${OTG_PORTZ}:50071
+            endpoint: \"[${OTG_PORTZ}]:5555;1+[${OTG_PORTZ}]:50071\"
           - location: ${VETH_Y}
-            endpoint: ${OTG_PORTZ}:5555;2+${OTG_PORTZ}:50071
+            endpoint: \"[${OTG_PORTZ}]:5555;2+[${OTG_PORTZ}]:50071\"
           - location: ${VETH_X}
-            endpoint: ${OTG_PORTZ}:5555;3+${OTG_PORTZ}:50071
+            endpoint: \"[${OTG_PORTZ}]:5555;3+[${OTG_PORTZ}]:50071\"
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
     && docker exec ixia-c-controller mkdir -p ${configdir} \
@@ -414,6 +420,10 @@ create_ixia_c_b2b_lag() {
 }
 
 topo() {
+    if [ "${3}" = "enable_ipv6" ]
+    then 
+        enable_ipv6=true
+    fi
     case $1 in
         new )
             case $2 in
