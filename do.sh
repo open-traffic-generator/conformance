@@ -419,11 +419,19 @@ create_ixia_c_b2b_lag() {
     && echo "Successfully deployed !"
 }
 
-topo() {
+ipv6_enable_docker() {
     echo "$(docker inspect bridge | grep "EnableIPv6")"
     echo "$(cat /etc/docker/daemon.json)"
+    echo "{\"ipv6\": true, \"fixed-cidr-v6\": \"2001:db8:1::/64\"}" | sudo tee /etc/docker/daemon.json
+    # echo "{\"ipv6\": false, \"fixed-cidr-v6\": \"2001:db8:1::/64\"}" > "/etc/docker/daemon.json"
+    echo "$(cat /etc/docker/daemon.json)"
+    echo "$(sudo systemctl restart docker)"
+}
+
+topo() {
     if [ "${3}" = "enable_ipv6" ]
     then 
+        ipv6_enable_docker
         enable_ipv6=true
     fi
     case $1 in
