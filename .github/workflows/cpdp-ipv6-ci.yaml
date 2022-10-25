@@ -1,4 +1,4 @@
-name: CP/DP ipv6 CI
+name: CP/DP IPv6 CI
 
 on:
   push:

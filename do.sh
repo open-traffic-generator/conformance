@@ -162,8 +162,8 @@ gen_controller_config_b2b_cpdp() {
 
     if [ "${1}" = "ipv6" ]
     then 
-        OTG_PORTA=[${OTG_PORTA}]
-        OTG_PORTZ=[${OTG_PORTZ}]
+        OTG_PORTA="[${OTG_PORTA}]"
+        OTG_PORTZ="[${OTG_PORTZ}]"
     fi
 
     yml="location_map:
@@ -212,7 +212,7 @@ gen_config_common() {
     location=localhost
     if [ "${1}" = "ipv6" ]
     then 
-        location=[$(container_ip6 ixia-c-controller)]
+        location="[$(container_ip6 ixia-c-controller)]"
     fi
 
     yml="otg_host: https://${location}
