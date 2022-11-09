@@ -20,7 +20,7 @@ func TestUdpHeaderEth0(t *testing.T) {
 		"txIp":       "1.1.1.1",
 		"rxIp":       "1.1.1.2",
 		"txUdpPort":  5000,
-		"rxUdpPort":  6000,
+		"rxUdpPort":  7000,
 	}
 
 	api := otg.NewOtgApi(t)
