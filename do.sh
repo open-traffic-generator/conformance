@@ -16,7 +16,7 @@ KIND_VERSION=v0.16.0
 METALLB_VERSION=v0.13.6
 MESHNET_COMMIT=f26c193
 MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
-IXIA_C_OPERATOR_VERSION="0.2.1"
+IXIA_C_OPERATOR_VERSION="0.3.0"
 IXIA_C_OPERATOR_YAML="https://github.com/open-traffic-generator/ixia-c-operator/releases/download/v${IXIA_C_OPERATOR_VERSION}/ixiatg-operator.yaml"
 KNE_COMMIT=a20cc6f
 
