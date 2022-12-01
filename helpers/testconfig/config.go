@@ -44,7 +44,7 @@ func testConfigPath() (string, error) {
 
 func NewTestConfig(t *testing.T) *TestConfig {
 	tc := TestConfig{
-		OtgHost:          "https://localhost",
+		OtgHost:          "https://localhost:8443",
 		OtgPorts:         []string{"localhost:5555", "localhost:5556"},
 		OtgSpeed:         "speed_1_gbps",
 		OtgIterations:    100,
