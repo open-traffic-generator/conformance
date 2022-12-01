@@ -337,7 +337,7 @@ gen_config_kne() {
     # TODO: only works for B2B topology
     ETH1=$(grep a_int deployments/k8s/kne-manifests/${1}.yaml | cut -d\: -f2 | cut -d\  -f2)
     ETH2=$(grep z_int deployments/k8s/kne-manifests/${1}.yaml | cut -d\: -f2 | cut -d\  -f2)
-    yml="otg_host: https://${ADDR}
+    yml="otg_host: https://${ADDR}:8443
         otg_ports:
           - ${ETH1}
           - ${ETH2}
@@ -351,7 +351,7 @@ gen_config_k8s() {
     ADDR=$(kubectl get service -n ixia-c service-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
     ETH1=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | head -n1 | cut -d\: -f2 | cut -d\  -f2)
     ETH2=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | tail -n1 | cut -d\: -f2 | cut -d\  -f2)
-    yml="otg_host: https://${ADDR}
+    yml="otg_host: https://${ADDR}:8443
         otg_ports:
           - ${ETH1}
           - ${ETH2}
