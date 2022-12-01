@@ -296,7 +296,7 @@ gen_config_common() {
 }
 
 gen_config_b2b_dp() {
-    yml="otg_host: https://localhost
+    yml="otg_host: https://localhost:8443
         otg_ports:
           - ${VETH_A}
           - ${VETH_Z}
@@ -307,7 +307,7 @@ gen_config_b2b_dp() {
 }
 
 gen_config_b2b_cpdp() {
-    yml="otg_host: https://localhost
+    yml="otg_host: https://localhost:8443
         otg_ports:
           - ${VETH_A}
           - ${VETH_Z}
@@ -318,7 +318,7 @@ gen_config_b2b_cpdp() {
 }
 
 gen_config_b2b_lag() {
-    yml="otg_host: https://localhost
+    yml="otg_host: https://localhost:8443
         otg_ports:
           - ${VETH_A}
           - ${VETH_B}
