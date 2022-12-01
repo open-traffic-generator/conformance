@@ -43,7 +43,7 @@ items:
               readOnly: true
         - args:
             - -http-server
-            - https://localhost:443
+            - https://localhost:8443
             - --debug
           image: ghcr.io/open-traffic-generator/ixia-c-gnmi-server:local
           imagePullPolicy: IfNotPresent
@@ -132,9 +132,9 @@ items:
     spec:
       ports:
         - name: https
-          port: 443
+          port: 8443
           protocol: TCP
-          targetPort: 443
+          targetPort: 8443
         - name: grpc
           port: 40051
           protocol: TCP

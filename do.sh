@@ -458,7 +458,7 @@ create_ixia_c_b2b_cpdp() {
     login_ghcr                                              \
     && docker run -d                                        \
         --name=ixia-c-controller                            \
-        --publish 0.0.0.0:443:443                           \
+        --publish 0.0.0.0:8443:8443                           \
         --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
@@ -522,7 +522,7 @@ create_ixia_c_b2b_lag() {
     login_ghcr                                              \
     && docker run -d                                        \
         --name=ixia-c-controller                            \
-        --publish 0.0.0.0:443:443                           \
+        --publish 0.0.0.0:8443:8443                           \
         --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
