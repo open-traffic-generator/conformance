@@ -16,7 +16,7 @@ KIND_VERSION=v0.16.0
 METALLB_VERSION=v0.13.6
 MESHNET_COMMIT=f26c193
 MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
-IXIA_C_OPERATOR_VERSION="0.2.1"
+IXIA_C_OPERATOR_VERSION="0.3.0"
 IXIA_C_OPERATOR_YAML="https://github.com/open-traffic-generator/ixia-c-operator/releases/download/v${IXIA_C_OPERATOR_VERSION}/ixiatg-operator.yaml"
 KNE_COMMIT=a20cc6f
 
@@ -217,7 +217,7 @@ logout_ghcr() {
 }
 
 gen_controller_config_b2b_dp() {
-    configdir=/home/keysight/ixia-c/controller/config
+    configdir=/home/ixia-c/controller/config
 
     wait_for_sock localhost 5555
     wait_for_sock localhost 5556
@@ -235,7 +235,7 @@ gen_controller_config_b2b_dp() {
 }
 
 gen_controller_config_b2b_cpdp() {
-    configdir=/home/keysight/ixia-c/controller/config
+    configdir=/home/ixia-c/controller/config
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
 
@@ -257,7 +257,7 @@ gen_controller_config_b2b_cpdp() {
 }
 
 gen_controller_config_b2b_lag() {
-    configdir=/home/keysight/ixia-c/controller/config
+    configdir=/home/ixia-c/controller/config
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
 
@@ -296,7 +296,7 @@ gen_config_common() {
 }
 
 gen_config_b2b_dp() {
-    yml="otg_host: https://localhost
+    yml="otg_host: https://localhost:8443
         otg_ports:
           - ${VETH_A}
           - ${VETH_Z}
@@ -307,7 +307,7 @@ gen_config_b2b_dp() {
 }
 
 gen_config_b2b_cpdp() {
-    yml="otg_host: https://localhost
+    yml="otg_host: https://localhost:8443
         otg_ports:
           - ${VETH_A}
           - ${VETH_Z}
@@ -318,7 +318,7 @@ gen_config_b2b_cpdp() {
 }
 
 gen_config_b2b_lag() {
-    yml="otg_host: https://localhost
+    yml="otg_host: https://localhost:8443
         otg_ports:
           - ${VETH_A}
           - ${VETH_B}
@@ -337,7 +337,7 @@ gen_config_kne() {
     # TODO: only works for B2B topology
     ETH1=$(grep a_int deployments/k8s/kne-manifests/${1}.yaml | cut -d\: -f2 | cut -d\  -f2)
     ETH2=$(grep z_int deployments/k8s/kne-manifests/${1}.yaml | cut -d\: -f2 | cut -d\  -f2)
-    yml="otg_host: https://${ADDR}
+    yml="otg_host: https://${ADDR}:8443
         otg_ports:
           - ${ETH1}
           - ${ETH2}
@@ -351,7 +351,7 @@ gen_config_k8s() {
     ADDR=$(kubectl get service -n ixia-c service-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
     ETH1=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | head -n1 | cut -d\: -f2 | cut -d\  -f2)
     ETH2=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | tail -n1 | cut -d\: -f2 | cut -d\  -f2)
-    yml="otg_host: https://${ADDR}
+    yml="otg_host: https://${ADDR}:8443
         otg_ports:
           - ${ETH1}
           - ${ETH2}
@@ -458,7 +458,7 @@ create_ixia_c_b2b_cpdp() {
     login_ghcr                                              \
     && docker run -d                                        \
         --name=ixia-c-controller                            \
-        --publish 0.0.0.0:443:443                           \
+        --publish 0.0.0.0:8443:8443                           \
         --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
@@ -522,7 +522,7 @@ create_ixia_c_b2b_lag() {
     login_ghcr                                              \
     && docker run -d                                        \
         --name=ixia-c-controller                            \
-        --publish 0.0.0.0:443:443                           \
+        --publish 0.0.0.0:8443:8443                           \
         --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
@@ -878,8 +878,8 @@ topo() {
         ;;
         logs    )
             mkdir -p logs/ixia-c-controller
-            docker cp ixia-c-controller:/home/keysight/ixia-c/controller/logs/ logs/ixia-c-controller
-            docker cp ixia-c-controller:/home/keysight/ixia-c/controller/config/config.yaml logs/ixia-c-controller
+            docker cp ixia-c-controller:/home/ixia-c/controller/logs/ logs/ixia-c-controller
+            docker cp ixia-c-controller:/home/ixia-c/controller/config/config.yaml logs/ixia-c-controller
             mkdir -p logs/ixia-c-traffic-engine-${VETH_A}
             mkdir -p logs/ixia-c-traffic-engine-${VETH_Z}
             docker cp ixia-c-traffic-engine-${VETH_A}:/var/log/usstream/ logs/ixia-c-traffic-engine-${VETH_A}
