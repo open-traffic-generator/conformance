@@ -217,7 +217,7 @@ logout_ghcr() {
 }
 
 gen_controller_config_b2b_dp() {
-    configdir=/home/keysight/ixia-c/controller/config
+    configdir=/home/ixia-c/controller/config
 
     wait_for_sock localhost 5555
     wait_for_sock localhost 5556
@@ -235,7 +235,7 @@ gen_controller_config_b2b_dp() {
 }
 
 gen_controller_config_b2b_cpdp() {
-    configdir=/home/keysight/ixia-c/controller/config
+    configdir=/home/ixia-c/controller/config
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
 
@@ -257,7 +257,7 @@ gen_controller_config_b2b_cpdp() {
 }
 
 gen_controller_config_b2b_lag() {
-    configdir=/home/keysight/ixia-c/controller/config
+    configdir=/home/ixia-c/controller/config
     OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
     OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
 
@@ -878,8 +878,8 @@ topo() {
         ;;
         logs    )
             mkdir -p logs/ixia-c-controller
-            docker cp ixia-c-controller:/home/keysight/ixia-c/controller/logs/ logs/ixia-c-controller
-            docker cp ixia-c-controller:/home/keysight/ixia-c/controller/config/config.yaml logs/ixia-c-controller
+            docker cp ixia-c-controller:/home/ixia-c/controller/logs/ logs/ixia-c-controller
+            docker cp ixia-c-controller:/home/ixia-c/controller/config/config.yaml logs/ixia-c-controller
             mkdir -p logs/ixia-c-traffic-engine-${VETH_A}
             mkdir -p logs/ixia-c-traffic-engine-${VETH_Z}
             docker cp ixia-c-traffic-engine-${VETH_A}:/var/log/usstream/ logs/ixia-c-traffic-engine-${VETH_A}
