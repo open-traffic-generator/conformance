@@ -11,12 +11,12 @@ data:
                 {
                     "name": "controller",
                     "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-controller",
-                    "tag": "0.0.1-3662"
+                    "tag": "0.0.1-3698"
                 },
                 {
                     "name": "gnmi-server",
                     "path": "ghcr.io/open-traffic-generator/ixia-c-gnmi-server",
-                    "tag": "1.9.9"
+                    "tag": "1.10.5"
                 },
                 {
                     "name": "traffic-engine",
@@ -26,17 +26,17 @@ data:
                 {
                     "name": "protocol-engine",
                     "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine",
-                    "tag": "1.00.0.243"
+                    "tag": "1.00.0.252"
                 },
                 {
                     "name": "controller-community",
                     "path": "ghcr.io/open-traffic-generator/ixia-c-controller",
-                    "tag": "1.00.0.243"
+                    "tag": "1.00.0.252"
                 },
                 {
                     "name": "ixia-c-one",
                     "path": "ghcr.io/open-traffic-generator/ixia-c-one",
-                    "tag": "0.0.1-3662"
+                    "tag": "0.0.1-3698"
                 }
             ]
         }
