@@ -5,7 +5,7 @@ import logging as log
 
 class TestConfig(object):
     def __init__(self):
-        self.otg_host = "https://localhost"
+        self.otg_host = "https://localhost:8443"
         self.otg_ports = ["localhost:5555", "localhost:5555"]
         self.otg_speed = "speed_1_gbps"
         self.otg_capture_check = True

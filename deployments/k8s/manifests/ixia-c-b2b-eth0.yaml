@@ -1,0 +1,182 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Namespace
+    metadata:
+      labels:
+        app: ixia-c
+      name: ixia-c
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: ixia-c
+      name: controller-config
+      namespace: ixia-c
+    data:
+      config.yaml: |
+        location_map:
+        - location: eth1
+          endpoint: service-otg-port-eth1.ixia-c.svc.cluster.local:5555+service-otg-port-eth1.ixia-c.svc.cluster.local:50071
+        - location: eth2
+          endpoint: service-otg-port-eth2.ixia-c.svc.cluster.local:5555+service-otg-port-eth2.ixia-c.svc.cluster.local:50071
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      labels:
+        app: ixia-c
+        role: controller
+      name: otg-controller
+      namespace: ixia-c
+    spec:
+      containers:
+        - args:
+            - --accept-eula
+            - --debug
+          image: ghcr.io/open-traffic-generator/licensed/ixia-c-controller:local
+          imagePullPolicy: IfNotPresent
+          name: ixia-c-controller
+          volumeMounts:
+            - mountPath: /home/ixia-c/controller/config
+              name: config
+              readOnly: true
+        - args:
+            - -http-server
+            - https://localhost:8443
+            - --debug
+          image: ghcr.io/open-traffic-generator/ixia-c-gnmi-server:local
+          imagePullPolicy: IfNotPresent
+          name: ixia-c-gnmi-server
+          ports:
+            - containerPort: 50051
+              name: gnmi-port
+              protocol: TCP
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: controller-config
+          name: config
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      labels:
+        app: ixia-c
+        role: port-eth1
+      name: otg-port-eth1
+      namespace: ixia-c
+    spec:
+      containers:
+        - env:
+            - name: ARG_IFACE_LIST
+              value: virtual@af_packet,eth0
+            - name: OPT_NO_HUGEPAGES
+              value: "Yes"
+            - name: OPT_LISTEN_PORT
+              value: "5555"
+            - name: ARG_CORE_LIST
+              value: 1 1 1
+          image: ghcr.io/open-traffic-generator/ixia-c-traffic-engine:local
+          imagePullPolicy: IfNotPresent
+          name: otg-port-eth1-traffic-engine
+          securityContext:
+            privileged: true
+        - env:
+            - name: INTF_LIST
+              value: eth0
+          image: ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine:local
+          imagePullPolicy: IfNotPresent
+          name: otg-port-eth1-protocol-engine
+          securityContext:
+            privileged: true
+      restartPolicy: Always
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      labels:
+        app: ixia-c
+        role: port-eth2
+      name: otg-port-eth2
+      namespace: ixia-c
+    spec:
+      containers:
+        - env:
+            - name: ARG_IFACE_LIST
+              value: virtual@af_packet,eth0
+            - name: OPT_NO_HUGEPAGES
+              value: "Yes"
+            - name: OPT_LISTEN_PORT
+              value: "5555"
+            - name: ARG_CORE_LIST
+              value: 1 1 1
+          image: ghcr.io/open-traffic-generator/ixia-c-traffic-engine:local
+          imagePullPolicy: IfNotPresent
+          name: otg-port-eth2-traffic-engine
+          securityContext:
+            privileged: true
+        - env:
+            - name: INTF_LIST
+              value: eth0
+          image: ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine:local
+          imagePullPolicy: IfNotPresent
+          name: otg-port-eth2-protocol-engine
+          securityContext:
+            privileged: true
+      restartPolicy: Always
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: service-otg-controller
+      namespace: ixia-c
+    spec:
+      ports:
+        - name: https
+          port: 8443
+          protocol: TCP
+          targetPort: 8443
+        - name: grpc
+          port: 40051
+          protocol: TCP
+          targetPort: 40051
+        - name: gnmi
+          port: 50051
+          protocol: TCP
+          targetPort: 50051
+      selector:
+        role: controller
+      type: LoadBalancer
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: service-otg-port-eth1
+      namespace: ixia-c
+    spec:
+      ports:
+        - name: port-5555
+          port: 5555
+          protocol: TCP
+          targetPort: 5555
+        - name: port-50071
+          port: 50071
+          protocol: TCP
+          targetPort: 50071
+      selector:
+        role: port-eth1
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: service-otg-port-eth2
+      namespace: ixia-c
+    spec:
+      ports:
+        - name: port-5555
+          port: 5555
+          protocol: TCP
+          targetPort: 5555
+        - name: port-50071
+          port: 50071
+          protocol: TCP
+          targetPort: 50071
+      selector:
+        role: port-eth2
