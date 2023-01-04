@@ -18,6 +18,8 @@ def test_vxlan_header_with_inner_ipv6_traffic():
         "innerRxMac": "00:00:01:01:01:04",
         "txIp": "1.1.1.1",
         "rxIp": "1.1.1.2",
+        "txIpv6": "::3",
+        "rxIpv6": "::5",
         "txUdpPortValue": 4789,
         "rxUdpPortValue": 4789,
         "vxLanVniValues": [1000, 1001, 1002, 1003, 1004],
@@ -79,6 +81,9 @@ def vxlan_header_config(api, tc):
 
     vxlan.vni.values = tc["vxLanVniValues"]
 
+    ip6.src.value = tc["txIpv6"]
+    ip6.dst.value = tc["rxIpv6"]
+
     tcp.src_port.value = tc["txTcpPortValue"]
     tcp.dst_port.value = tc["rxTcpPortValue"]
 
@@ -128,6 +133,12 @@ def capture_ok(api, c, tc):
             "ipv4 total length", i, 16, api.num_to_bytes(tc["pktSize"] - 14 - 4, 2)
         )
         captured_packets.validate_field("ipv4 protocol", i, 23, api.num_to_bytes(17, 1))
+        captured_packets.validate_field(
+            "ipv4 src", i, 26, api.ipv4_addr_to_bytes(tc["txIp"])
+        )
+        captured_packets.validate_field(
+            "ipv4 dst", i, 30, api.ipv4_addr_to_bytes(tc["rxIp"])
+        )
 
         # udp header
         captured_packets.validate_field(
@@ -173,6 +184,12 @@ def capture_ok(api, c, tc):
         # )
         captured_packets.validate_field(
             "ipv6 next header", i, 70, api.num_to_bytes(6, 1)
+        )
+        captured_packets.validate_field(
+            "ipv6 src", i, 72, api.ipv6_addr_to_bytes(tc["txIpv6"])
+        )
+        captured_packets.validate_field(
+            "ipv6 dst", i, 88, api.ipv6_addr_to_bytes(tc["rxIpv6"])
         )
 
         # inner tcp header

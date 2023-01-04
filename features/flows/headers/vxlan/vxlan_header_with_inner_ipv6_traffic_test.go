@@ -20,6 +20,8 @@ func TestVxlanHeader(t *testing.T) {
         "innerRxMac":      "00:00:01:01:01:04",
 		"txIp":            "1.1.1.1",
 		"rxIp":            "1.1.1.2",
+        "txIpv6":          "::3",
+        "rxIpv6":          "::5",
 		"txUdpPortValue":  int32(4789),
         "rxUdpPortValue":  int32(4789),
         "vxLanVniValues":  []int32{1000, 1001, 1002, 1003, 1004},
@@ -90,7 +92,9 @@ func vxLanHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 	eth2.Src().SetValue(tc["innerTxMac"].(string))
 	eth2.Dst().SetValue(tc["innerRxMac"].(string))
 
-	f1.Packet().Add().Ipv6()
+	ip6 := f1.Packet().Add().Ipv6()
+	ip6.Src().SetValue(tc["txIpv6"].(string))
+	ip6.Dst().SetValue(tc["rxIpv6"].(string))
 
 	tcp := f1.Packet().Add().Tcp()
 	tcp.SrcPort().SetValue(tc["txTcpPortValue"].(int32))
@@ -132,6 +136,8 @@ func vxLanHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]inte
 		// ipv4 header
 		cPackets.ValidateField(t, "ipv4 total length", i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4), 2))
 		cPackets.ValidateField(t, "ipv4 protocol", i, 23, api.Uint64ToBytes(17, 1))
+		cPackets.ValidateField(t, "ipv4 src", i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string)))
+		cPackets.ValidateField(t, "ipv4 dst", i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// udp header
 		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(tc["txUdpPortValue"].(int32)), 2))
 		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxUdpPortValue"].(int32)), 2))
@@ -146,6 +152,8 @@ func vxLanHeaderCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]inte
 		// commenting out the payload validation because of issue 112 in ixia-c
 		// cPackets.ValidateField(t, "ipv6 payload length", i, 68, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-20-8-8-14-40), 2))
 		cPackets.ValidateField(t, "ipv6 next header", i, 70, api.Uint64ToBytes(6, 1))
+		cPackets.ValidateField(t, "ipv6 src", i, 72, api.Ipv6AddrToBytes(tc["txIpv6"].(string)))
+		cPackets.ValidateField(t, "ipv6 dst", i, 88, api.Ipv6AddrToBytes(tc["rxIpv6"].(string)))
 		// inner tcp header
 		cPackets.ValidateField(t, "tcp src", i, 104, api.Uint64ToBytes(uint64(tc["txTcpPortValue"].(int32)), 2))
 		cPackets.ValidateField(t, "tcp dst", i, 106, api.Uint64ToBytes(uint64(tc["rxTcpPortValue"].(int32)), 2))
