@@ -164,12 +164,13 @@ def capture_ok(api, c, tc):
         )
 
         # inner ipv6 header
-        captured_packets.validate_field(
-            "ipv6 payload length",
-            i,
-            68,
-            api.num_to_bytes(tc["pktSize"] - 14 - 4 - 20 - 8 - 8 - 14 - 40, 2),
-        )
+        # commenting out the below snippet due issue 112 in ixia-c
+        # captured_packets.validate_field(
+        #     "ipv6 payload length",
+        #     i,
+        #     68,
+        #     api.num_to_bytes(tc["pktSize"] - 14 - 4 - 20 - 8 - 8 - 14 - 40, 2),
+        # )
         captured_packets.validate_field(
             "ipv6 next header", i, 70, api.num_to_bytes(6, 1)
         )
