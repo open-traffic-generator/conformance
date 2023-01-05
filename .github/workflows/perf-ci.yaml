@@ -27,7 +27,6 @@ jobs:
       - name: Run go tests (gRPC)
         run: |
           ./do.sh pregotest
-          ./do.sh pylint
           OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=perf
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -36,6 +35,7 @@ jobs:
       - name: Run python tests
         run: |
           ./do.sh prepytest
+          ./do.sh pylint
           OTG_ITERATIONS=2 ./do.sh pytest -m perf
       - name: Get container logs
         if: always()
