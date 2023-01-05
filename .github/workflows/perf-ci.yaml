@@ -22,10 +22,12 @@ jobs:
       - name: Run go tests (HTTP)
         run: |
           ./do.sh pregotest
+          ./do.sh golint
           OTG_ITERATIONS=1 ./do.sh gotest -tags=perf
       - name: Run go tests (gRPC)
         run: |
           ./do.sh pregotest
+          ./do.sh pylint
           OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=perf
       - name: Setup Python
         uses: actions/setup-python@v2

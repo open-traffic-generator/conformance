@@ -25,6 +25,7 @@ jobs:
       - name: Run go tests
         run: |
           ./do.sh pregotest
+          ./do.sh golint
           ./do.sh gotest -tags="all" -run="^TestUdpHeaderEth0$"
       # - name: Get container logs
       #   if: always()

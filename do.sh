@@ -946,6 +946,50 @@ usage() {
     exit 1
 }
 
+pylint() {
+    mkdir -p logs
+    py=.env/bin/python
+    log=logs/pylint.log
+    dir=${1:-.}
+    reformat=${2:-false}
+
+    ${py} -m black ${dir} --check > ${log} 2>&1
+    if grep -q "Oh no!" ${log};
+    then
+        sed 's/would reformat/Black formatting failed for/' ${log} 
+        if [ $reformat = true ]
+        then
+            ${py} -m black ${dir}
+        else
+            exit 1
+        fi
+    fi
+}
+
+golint() {
+    mkdir -p logs
+    log=logs/golint.log
+    dir=${1:-"."}
+    reformat=${2:-false}
+
+    GO111MODULE=on CGO_ENABLED=0 go install -v github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.2
+    lintdir=$([ ${dir} = "." ] && echo "" || echo ${dir})
+    $HOME/go/bin/golangci-lint run --disable gosimple -v ${lintdir} > ${log} 2>&1
+    ret=$?
+    if [ $ret -eq 1 ] || [ $ret -gt 1 ]
+    then
+        if [ $reformat = true ]
+        then
+            gofmt -s -w ${dir}
+            echo "files reformatted"
+        else
+            cat ${log}
+            exit 1
+        fi
+    fi 
+
+}
+
 case $1 in
     *   )
         # shift positional arguments so that arg 2 becomes arg 1, etc.

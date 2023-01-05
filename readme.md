@@ -73,6 +73,31 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh topo rm cpdp
     ```
 
+6. Checking Lint for Python code
+    
+    ```sh
+    # to check whether pyhton code has lint issue
+    ./do.sh pylint
+
+    # we can also specify path to be checked
+    ./do.sh pylint features
+
+    # to format the code according to black 
+    ./do.sh pylint features true
+    ```
+
+7. Checking Lint for Go code
+    
+    ```sh
+    # to check whether go code has lint issue
+    ./do.sh golint
+
+    # we can also specify path to be checked
+    ./do.sh golint helpers
+
+    # to format the code according to gofmt 
+    ./do.sh golint helpers true
+
 ### Advanced Usage:
 
 1. Run perf tests in Go
