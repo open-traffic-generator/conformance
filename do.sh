@@ -975,7 +975,7 @@ golint() {
     GO111MODULE=on CGO_ENABLED=0 go install -v github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.2
     lintdir=$([ ${dir} = "." ] && echo "./..." || echo ${dir})
     go mod tidy
-    $HOME/go/bin/golangci-lint run --disable gosimple -v ${lintdir} > ${log} 2>&1
+    $HOME/go/bin/golangci-lint run --disable gosimple --timeout 5m -v ${lintdir} > ${log} 2>&1
     ret=$?
     if [ $ret -eq 1 ] || [ $ret -gt 1 ]
     then
