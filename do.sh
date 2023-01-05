@@ -977,6 +977,7 @@ golint() {
     echo $lintdir
     pwd
     ls
+    go mod tidy
     $HOME/go/bin/golangci-lint run --disable gosimple -v > ${log} 2>&1
     # $HOME/go/bin/golangci-lint run --disable gosimple -v ${lintdir} > ${log} 2>&1
     ret=$?
