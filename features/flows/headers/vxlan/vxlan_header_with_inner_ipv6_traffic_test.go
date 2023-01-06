@@ -11,22 +11,22 @@ import (
 
 func TestVxlanHeader(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":         int64(50),
-		"pktCount":        int32(100),
-		"pktSize":         int32(256),
-		"txMac":           "00:00:01:01:01:01",
-		"rxMac":           "00:00:01:01:01:02",
-		"innerTxMac":      "00:00:01:01:01:03",
-        "innerRxMac":      "00:00:01:01:01:04",
-		"txIp":            "1.1.1.1",
-		"rxIp":            "1.1.1.2",
-        "txIpv6":          "::3",
-        "rxIpv6":          "::5",
-		"txUdpPortValue":  int32(4789),
-        "rxUdpPortValue":  int32(4789),
-        "vxLanVniValues":  []int32{1000, 1001, 1002, 1003, 1004},
-        "txTcpPortValue":  int32(80),
-        "rxTcpPortValue":  int32(80),
+		"pktRate":        int64(50),
+		"pktCount":       int32(100),
+		"pktSize":        int32(256),
+		"txMac":          "00:00:01:01:01:01",
+		"rxMac":          "00:00:01:01:01:02",
+		"innerTxMac":     "00:00:01:01:01:03",
+		"innerRxMac":     "00:00:01:01:01:04",
+		"txIp":           "1.1.1.1",
+		"rxIp":           "1.1.1.2",
+		"txIpv6":         "::3",
+		"rxIpv6":         "::5",
+		"txUdpPortValue": int32(4789),
+		"rxUdpPortValue": int32(4789),
+		"vxLanVniValues": []int32{1000, 1001, 1002, 1003, 1004},
+		"txTcpPortValue": int32(80),
+		"rxTcpPortValue": int32(80),
 	}
 
 	api := otg.NewOtgApi(t)
@@ -87,7 +87,7 @@ func vxLanHeaderConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 
 	vxlan := f1.Packet().Add().Vxlan()
 	vxlan.Vni().SetValues(tc["vxLanVniValues"].([]int32))
-	
+
 	eth2 := f1.Packet().Add().Ethernet()
 	eth2.Src().SetValue(tc["innerTxMac"].(string))
 	eth2.Dst().SetValue(tc["innerRxMac"].(string))

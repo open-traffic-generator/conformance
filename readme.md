@@ -73,30 +73,29 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh topo rm cpdp
     ```
 
-6. Checking Lint for Python code
+6. Format python code
     
+    Note that if you submit any code which does not follow proper python format the CI will fail
+
     ```sh
-    # to check whether pyhton code has lint issue
+    # to format python code
     ./do.sh pylint
 
-    # we can also specify path to be checked
+    # to format python code for a specific path
     ./do.sh pylint features
-
-    # to format the code according to black 
-    ./do.sh pylint features true
     ```
 
-7. Checking Lint for Go code
-    
+7. Format go code
+
+   Note that if you submit any code which does not follow proper go format the CI will fail
+
     ```sh
-    # to check whether go code has lint issue
+    # to format go code
     ./do.sh golint
 
-    # we can also specify path to be checked
+    # to format go code for a specific path
     ./do.sh golint helpers
-
-    # to format the code according to gofmt 
-    ./do.sh golint helpers true
+    ```
 
 ### Advanced Usage:
 
