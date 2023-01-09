@@ -314,8 +314,7 @@ gen_config_common() {
         location="[$(container_ip6 ixia-c-controller)]"
     fi
 
-    yml="otg_host: https://${location}
-        otg_speed: speed_1_gbps
+    yml="otg_speed: speed_1_gbps
         otg_capture_check: true
         otg_iterations: 100
         otg_grpc_transport: false
