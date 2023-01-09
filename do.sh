@@ -130,6 +130,11 @@ rm_veth_pair() {
     sudo ip link delete ${1}
 }
 
+ipv6_enable_docker() {
+    echo "{\"ipv6\": true, \"fixed-cidr-v6\": \"2001:db8:1::/64\"}" | sudo tee /etc/docker/daemon.json
+    echo "$(sudo systemctl restart docker)"
+}
+
 push_ifc_to_container() {
     if [ -z "${1}" ] || [ -z "${2}" ]
     then
@@ -165,6 +170,10 @@ container_pid() {
 
 container_ip() {
     docker inspect --format="{{json .NetworkSettings.IPAddress}}" ${1} | cut -d\" -f 2
+}
+
+container_ip6() {
+    docker inspect --format="{{json .NetworkSettings.GlobalIPv6Address}}" ${1} | cut -d\" -f 2
 }
 
 ixia_c_img() {
@@ -236,19 +245,31 @@ gen_controller_config_b2b_dp() {
 
 gen_controller_config_b2b_cpdp() {
     configdir=/home/ixia-c/controller/config
-    OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
-    OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
+    if [ "${1}" = "ipv6" ]
+    then 
+        OTG_PORTA=$(container_ip6 ixia-c-traffic-engine-${VETH_A})
+        OTG_PORTZ=$(container_ip6 ixia-c-traffic-engine-${VETH_Z})
+    else
+        OTG_PORTA=$(container_ip ixia-c-traffic-engine-${VETH_A})
+        OTG_PORTZ=$(container_ip ixia-c-traffic-engine-${VETH_Z})
+    fi
 
     wait_for_sock ${OTG_PORTA} 5555
     wait_for_sock ${OTG_PORTA} 50071
     wait_for_sock ${OTG_PORTZ} 5555
     wait_for_sock ${OTG_PORTZ} 50071
 
+    if [ "${1}" = "ipv6" ]
+    then 
+        OTG_PORTA="[${OTG_PORTA}]"
+        OTG_PORTZ="[${OTG_PORTZ}]"
+    fi
+
     yml="location_map:
           - location: ${VETH_A}
-            endpoint: ${OTG_PORTA}:5555+${OTG_PORTA}:50071
+            endpoint: \"${OTG_PORTA}:5555+${OTG_PORTA}:50071\"
           - location: ${VETH_Z}
-            endpoint: ${OTG_PORTZ}:5555+${OTG_PORTZ}:50071
+            endpoint: \"${OTG_PORTZ}:5555+${OTG_PORTZ}:50071\"
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
     && docker exec ixia-c-controller mkdir -p ${configdir} \
@@ -287,6 +308,12 @@ gen_controller_config_b2b_lag() {
 }
 
 gen_config_common() {
+    location=localhost
+    if [ "${1}" = "ipv6" ]
+    then 
+        location="[$(container_ip6 ixia-c-controller)]"
+    fi
+
     yml="otg_speed: speed_1_gbps
         otg_capture_check: true
         otg_iterations: 100
@@ -303,7 +330,7 @@ gen_config_b2b_dp() {
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
-    gen_config_common
+    gen_config_common 
 }
 
 gen_config_b2b_cpdp() {
@@ -314,7 +341,7 @@ gen_config_b2b_cpdp() {
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
-    gen_config_common
+    gen_config_common $1
 }
 
 gen_config_b2b_lag() {
@@ -454,6 +481,10 @@ rm_ixia_c_b2b_dp() {
 }
 
 create_ixia_c_b2b_cpdp() {
+    if [ "${1}" = "ipv6" ]
+    then 
+        ipv6_enable_docker
+    fi
     echo "Setting up back-to-back with CP/DP distribution of ixia-c ..."
     login_ghcr                                              \
     && docker run -d                                        \
@@ -494,8 +525,8 @@ create_ixia_c_b2b_cpdp() {
     && create_veth_pair ${VETH_A} ${VETH_Z}                 \
     && push_ifc_to_container ${VETH_A} ixia-c-traffic-engine-${VETH_A}  \
     && push_ifc_to_container ${VETH_Z} ixia-c-traffic-engine-${VETH_Z}  \
-    && gen_controller_config_b2b_cpdp                       \
-    && gen_config_b2b_cpdp                                  \
+    && gen_controller_config_b2b_cpdp $1                     \
+    && gen_config_b2b_cpdp $1                                \
     && docker ps -a \
     && echo "Successfully deployed !"
 }
@@ -836,7 +867,7 @@ topo() {
                     create_ixia_c_b2b_dp
                 ;;
                 cpdp)
-                    create_ixia_c_b2b_cpdp
+                    create_ixia_c_b2b_cpdp $3
                 ;;
                 lag )
                     create_ixia_c_b2b_lag
