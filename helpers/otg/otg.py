@@ -282,7 +282,7 @@ class OtgApi(object):
                     "L1 Database Size",
                     "L2 Database Size",
                 ],
-                20
+                20,
             )
 
             for m in metrics:

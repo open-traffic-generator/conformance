@@ -25,6 +25,7 @@ jobs:
       - name: Run go tests
         run: |
           ./do.sh pregotest
+          ./do.sh golint
           ./do.sh gotest -tags="feature"
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -33,6 +34,7 @@ jobs:
       - name: Run python tests
         run: |
           ./do.sh prepytest
+          ./do.sh pylint
           ./do.sh pytest -m feature
       # - name: Get container logs
       #   if: always()

@@ -22,6 +22,7 @@ jobs:
       - name: Run go tests
         run: |
           ./do.sh pregotest
+          ./do.sh golint
           ./do.sh gotest -tags="lag_feature"
       # - name: Setup Python
       #   uses: actions/setup-python@v2

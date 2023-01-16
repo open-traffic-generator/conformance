@@ -73,6 +73,30 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh topo rm cpdp
     ```
 
+6. Format python code
+    
+    Note that if you submit any code which does not follow proper python format the CI will fail
+
+    ```sh
+    # to format python code
+    ./do.sh pylint
+
+    # to format python code for a specific path
+    ./do.sh pylint features
+    ```
+
+7. Format go code
+
+   Note that if you submit any code which does not follow proper go format the CI will fail
+
+    ```sh
+    # to format go code
+    ./do.sh golint
+
+    # to format go code for a specific path
+    ./do.sh golint helpers
+    ```
+
 ### Advanced Usage:
 
 1. Run perf tests in Go

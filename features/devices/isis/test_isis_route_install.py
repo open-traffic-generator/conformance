@@ -227,8 +227,8 @@ def isis_route_install_config(api, tc):
 
 def isis_metrics_ok(api, tc):
     for m in api.get_isis_metrics():
-	# TODO:  L1/L2 database size check does not ensure that routes are correctly advertised.
-	# Hence, for that, one MUST rely on isis states (not supported as of now).
+        # TODO:  L1/L2 database size check does not ensure that routes are correctly advertised.
+        # Hence, for that, one MUST rely on isis states (not supported as of now).
         if (
             m.l1_sessions_up != 1
             or m.l1_database_size != 1
