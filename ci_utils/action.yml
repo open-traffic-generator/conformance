@@ -1,0 +1,38 @@
+name: "Setup and Run Test"
+description: "sets python and go env and execute test according to inputs"
+inputs:
+  test_suite:
+    description: "the test suite to be ran"
+  only_setup:
+    description: "only sets up python and go"
+    default: "false"
+  execute_go_tests:
+    description: "executes go test for the deployment"
+    default: "true"
+  execute_python_tests:
+    description: "runs python test for the deployment"
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - if: ${{ inputs.execute_python_tests == "true" }}
+      name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.8"
+    - if: ${{ inputs.execute_go_tests == "true" }}
+      name: Setup Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: "1.18"
+    - if: ${{ inputs.execute_go_tests == "true" && inputs.only_setup == "fasle" }}
+      run: |
+        ./do.sh pregotest
+        ./do.sh gotest -tags="${{ inputs.test_suite }}"
+      shell: bash
+    - if: ${{ inputs.execute_python_tests == 'true' && inputs.only_setup == "fasle" }}
+      run: |
+        ./do.sh prepytest
+        ./do.sh pytest -m ${{ inputs.test_suite }}
+      shell: bash
