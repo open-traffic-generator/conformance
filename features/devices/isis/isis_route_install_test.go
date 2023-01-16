@@ -1,4 +1,4 @@
-//go:build all || feature || b2b
+//go:build all || b2b
 
 package isis
 
