@@ -29,6 +29,7 @@ runs:
     - if: ${{ inputs.execute_go_tests == 'true' && inputs.only_setup == 'false' }}
       run: |
         ./do.sh pregotest
+        go mod tidy
         ./do.sh gotest -tags="${{ inputs.test_suite }}"
       shell: bash
     - if: ${{ inputs.execute_python_tests == 'true' && inputs.only_setup == 'false' }}
