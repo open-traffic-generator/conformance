@@ -979,7 +979,7 @@ extest() {
     ${py} -m pytest -svvv ${@} examples | tee ${log}
     grep FAILED ${log} && return 1
 
-    return true
+    return 0
 }
 
 help() {
