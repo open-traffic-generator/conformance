@@ -34,6 +34,9 @@ jobs:
       - uses: ./ci_utils
         with:
           test_suite: "dp_feature"
+      - name: Run example tests
+        run: |
+          ./do.sh extest
       - name: Get container logs
         if: always()
         run: |
