@@ -3,7 +3,6 @@ name: CICD
 env:
   PYTHON_VERSION: "3.8"
   GO_VERSION: "1.18"
-  OS_VERSION: "ubuntu-22.04"
 
 on:
   push:
@@ -11,7 +10,7 @@ on:
 
 jobs:
   setup:
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -32,7 +31,7 @@ jobs:
           ./do.sh golint
 
   dp_ci:
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout source
@@ -78,7 +77,7 @@ jobs:
           ./do.sh topo rm dp
 
   cpdp_ci:
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout source
@@ -121,7 +120,7 @@ jobs:
           ./do.sh topo rm cpdp
 
   cpdp_ipv6_ci:
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout source
@@ -164,7 +163,7 @@ jobs:
           ./do.sh topo rm cpdp
 
   kne_b2b_ci:
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout source
@@ -206,7 +205,7 @@ jobs:
           ./do.sh topo rm kneb2b
 
   kne_b2b_eth0_ci:
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout source
@@ -240,7 +239,7 @@ jobs:
           ./do.sh topo rm k8seth0
 
   lag_ci:
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout source
@@ -275,7 +274,7 @@ jobs:
           ./do.sh topo rm lag
 
   perf_ci:
-    runs-on: ${{ env.OS_VERSION }}
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout source
