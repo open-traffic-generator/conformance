@@ -1,27 +1,38 @@
 name: CICD
 
+env:
+  PYTHON_VERSION: "3.8"
+  GO_VERSION: "1.18"
+  OS_VERSION: "ubuntu-22.04"
+
 on:
   push:
   pull_request:
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
+  setup:
+    runs-on: ${{ env.OS_VERSION }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
-      - uses: ./ci_utils
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          only_setup: "true"
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
       - name: Lint Python Code
         run: |
+          ./do.sh prepytest 
           ./do.sh pylint
       - name: Lint Go Code
         run: |
           ./do.sh golint
 
   dp_ci:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ env.OS_VERSION }}
     needs: build
     steps:
       - name: Checkout source
@@ -31,9 +42,23 @@ jobs:
       - name: Deploy back-to-back DP-only distribution of ixia-c
         run: |
           ./do.sh topo new dp
-      - uses: ./ci_utils
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          test_suite: "dp_feature"
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          ./do.sh pytest -m dp_feature
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="dp_feature"
       - name: Run example tests
         run: |
           ./do.sh extest
@@ -53,7 +78,7 @@ jobs:
           ./do.sh topo rm dp
 
   cpdp_ci:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ env.OS_VERSION }}
     needs: build
     steps:
       - name: Checkout source
@@ -63,9 +88,23 @@ jobs:
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
-      - uses: ./ci_utils
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          test_suite: "dp_feature"
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          ./do.sh pytest -m feature
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="feature"
       - name: Get container logs
         if: always()
         run: |
@@ -82,7 +121,7 @@ jobs:
           ./do.sh topo rm cpdp
 
   cpdp_ipv6_ci:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ env.OS_VERSION }}
     needs: build
     steps:
       - name: Checkout source
@@ -92,9 +131,23 @@ jobs:
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp ipv6
-      - uses: ./ci_utils
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          test_suite: "dp_feature"
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          ./do.sh pytest -m feature
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="feature"
       - name: Get container logs
         if: always()
         run: |
@@ -121,16 +174,26 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: "1.18"
+          go-version: ${{ env.GO_VERSION }}
       - name: Setup KNE cluster
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster kne
       - name: Deploy KNE OTG back-to-back topology
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new kneb2b
-      - uses: ./ci_utils
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="feature"
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          test_suite: "dp_feature"
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          ./do.sh pytest -m feature
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v2
@@ -143,7 +206,7 @@ jobs:
           ./do.sh topo rm kneb2b
 
   kne_b2b_eth0_ci:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ env.OS_VERSION }}
     needs: build
     steps:
       - name: Checkout source
@@ -153,7 +216,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: "1.18"
+          go-version: ${{ env.GO_VERSION }}
       - name: Setup K8S cluster
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster
@@ -177,7 +240,7 @@ jobs:
           ./do.sh topo rm k8seth0
 
   lag_ci:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ env.OS_VERSION }}
     needs: build
     steps:
       - name: Checkout source
@@ -187,10 +250,15 @@ jobs:
       - name: Deploy back-to-back LAG CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new lag
-      - uses: ./ci_utils
+      - name: Setup Go
+        uses: actions/setup-go@v3
         with:
-          test_suite: "lag_feature"
-          execute_python_tests: "false"
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="lag_feature"
       - name: Get container logs
         if: always()
         run: |
@@ -207,7 +275,7 @@ jobs:
           ./do.sh topo rm lag
 
   perf_ci:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ env.OS_VERSION }}
     needs: build
     steps:
       - name: Checkout source
@@ -220,7 +288,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: "1.18"
+          go-version: ${{ env.GO_VERSION }}
       - name: Run go tests (HTTP)
         run: |
           ./do.sh pregotest
@@ -229,15 +297,15 @@ jobs:
       - name: Run go tests (gRPC)
         run: |
           ./do.sh pregotest
+          go mod tidy
           OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=perf
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.8"
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Run python tests
         run: |
           ./do.sh prepytest
-          ./do.sh pylint
           OTG_ITERATIONS=2 ./do.sh pytest -m perf
       - name: Get container logs
         if: always()
