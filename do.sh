@@ -968,6 +968,20 @@ pytest() {
     grep FAILED ${log} && return 1 || true
 }
 
+extest() {
+    mkdir -p logs
+    log=logs/extest.log
+    py=.env/bin/python
+
+    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s -tags all ${@} ./examples/... | tee ${log}
+    grep FAIL ${log} && return 1
+
+    ${py} -m pytest -svvv ${@} examples | tee ${log}
+    grep FAILED ${log} && return 1
+
+    return 0
+}
+
 help() {
     grep "() {" ${0} | cut -d\  -f1
 }

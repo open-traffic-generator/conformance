@@ -33,6 +33,9 @@ jobs:
           ./do.sh prepytest
           ./do.sh pylint
           ./do.sh pytest -m dp_feature
+      - name: Run example tests
+        run: |
+          ./do.sh extest
       - name: Get container logs
         if: always()
         run: |
