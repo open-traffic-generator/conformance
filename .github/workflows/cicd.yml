@@ -164,7 +164,7 @@ jobs:
           ./do.sh topo rm cpdp
 
   kne_b2b_ci:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ env.OS_VERSION }}
     needs: build
     steps:
       - name: Checkout source
