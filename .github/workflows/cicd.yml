@@ -32,7 +32,7 @@ jobs:
 
   dp_ci:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: setup
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -78,7 +78,7 @@ jobs:
 
   cpdp_ci:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: setup
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -121,7 +121,7 @@ jobs:
 
   cpdp_ipv6_ci:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: setup
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -164,7 +164,7 @@ jobs:
 
   kne_b2b_ci:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: setup
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -206,7 +206,7 @@ jobs:
 
   kne_b2b_eth0_ci:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: setup
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -240,7 +240,7 @@ jobs:
 
   lag_ci:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: setup
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -275,7 +275,7 @@ jobs:
 
   perf_ci:
     runs-on: ubuntu-22.04
-    needs: build
+    needs: setup
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
