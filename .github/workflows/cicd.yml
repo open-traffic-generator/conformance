@@ -1,0 +1,322 @@
+name: CICD
+
+env:
+  PYTHON_VERSION: "3.8"
+  GO_VERSION: "1.18"
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  setup:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Lint Python Code
+        run: |
+          ./do.sh prepytest 
+          ./do.sh pylint
+      - name: Lint Go Code
+        run: |
+          ./do.sh golint
+
+  dp_ci:
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Deploy back-to-back DP-only distribution of ixia-c
+        run: |
+          ./do.sh topo new dp
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          ./do.sh pytest -m dp_feature
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="dp_feature"
+      - name: Run example tests
+        run: |
+          ./do.sh extest
+      - name: Get container logs
+        if: always()
+        run: |
+          ./do.sh topo logs
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: dp_logs
+          path: |
+            logs
+      - name: Teardown back-to-back DP-only distribution of ixia-c
+        run: |
+          ./do.sh topo rm dp
+
+  cpdp_ci:
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Deploy back-to-back CP/DP distribution of ixia-c
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          ./do.sh pytest -m feature
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="feature"
+      - name: Get container logs
+        if: always()
+        run: |
+          ./do.sh topo logs cpdp
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: cpdp_logs
+          path: |
+            logs
+      - name: Teardown back-to-back CP/DP distribution of ixia-c
+        run: |
+          ./do.sh topo rm cpdp
+
+  cpdp_ipv6_ci:
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Deploy back-to-back CP/DP distribution of ixia-c
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp ipv6
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          ./do.sh pytest -m feature
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="feature"
+      - name: Get container logs
+        if: always()
+        run: |
+          ./do.sh topo logs cpdp
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: cpdp_ipv6_logs
+          path: |
+            logs
+      - name: Teardown back-to-back CP/DP distribution of ixia-c
+        run: |
+          ./do.sh topo rm cpdp
+
+  kne_b2b_ci:
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Setup KNE cluster
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster kne
+      - name: Deploy KNE OTG back-to-back topology
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new kneb2b
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="feature"
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          ./do.sh pytest -m feature
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kne_b2b_logs
+          path: |
+            logs
+      - name: Teardown KNE OTG back-to-back topology
+        run: |
+          ./do.sh topo rm kneb2b
+
+  kne_b2b_eth0_ci:
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Setup K8S cluster
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster
+      - name: Deploy OTG back-to-back topology with eth0
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new k8seth0
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="all" -run="^TestUdpHeaderEth0$"
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: kne_b2b_eth0_logs
+          path: |
+            logs
+      - name: Teardown OTG back-to-back topology with eth0
+        run: |
+          ./do.sh topo rm k8seth0
+
+  lag_ci:
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Deploy back-to-back LAG CP/DP distribution of ixia-c
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new lag
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          ./do.sh gotest -tags="lag_feature"
+      - name: Get container logs
+        if: always()
+        run: |
+          ./do.sh topo logs cpdp
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: lag_logs
+          path: |
+            logs
+      - name: Teardown back-to-back LAG CP/DP distribution of ixia-c
+        run: |
+          ./do.sh topo rm lag
+
+  perf_ci:
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Deploy back-to-back CP/DP distribution of ixia-c
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run go tests (HTTP)
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          OTG_ITERATIONS=1 ./do.sh gotest -tags=perf
+      - name: Run go tests (gRPC)
+        run: |
+          ./do.sh pregotest
+          go mod tidy
+          OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=perf
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Run python tests
+        run: |
+          ./do.sh prepytest
+          OTG_ITERATIONS=2 ./do.sh pytest -m perf
+      - name: Get container logs
+        if: always()
+        run: |
+          ./do.sh topo logs cpdp
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: perf_ci_logs
+          path: |
+            logs
+      - name: Teardown back-to-back CP/DP distribution of ixia-c
+        run: |
+          ./do.sh topo rm cpdp
