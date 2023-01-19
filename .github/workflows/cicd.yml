@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Setup Go
@@ -30,19 +30,19 @@ jobs:
         run: |
           ./do.sh golint
 
-  dp_ci:
+  dp:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup docker
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back DP-only distribution of ixia-c
         run: |
           ./do.sh topo new dp
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Run python tests
@@ -67,7 +67,7 @@ jobs:
           ./do.sh topo logs
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dp_logs
           path: |
@@ -76,19 +76,19 @@ jobs:
         run: |
           ./do.sh topo rm dp
 
-  cpdp_ci:
+  cpdp:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup docker
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Run python tests
@@ -110,7 +110,7 @@ jobs:
           ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cpdp_logs
           path: |
@@ -119,19 +119,19 @@ jobs:
         run: |
           ./do.sh topo rm cpdp
 
-  cpdp_ipv6_ci:
+  cpdp_ipv6:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup docker
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp ipv6
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Run python tests
@@ -153,7 +153,7 @@ jobs:
           ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cpdp_ipv6_logs
           path: |
@@ -162,12 +162,12 @@ jobs:
         run: |
           ./do.sh topo rm cpdp
 
-  kne_b2b_ci:
+  kne_b2b:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup docker
         uses: docker-practice/actions-setup-docker@master
       - name: Setup Go
@@ -186,7 +186,7 @@ jobs:
           go mod tidy
           ./do.sh gotest -tags="feature"
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Run python tests
@@ -195,7 +195,7 @@ jobs:
           ./do.sh pytest -m feature
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kne_b2b_logs
           path: |
@@ -204,12 +204,12 @@ jobs:
         run: |
           ./do.sh topo rm kneb2b
 
-  kne_b2b_eth0_ci:
+  kne_b2b_eth0:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup docker
         uses: docker-practice/actions-setup-docker@master
       - name: Setup Go
@@ -229,7 +229,7 @@ jobs:
           ./do.sh gotest -tags="all" -run="^TestUdpHeaderEth0$"
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kne_b2b_eth0_logs
           path: |
@@ -238,12 +238,12 @@ jobs:
         run: |
           ./do.sh topo rm k8seth0
 
-  lag_ci:
+  lag:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup docker
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back LAG CP/DP distribution of ixia-c
@@ -264,7 +264,7 @@ jobs:
           ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: lag_logs
           path: |
@@ -273,12 +273,12 @@ jobs:
         run: |
           ./do.sh topo rm lag
 
-  perf_ci:
+  perf:
     runs-on: ubuntu-22.04
     needs: setup
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup docker
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
@@ -299,7 +299,7 @@ jobs:
           go mod tidy
           OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=perf
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Run python tests
@@ -312,7 +312,7 @@ jobs:
           ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: perf_ci_logs
           path: |
