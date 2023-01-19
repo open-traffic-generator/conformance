@@ -4,11 +4,10 @@ from helpers.otg import otg
 
 
 @pytest.mark.all
-@pytest.mark.client
-@pytest.mark.perf
+@pytest.mark.client_perf
 def test_config_serdes_perf():
     test_const = {
-        "flowCounts": [1, 10, 100, 250, 1000],
+        "flowCounts": [1, 16, 256, 1024, 4096],
         "flowCount": 1,
         "pktRate": 50,
         "pktCount": 100,
