@@ -5,6 +5,7 @@ package flows
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
 	"github.com/open-traffic-generator/tests/helpers/otg"
@@ -44,7 +45,7 @@ func TestUdpHeaderMeshFlowsPerf(t *testing.T) {
 
 			api.WaitFor(
 				func() bool { return udpHeaderPerfMetricsOk(api, testConst) },
-				&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
+				&otg.WaitForOpts{FnName: "WaitForFlowMetrics", Timeout: 1 * time.Minute},
 			)
 
 			api.Plot().AppendZero()

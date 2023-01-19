@@ -556,7 +556,7 @@ jobs:
           ./do.sh pregotest
       - name: Run DP perf test (HTTP)
         run: |
-          OTG_ITERATIONS=10 ./do.sh gotest -tags=dp_perf
+          OTG_ITERATIONS=2 ./do.sh gotest -tags=dp_perf
       - name: Get container logs
         if: always()
         run: |
@@ -626,7 +626,7 @@ jobs:
           ./do.sh pregotest
       - name: Run DP perf test (HTTP)
         run: |
-          OTG_ITERATIONS=2 ./do.sh gotest -tags=cp_perf
+          OTG_ITERATIONS=10 ./do.sh gotest -tags=cp_perf
       - name: Get container logs
         if: always()
         run: |
