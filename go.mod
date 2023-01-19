@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/dreadl0ck/gopcap v0.0.0-20190327214342-be2a4d78505f
-	github.com/open-traffic-generator/snappi/gosnappi v0.10.3
+	github.com/open-traffic-generator/snappi/gosnappi v0.10.4
 	gopkg.in/yaml.v2 v2.4.0
 )
 
