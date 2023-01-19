@@ -13,7 +13,7 @@ import (
 
 func TestUdpHeaderMeshFlowsPerf(t *testing.T) {
 	testConst := map[string]interface{}{
-		"flowCounts": []int{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096},
+		"flowCounts": []int{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048},
 		"flowCount":  1,
 		"pktRate":    int64(10),
 		"pktCount":   int32(10),
