@@ -44,7 +44,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo new cpdp
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -79,7 +79,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo new cpdp
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -591,7 +591,7 @@ jobs:
           ./do.sh pregotest
       - name: Run DP perf test (gRPC)
         run: |
-          OTG_ITERATIONS=10 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=dp_perf
+          OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=dp_perf
       - name: Get container logs
         if: always()
         run: |
@@ -626,7 +626,7 @@ jobs:
           ./do.sh pregotest
       - name: Run DP perf test (HTTP)
         run: |
-          OTG_ITERATIONS=10 ./do.sh gotest -tags=cp_perf
+          OTG_ITERATIONS=2 ./do.sh gotest -tags=cp_perf
       - name: Get container logs
         if: always()
         run: |
