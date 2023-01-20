@@ -1,4 +1,4 @@
-//go:build all || perf || b2b
+//go:build all || perf || b2b || cp_perf
 
 package device
 

@@ -27,7 +27,7 @@ class OtgApi(object):
     def timer(self, fn_name, since):
         elapsed = (datetime.datetime.now() - since).microseconds * 1000
         self.plot.append_duration(plot.Duration(fn_name, elapsed, since))
-        log.info("Elapsed duration %s: %d ms", fn_name, elapsed)
+        log.info("Elapsed duration %s: %d ns", fn_name, elapsed)
 
     def wait_for(
         self, fn, fn_name="wait_for", interval_seconds=0.5, timeout_seconds=10

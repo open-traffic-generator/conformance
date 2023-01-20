@@ -149,8 +149,7 @@ func vxLanHeaderCaptureOkIPv4(api *otg.OtgApi, c gosnappi.Config, tc map[string]
 		cPackets.ValidateField(t, "ethernet dst", i, 70, api.MacAddrToBytes(tc["innerRxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet type", i, 82, api.Uint64ToBytes(2048, 2))
 		// inner ipv4 header
-		// commenting out the payload validation because of issue 112 in ixia-c
-		// cPackets.ValidateField(t, "ipv4 total length", i, 86, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-40-8-8-14-4), 2))
+		cPackets.ValidateField(t, "ipv4 total length", i, 86, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-40-8-8-14-4), 2))
 		cPackets.ValidateField(t, "ipv4 protocol", i, 93, api.Uint64ToBytes(6, 1))
 		cPackets.ValidateField(t, "ipv6 src", i, 96, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv6 dst", i, 100, api.Ipv4AddrToBytes(tc["rxIp"].(string)))

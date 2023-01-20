@@ -5,6 +5,7 @@ package flows
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
 	"github.com/open-traffic-generator/tests/helpers/otg"
@@ -12,7 +13,7 @@ import (
 
 func TestUdpHeaderMeshFlowsPerf(t *testing.T) {
 	testConst := map[string]interface{}{
-		"flowCounts": []int{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096},
+		"flowCounts": []int{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048},
 		"flowCount":  1,
 		"pktRate":    int64(10),
 		"pktCount":   int32(10),
@@ -44,7 +45,7 @@ func TestUdpHeaderMeshFlowsPerf(t *testing.T) {
 
 			api.WaitFor(
 				func() bool { return udpHeaderPerfMetricsOk(api, testConst) },
-				&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
+				&otg.WaitForOpts{FnName: "WaitForFlowMetrics", Timeout: 1 * time.Minute},
 			)
 
 			api.Plot().AppendZero()

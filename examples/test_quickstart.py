@@ -1,8 +1,10 @@
 import datetime
 import time
 import snappi
+import pytest
 
 
+@pytest.mark.example
 def test_quickstart():
     # Create a new API handle to make API calls against OTG
     # with HTTP as default transport protocol

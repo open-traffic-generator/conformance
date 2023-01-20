@@ -174,13 +174,12 @@ def capture_ok(api, c, tc):
         )
 
         # inner ipv4 header
-        # commenting out the below snippet due issue 112 in ixia-c
-        # captured_packets.validate_field(
-        #     "ipv4 total length",
-        #     i,
-        #     86,
-        #     api.num_to_bytes(tc["pktSize"] - 14 - 4 - 40 - 8 - 8 - 14 - 4, 2),
-        # )
+        captured_packets.validate_field(
+            "ipv4 total length",
+            i,
+            86,
+            api.num_to_bytes(tc["pktSize"] - 14 - 4 - 40 - 8 - 8 - 14 - 4, 2),
+        )
         captured_packets.validate_field("ipv4 protocol", i, 93, api.num_to_bytes(6, 1))
         captured_packets.validate_field(
             "ipv4 src", i, 96, api.ipv4_addr_to_bytes(tc["txIp"])
