@@ -11,6 +11,9 @@ VETH_C="veth-c"
 VETH_X="veth-x"
 VETH_Y="veth-y"
 
+YFILE="./collectables.yaml"
+PODNAME="ixia-c"
+
 GO_VERSION=1.19
 KIND_VERSION=v0.16.0
 METALLB_VERSION=v0.13.6
@@ -859,6 +862,42 @@ rm_ixia_c_k8s() {
     && wait_for_no_namespace ${ns}
 }
 
+get_yq() {
+    which yq > /dev/null 2>&1 && return 
+	echo "Installing yq..."
+	go install github.com/mikefarah/yq/v4@latest
+}
+
+cp_file() {
+    # printf "%s %s\n" "$1 $2"
+}
+
+get_paths() {
+    str=$"- "
+    rep=$" "
+    for con in $(yq '.containers[] | .name' ${YFILE})
+    do
+        # echo $con
+        path=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
+        # printf "%s\n" "$path"
+        for p in $path
+        do
+            if [ "$p" = - ]
+            then
+                continue
+            else
+                cp_file $con $p
+            fi
+            # [ ! -z "$path" ] && \
+		    # cp_file $con $p|| \
+		    # continue
+        done
+
+        
+    done
+}
+
+
 topo() {
     case $1 in
         new )
@@ -926,6 +965,10 @@ topo() {
                 docker logs ixia-c-protocol-engine-${VETH_Z} | tee logs/ixia-c-protocol-engine-${VETH_Z}/stdout.log > /dev/null
             fi
             top -bn2 | tee logs/resource-usage.log > /dev/null
+        ;;
+        get_logs    )
+            get_yq && \
+            get_paths
         ;;
         *   )
             exit 1
