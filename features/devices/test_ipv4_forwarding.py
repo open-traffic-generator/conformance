@@ -90,7 +90,7 @@ def mac_resolution_ok(api):
     state_info = api.get_ipv4_state()
     if len(state_info) == 0:
         return False
-    for s in state_info():
+    for s in state_info:
         if s.link_layer_address is None:
             return False
     return True
