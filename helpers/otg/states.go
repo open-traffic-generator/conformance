@@ -17,7 +17,9 @@ func (o *OtgApi) GetIpv4State() []gosnappi.Neighborsv4State {
 	sr := api.NewStatesRequest()
 	sr.Ipv4Neighbors()
 	res, err := api.GetStates(sr)
-	if err != nil {
+	t.Log(res)
+	t.log(err)
+	if err != nil || res == nil {
 		o.LogWrnErr(nil, err, true)
 		return nil
 	}
