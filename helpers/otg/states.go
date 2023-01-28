@@ -17,13 +17,7 @@ func (o *OtgApi) GetIpv4State() []gosnappi.Neighborsv4State {
 	sr := api.NewStatesRequest()
 	sr.Ipv4Neighbors()
 	res, err := api.GetStates(sr)
-	t.Log(res)
-	t.Log(res.Ipv4Neighbors().Items())
-	t.Log(err)
-	if err != nil || res == nil {
-		o.LogWrnErr(nil, err, true)
-		return nil
-	}
+	o.LogWrnErr(nil, err, true)
 
 	tb := table.NewTable(
 		"IPv4 State Info",
@@ -37,10 +31,16 @@ func (o *OtgApi) GetIpv4State() []gosnappi.Neighborsv4State {
 
 	for _, v := range res.Ipv4Neighbors().Items() {
 		if v != nil {
+			var linkLayerAddress string
+			if v.HasLinkLayerAddress() {
+				linkLayerAddress = v.LinkLayerAddress()
+			} else {
+				linkLayerAddress = ""
+			}
 			tb.AppendRow([]interface{}{
 				v.EthernetName(),
 				v.Ipv4Address(),
-				v.LinkLayerAddress(),
+				linkLayerAddress,
 			})
 		}
 	}
