@@ -131,7 +131,7 @@ func macResolutionOk(api *otg.OtgApi) bool {
 	}
 
 	for _, s := range stateInfo {
-		if s.LinkLayerAddress() == "" {
+		if !s.HasLinkLayerAddress() {
 			return false
 		}
 	}
