@@ -31,7 +31,7 @@ func TestIpv4Fowarding(t *testing.T) {
 	api.SetConfig(c)
 
 	api.WaitFor(
-		func() bool { return macResolutionOk(api) },
+		func() bool { return ipv4NeighborsOk(api) },
 		&otg.WaitForOpts{FnName: "WaitForMacResolution"},
 	)
 
@@ -124,7 +124,7 @@ func flowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	return true
 }
 
-func macResolutionOk(api *otg.OtgApi) bool {
+func ipv4NeighborsOk(api *otg.OtgApi) bool {
 	neighbors := api.GetIpv4Neighbors()
 
 	for _, n := range neighbors {

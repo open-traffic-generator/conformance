@@ -26,7 +26,7 @@ def test_ipv4_fowarding():
 
     api.set_config(c)
 
-    api.wait_for(fn=lambda: mac_resolution_ok(api), fn_name="wait_for_mac_resolution")
+    api.wait_for(fn=lambda: ipv4_neighbors_ok(api), fn_name="wait_for_mac_resolution")
 
     api.start_transmit()
 
@@ -85,7 +85,7 @@ def ipv4_forwarding_config(api, tc):
     return c
 
 
-def mac_resolution_ok(api):
+def ipv4_neighbors_ok(api):
     neighbors = api.get_ipv4_neighbors()
 
     for n in neighbors:

@@ -23,7 +23,7 @@ func (o *OtgApi) GetIpv4Neighbors() []gosnappi.Neighborsv4State {
 		"IPv4 Neighbors",
 		[]string{
 			"Ethernet Name",
-			"IPv4 Addess",
+			"IPv4 Address",
 			"Link Layer Address",
 		},
 		15,
