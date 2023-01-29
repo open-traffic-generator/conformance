@@ -15,7 +15,6 @@ def test_ipv4_fowarding():
         "txIp": "1.1.1.1",
         "txGateway": "1.1.1.2",
         "txPrefix": 24,
-        "txAs": 1111,
         "rxMac": "00:00:01:01:01:02",
         "rxIp": "1.1.1.2",
         "rxGateway": "1.1.1.1",
@@ -23,7 +22,7 @@ def test_ipv4_fowarding():
     }
 
     api = otg.OtgApi()
-    c = interface_config(api, test_const)
+    c = ipv4_forwarding_config(api, test_const)
 
     api.set_config(c)
 
@@ -36,7 +35,7 @@ def test_ipv4_fowarding():
     )
 
 
-def interface_config(api, tc):
+def ipv4_forwarding_config(api, tc):
     c = api.api.config()
     ptx = c.ports.add(name="ptx", location=api.test_config.otg_ports[0])
     prx = c.ports.add(name="prx", location=api.test_config.otg_ports[1])
@@ -87,13 +86,13 @@ def interface_config(api, tc):
 
 
 def mac_resolution_ok(api):
-    state_info = api.get_ipv4_state()
-    if len(state_info) == 0:
-        return False
-    for s in state_info:
-        if s.link_layer_address is None:
+    neighbors = api.get_ipv4_neighbors()
+
+    for n in neighbors:
+        if n.link_layer_address is None:
             return False
-    return True
+
+    return len(neighbors) > 0
 
 
 def flow_metrics_ok(api, tc):

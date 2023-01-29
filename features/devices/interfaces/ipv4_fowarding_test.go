@@ -26,7 +26,7 @@ func TestIpv4Fowarding(t *testing.T) {
 	}
 
 	api := otg.NewOtgApi(t)
-	c := interfaceConfig(api, testConst)
+	c := ipv4ForwardingConfig(api, testConst)
 
 	api.SetConfig(c)
 
@@ -43,7 +43,7 @@ func TestIpv4Fowarding(t *testing.T) {
 	)
 }
 
-func interfaceConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func ipv4ForwardingConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
@@ -125,17 +125,14 @@ func flowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 }
 
 func macResolutionOk(api *otg.OtgApi) bool {
-	stateInfo := api.GetIpv4State()
-	if stateInfo == nil {
-		return false
-	}
+	neighbors := api.GetIpv4Neighbors()
 
-	for _, s := range stateInfo {
-		if !s.HasLinkLayerAddress() {
+	for _, n := range neighbors {
+		if !n.HasLinkLayerAddress() {
 			return false
 		}
 	}
 
-	return true
+	return len(neighbors) > 0
 
 }

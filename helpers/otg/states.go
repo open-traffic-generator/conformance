@@ -7,12 +7,12 @@ import (
 	"github.com/open-traffic-generator/tests/helpers/table"
 )
 
-func (o *OtgApi) GetIpv4State() []gosnappi.Neighborsv4State {
+func (o *OtgApi) GetIpv4Neighbors() []gosnappi.Neighborsv4State {
 	t := o.Testing()
 	api := o.Api()
 
-	t.Log("Getting ipv4 state ...")
-	defer o.Timer(time.Now(), "GetIpv4State")
+	t.Log("Getting IPv4 Neighbors ...")
+	defer o.Timer(time.Now(), "GetIpv4Neighbors")
 
 	sr := api.NewStatesRequest()
 	sr.Ipv4Neighbors()
@@ -20,7 +20,7 @@ func (o *OtgApi) GetIpv4State() []gosnappi.Neighborsv4State {
 	o.LogWrnErr(nil, err, true)
 
 	tb := table.NewTable(
-		"IPv4 State Info",
+		"IPv4 Neighbors",
 		[]string{
 			"Ethernet Name",
 			"IPv4 Addess",
