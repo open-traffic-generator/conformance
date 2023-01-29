@@ -301,6 +301,39 @@ class OtgApi(object):
         finally:
             self.timer("get_isis_metrics", start)
 
+    def get_ipv4_neighbors(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting IPv4 Neighbors ...")
+            req = self.api.states_request()
+            req.ipv4_neighbors.ethernet_names = []
+            neighbors = self.api.get_states(req).ipv4_neighbors
+
+            tb = table.Table(
+                "IPv4 Neighbors",
+                [
+                    "Ethernet Name",
+                    "IPv4 Address",
+                    "Link Layer Address",
+                ],
+                30,
+            )
+
+            for n in neighbors:
+                tb.append_row(
+                    [
+                        n.ethernet_name,
+                        n.ipv4_address,
+                        n.link_layer_address,
+                    ]
+                )
+
+            log.info(tb)
+            return neighbors
+
+        finally:
+            self.timer("get_ipv4_neighbors", start)
+
     def get_capture(self, port_name):
         if not self.test_config.otg_capture_check:
             log.info("Skipped get_capture")
