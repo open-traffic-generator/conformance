@@ -1,0 +1,42 @@
+name: ixia-c
+nodes:
+  - name: otg
+    vendor: KEYSIGHT
+    version: local
+    services:
+      8443:
+        name: https
+        inside: 8443
+      40051:
+        name: grpc
+        inside: 40051
+      50051:
+        name: gnmi
+        inside: 50051
+  - name: dut
+    vendor: NOKIA
+    model: ixr10
+    config:
+      file: nokia-srl.json
+      image: srlinux:latest
+      cert:
+        self_signed:
+          cert_name: kne-profile
+          key_name: N/A
+          key_size: 4096
+    services:
+      22:
+        name: ssh
+        inside: 22
+      57400:
+        name: gnmi
+        inside: 57400
+links:
+  - a_node: otg
+    a_int: eth1
+    z_node: dut
+    z_int: e1-1
+  - a_node: otg
+    a_int: eth2
+    z_node: dut
+    z_int: e1-2
