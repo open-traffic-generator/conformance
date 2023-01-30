@@ -1,5 +1,6 @@
 containers:
-  - name: ixia-c-controller
+  - name: ixia-c  #ixia-c-controller
+    pod: otg-controller
     collect_paths:
       - /home/ixia-c/controller/bin/version
       - /home/ixia-c/controller/logs/*.log
@@ -13,7 +14,8 @@ containers:
       - name: env
         cmd: env
     collect_stdout: true
-  - name: ixia-c-protocol-engine
+  - name: otg-port-eth1-protocol-engine #ixia-c-protocol-engine
+    pod: otg-port-eth1
     collect_paths:
     -   /var/log/ixia-c-protocol-engine.*
     exclude_paths:
@@ -37,9 +39,67 @@ containers:
     - name : ifconfig
       cmd : ifconfig
     collect_stdout: true
-  - name: ixia-c-traffic-engine
+  - name: otg-port-eth1-traffic-engine #ixia-c-traffic-engine
+    pod: otg-port-eth1
     collect_paths:
-      - /var/log/usstream/*
+      - /var/log/usstream
+      - /opt/Ixia/usstream/etc/usstream.cfg
+    exclude_paths:
+    collect_execs:
+      - name: environment-variables
+        cmd: env
+      - name: network-interfaces 
+        cmd: ip addr sh
+      - name: check-listening-ports
+        cmd: ss -lntp
+      - name: network-interfaces-statistics 
+        cmd: ip -stats link
+      - name: resource-usage
+        cmd: top -c -n 1 -b
+      - name: dmesg
+        cmd: dmesg
+      - name: dmidecode
+        cmd: dmidecode
+      - name: check-mounted-filesystems
+        cmd: mount
+      - name: check-cpu-info
+        cmd: cat /proc/cpuinfo
+      - name: check-mem-info
+        cmd: cat /proc/meminfo
+      - name: check-usstream-version
+        cmd: rpm -qi usstream
+      - name: check-dpdk-version
+        cmd: rpm -qi dpdk
+    collect_stdout: true
+  - name: otg-port-eth2-protocol-engine #ixia-c-protocol-engine
+    pod: otg-port-eth2
+    collect_paths:
+    -   /var/log/ixia-c-protocol-engine.*
+    exclude_paths:
+    collect_execs:
+    - name: resource-usage
+      cmd: top -c -n 2 -b -H -w 120
+    - name : disk-space
+      cmd : df -H 
+    - name: cpu-info
+      cmd: cat /proc/cpuinfo
+    - name: interface-manager-threads-iter1
+      cmd : sh -c 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
+    - name: interface-manager-threads-iter2
+      cmd : sh -c 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
+    - name: interface-manager-shared-sos
+      cmd: sh -c 'cat /proc/$(pidof InterfaceManager)/maps'
+    - name: netstat
+      cmd: netstat -an
+    - name: dmesg
+      cmd : dmesg
+    - name : ifconfig
+      cmd : ifconfig
+    collect_stdout: true
+  - name: otg-port-eth2-traffic-engine #ixia-c-traffic-engine
+    pod: otg-port-eth2
+    collect_paths:
+      - /var/log/usstream
       - /opt/Ixia/usstream/etc/usstream.cfg
     exclude_paths:
     collect_execs:
