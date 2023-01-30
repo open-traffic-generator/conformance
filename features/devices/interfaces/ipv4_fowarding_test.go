@@ -9,7 +9,7 @@ import (
 	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
-func TestIpv4Fowarding(t *testing.T) {
+func TestIpv4Forwarding(t *testing.T) {
 
 	testConst := map[string]interface{}{
 		"pktRate":   int64(50),
@@ -103,7 +103,7 @@ func ipv4ForwardingConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 
 	ftxV4Ip := flow.Packet().Add().Ipv4()
 	ftxV4Ip.Src().SetValue(tc["txIp"].(string))
-	ftxV4Ip.Dst().SetValue(tc["txIp"].(string))
+	ftxV4Ip.Dst().SetValue(tc["rxIp"].(string))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
