@@ -1,4 +1,4 @@
-module github.com/open-traffic-generator/tests
+module github.com/open-traffic-generator/conformance
 
 go 1.18
 

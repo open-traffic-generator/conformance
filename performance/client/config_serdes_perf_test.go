@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/open-traffic-generator/conformance/helpers/otg"
 	"github.com/open-traffic-generator/snappi/gosnappi"
-	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
 func TestConfigSerdesPerf(t *testing.T) {

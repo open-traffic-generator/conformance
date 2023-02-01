@@ -5,8 +5,8 @@ package vxlan
 import (
 	"testing"
 
+	"github.com/open-traffic-generator/conformance/helpers/otg"
 	"github.com/open-traffic-generator/snappi/gosnappi"
-	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
 func TestVxlanHeaderIPv4(t *testing.T) {

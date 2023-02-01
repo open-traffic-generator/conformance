@@ -5,8 +5,8 @@ package tcp
 import (
 	"testing"
 
+	"github.com/open-traffic-generator/conformance/helpers/otg"
 	"github.com/open-traffic-generator/snappi/gosnappi"
-	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
 func TestTcpHeader(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/open-traffic-generator/tests/helpers/testconfig"
+	"github.com/open-traffic-generator/conformance/helpers/testconfig"
 )
 
 type DutApi struct {

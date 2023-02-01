@@ -4,7 +4,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/open-traffic-generator/tests/helpers/table"
+	"github.com/open-traffic-generator/conformance/helpers/table"
 )
 
 type ThroughputMetric struct {

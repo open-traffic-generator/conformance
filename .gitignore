@@ -7,3 +7,5 @@ logs/
 /deployments/k8s/metallb.yaml
 /deployments/k8s/meshnet-cni
 /deployments/k8s/mod.yaml
+/etc
+/helpers/dut/gnmi

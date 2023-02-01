@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/open-traffic-generator/conformance/helpers/plot"
+	"github.com/open-traffic-generator/conformance/helpers/testconfig"
 	"github.com/open-traffic-generator/snappi/gosnappi"
-	"github.com/open-traffic-generator/tests/helpers/plot"
-	"github.com/open-traffic-generator/tests/helpers/testconfig"
 )
 
 type OtgApi struct {

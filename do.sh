@@ -26,6 +26,9 @@ ARISTA_CEOS_VERSION="4.29.1F-29233963"
 ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
 KNE_COMMIT=a20cc6f
 
+OPENCONFIG_MODELS_REPO=https://github.com/openconfig/public.git
+OPENCONFIG_MODELS_COMMIT=5ca6a36
+
 TIMEOUT_SECONDS=300
 APT_GET_UPDATE=true
 
@@ -450,6 +453,88 @@ gen_config_k8s_test_const() {
             "
         echo -n "$yml" | sed "s/^            //g" | tee -a ./test-config.yaml > /dev/null
     fi
+}
+
+gen_openconfig_models_sdk() {
+    echo "Fetching openconfig models ..."
+    rm -rf etc/public \
+    && mkdir -p etc \
+    && cd etc \
+    && git clone ${OPENCONFIG_MODELS_REPO} \
+    && cd public \
+    && git checkout ${OPENCONFIG_MODELS_COMMIT} \
+    && cd ..
+
+    EXCLUDE_MODULES=ietf-interfaces,openconfig-bfd,openconfig-messages
+
+    YANG_FILES="
+        public/release/models/acl/openconfig-acl.yang
+        public/release/models/acl/openconfig-packet-match.yang
+        public/release/models/aft/openconfig-aft.yang
+        public/release/models/aft/openconfig-aft-network-instance.yang
+        public/release/models/ate/openconfig-ate-flow.yang
+        public/release/models/ate/openconfig-ate-intf.yang
+        public/release/models/bfd/openconfig-bfd.yang
+        public/release/models/bgp/openconfig-bgp-policy.yang
+        public/release/models/bgp/openconfig-bgp-types.yang
+        public/release/models/interfaces/openconfig-if-aggregate.yang
+        public/release/models/interfaces/openconfig-if-ethernet.yang
+        public/release/models/interfaces/openconfig-if-ethernet-ext.yang
+        public/release/models/interfaces/openconfig-if-ip-ext.yang
+        public/release/models/interfaces/openconfig-if-ip.yang
+        public/release/models/interfaces/openconfig-if-sdn-ext.yang
+        public/release/models/interfaces/openconfig-interfaces.yang
+        public/release/models/isis/openconfig-isis.yang
+        public/release/models/lacp/openconfig-lacp.yang
+        public/release/models/lldp/openconfig-lldp-types.yang
+        public/release/models/lldp/openconfig-lldp.yang
+        public/release/models/local-routing/openconfig-local-routing.yang
+        public/release/models/mpls/openconfig-mpls-types.yang
+        public/release/models/multicast/openconfig-pim.yang
+        public/release/models/network-instance/openconfig-network-instance.yang
+        public/release/models/openconfig-extensions.yang
+        public/release/models/optical-transport/openconfig-terminal-device.yang
+        public/release/models/optical-transport/openconfig-transport-types.yang
+        public/release/models/ospf/openconfig-ospfv2.yang
+        public/release/models/p4rt/openconfig-p4rt.yang
+        public/release/models/platform/openconfig-platform-cpu.yang
+        public/release/models/platform/openconfig-platform-ext.yang
+        public/release/models/platform/openconfig-platform-fan.yang
+        public/release/models/platform/openconfig-platform-integrated-circuit.yang
+        public/release/models/platform/openconfig-platform-software.yang
+        public/release/models/platform/openconfig-platform-transceiver.yang
+        public/release/models/platform/openconfig-platform.yang
+        public/release/models/policy-forwarding/openconfig-policy-forwarding.yang
+        public/release/models/policy/openconfig-policy-types.yang
+        public/release/models/qos/openconfig-qos-elements.yang
+        public/release/models/qos/openconfig-qos-interfaces.yang
+        public/release/models/qos/openconfig-qos-types.yang
+        public/release/models/qos/openconfig-qos.yang
+        public/release/models/rib/openconfig-rib-bgp.yang
+        public/release/models/sampling/openconfig-sampling-sflow.yang
+        public/release/models/segment-routing/openconfig-segment-routing-types.yang
+        public/release/models/system/openconfig-system.yang
+        public/release/models/types/openconfig-inet-types.yang
+        public/release/models/types/openconfig-types.yang
+        public/release/models/types/openconfig-yang-types.yang
+        public/release/models/vlan/openconfig-vlan.yang
+        public/third_party/ietf/iana-if-type.yang
+        public/third_party/ietf/ietf-inet-types.yang
+        public/third_party/ietf/ietf-interfaces.yang
+        public/third_party/ietf/ietf-yang-types.yang
+    "
+
+    go install github.com/openconfig/ygnmi/app/ygnmi@v0.7.6
+    ygnmi generator \
+        --trim_module_prefix=openconfig \
+        --exclude_modules="${EXCLUDE_MODULES}" \
+        --base_package_path=github.com/open-traffic-generator/conformance/helpers/dut/gnmi \
+        --output_dir=../helpers/dut/gnmi \
+        --paths=public/release/models/...,public/third_party/ietf/... \
+        --ignore_deviate_notsupported \
+        ${YANG_FILES}
+    
+    cd ..
 }
 
 wait_for_sock() {

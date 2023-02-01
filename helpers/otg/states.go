@@ -3,8 +3,8 @@ package otg
 import (
 	"time"
 
+	"github.com/open-traffic-generator/conformance/helpers/table"
 	"github.com/open-traffic-generator/snappi/gosnappi"
-	"github.com/open-traffic-generator/tests/helpers/table"
 )
 
 func (o *OtgApi) GetIpv4Neighbors() []gosnappi.Neighborsv4State {
