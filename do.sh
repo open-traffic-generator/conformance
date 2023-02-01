@@ -384,9 +384,13 @@ gen_config_kne() {
         yml="${yml}            host: ${DUT_ADDR}\n"
         
         SSH_PORT=$(grep "\- name: dut" -A 30 ${topo} | grep -m 1 services -A 10 | grep 'name: ssh' -B 1 | head -n 1 | tr -d ' :')
+        yml="${yml}            ssh_username: admin\n"
+        # yml="${yml}            ssh_password: admin\n"
         yml="${yml}            ssh_port: ${SSH_PORT}\n"
 
         GNMI_PORT=$(grep "\- name: dut" -A 30 ${topo} | grep -m 1 services -A 10 | grep 'name: gnmi' -B 1 | head -n 1 | tr -d ' :')
+        yml="${yml}            gnmi_username: admin\n"
+        yml="${yml}            gnmi_password: admin\n"
         yml="${yml}            gnmi_port: ${GNMI_PORT}\n"
         yml="${yml}            interfaces:\n"
         for i in $(echo -e $out | grep interfaces -A 8 | grep 'peer_name: \\"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
@@ -394,6 +398,9 @@ gen_config_kne() {
             ifc=$(echo -e $i | sed s/\\\\\"/_/g | cut -d_ -f2)
             yml="${yml}              - ${ifc}\n"
         done
+
+        wait_for_sock ${DUT_ADDR} ${GNMI_PORT}
+        wait_for_sock ${DUT_ADDR} ${SSH_PORT}
     fi
 
     yml="otg_host: https://${OTG_ADDR}:8443\n${yml}"

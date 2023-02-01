@@ -404,19 +404,19 @@ jobs:
       - name: Deploy KNE OTG port-dut-port topology
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new knepdp arista
-      # - name: Setup test prerequisites
-      #   run: |
-      #     ./do.sh pregotest
-      # - name: Run Go tests
-      #   run: |
-      #     ./do.sh gotest -tags="feature"
-      # - name: Archive logs
-      #   if: always()
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: kne_b2b_go
-      #     path: |
-      #       logs
+      - name: Setup test prerequisites
+        run: |
+          ./do.sh pregotest
+      - name: Run Go tests
+        run: |
+          ./do.sh gotest -tags="topo_pdp"
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: kne_pdp_arista_go
+          path: |
+            logs
       - name: Teardown KNE OTG port-dut-port topology
         run: |
           ./do.sh topo rm knepdp arista
