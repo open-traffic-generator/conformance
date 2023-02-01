@@ -9,13 +9,15 @@ import (
 )
 
 type DutApi struct {
-	t         *testing.T
-	dutConfig *testconfig.DutConfig
-	sshClient *SshClient
+	t          *testing.T
+	dutConfig  *testconfig.DutConfig
+	sshClient  *SshClient
+	gnmiClient *GnmiClient
 }
 
 func NewDutApi(t *testing.T, dc *testconfig.DutConfig) *DutApi {
 	t.Logf("DUT Host: %s\n", dc.Host)
+	t.Logf("DUT Interfaces: %s\n", dc.Interfaces)
 	t.Logf("DUT SSH Port: %v\n", dc.SshPort)
 	t.Logf("DUT gNMI Port: %v\n", dc.GnmiPort)
 

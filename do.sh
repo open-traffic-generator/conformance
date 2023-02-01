@@ -458,6 +458,7 @@ gen_config_k8s_test_const() {
 gen_openconfig_models_sdk() {
     echo "Fetching openconfig models ..."
     rm -rf etc/public \
+    && rm -rf helpers/dut/gnmi \
     && mkdir -p etc \
     && cd etc \
     && git clone ${OPENCONFIG_MODELS_REPO} \
@@ -524,17 +525,19 @@ gen_openconfig_models_sdk() {
         public/third_party/ietf/ietf-yang-types.yang
     "
 
-    go install github.com/openconfig/ygnmi/app/ygnmi@v0.7.6
-    ygnmi generator \
+    go install github.com/openconfig/ygnmi/app/ygnmi@v0.7.6 \
+    && go install golang.org/x/tools/cmd/goimports@v0.5.0 \
+    && ygnmi generator \
         --trim_module_prefix=openconfig \
         --exclude_modules="${EXCLUDE_MODULES}" \
         --base_package_path=github.com/open-traffic-generator/conformance/helpers/dut/gnmi \
         --output_dir=../helpers/dut/gnmi \
         --paths=public/release/models/...,public/third_party/ietf/... \
         --ignore_deviate_notsupported \
-        ${YANG_FILES}
-    
-    cd ..
+        ${YANG_FILES} \
+    && cd .. \
+    && find helpers/dut/gnmi -name "*.go" -exec goimports -w {} + \
+    && find helpers/dut/gnmi -name "*.go" -exec gofmt -w -s {} +
 }
 
 wait_for_sock() {
@@ -1156,6 +1159,10 @@ topo() {
 }
 
 pregotest() {
+    if [ "${1}" = "oc" ]
+    then
+        gen_openconfig_models_sdk || return 1
+    fi
     go mod tidy \
     && go mod download \
     && echo "Successfully setup gotest !"
@@ -1173,7 +1180,7 @@ gotest() {
     mkdir -p logs
     log=logs/gotest.log
 
-    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./... | tee ${log}
+    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./features/... ./performance/... | tee ${log}
 
     echo "Summary:"
     grep ": Test" ${log}
