@@ -376,12 +376,24 @@ gen_config_kne() {
     done
     if [ ! -z "${2}" ]
     then
-        yml="${yml}        duts:\n"
+        out=$(kne_cli show ${topo} 2>&1)
+        yml="${yml}        dut_configs:\n"
+
         DUT_ADDR=$(kubectl get service -n ixia-c service-dut -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
         yml="${yml}          - name: dut\n"
-        yml="${yml}            addr: ${DUT_ADDR}\n"
-        yml="${yml}            ssh: 22\n"
-        yml="${yml}            gnmi: 6030\n"
+        yml="${yml}            host: ${DUT_ADDR}\n"
+        
+        SSH_PORT=$(grep "\- name: dut" -A 30 ${topo} | grep -m 1 services -A 10 | grep 'name: ssh' -B 1 | head -n 1 | tr -d ' :')
+        yml="${yml}            ssh_port: ${SSH_PORT}\n"
+
+        GNMI_PORT=$(grep "\- name: dut" -A 30 ${topo} | grep -m 1 services -A 10 | grep 'name: gnmi' -B 1 | head -n 1 | tr -d ' :')
+        yml="${yml}            gnmi_port: ${GNMI_PORT}\n"
+        yml="${yml}            interfaces:\n"
+        for i in $(echo -e $out | grep interfaces -A 8 | grep 'peer_name: \\"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
+        do
+            ifc=$(echo -e $i | sed s/\\\\\"/_/g | cut -d_ -f2)
+            yml="${yml}              - ${ifc}\n"
+        done
     fi
 
     yml="otg_host: https://${OTG_ADDR}:8443\n${yml}"
