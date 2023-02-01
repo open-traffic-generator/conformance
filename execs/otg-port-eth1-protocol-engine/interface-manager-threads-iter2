@@ -1,0 +1,299 @@
+[New LWP 28]
+[New LWP 29]
+[New LWP 30]
+[New LWP 31]
+[New LWP 32]
+[New LWP 33]
+[New LWP 35]
+[New LWP 36]
+[New LWP 37]
+[New LWP 38]
+[New LWP 39]
+[New LWP 40]
+[New LWP 41]
+[New LWP 42]
+[New LWP 90]
+[New LWP 91]
+[New LWP 92]
+[New LWP 93]
+[New LWP 94]
+[New LWP 104]
+[New LWP 109]
+[New LWP 110]
+[New LWP 111]
+[New LWP 112]
+[New LWP 113]
+[New LWP 114]
+[New LWP 115]
+[New LWP 116]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 29 (Thread 0x7f8b4cff9700 (LWP 116)):
+#0  0x00007f8b8039f73d in syscall () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b55541b34 in absl::lts_20210324::synchronization_internal::Waiter::Wait(absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#2  0x00007f8b555419e1 in AbslInternalPerThreadSemWait_lts_20210324 () from /usr/lib/ixe/plugins/libotg_grpc.so
+#3  0x00007f8b5554146b in absl::lts_20210324::CondVar::WaitCommon(absl::lts_20210324::Mutex*, absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#4  0x00007f8b5552c317 in gpr_cv_wait () from /usr/lib/ixe/plugins/libotg_grpc.so
+#5  0x00007f8b551e5ee8 in (anonymous namespace)::non_polling_poller_work(grpc_pollset*, grpc_pollset_worker**, long) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#6  0x00007f8b551e80af in cq_next(grpc_completion_queue*, gpr_timespec, void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#7  0x00007f8b55058118 in grpc::CompletionQueue::AsyncNextInternal(void**, bool*, gpr_timespec) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#8  0x00007f8b55061dba in grpc::Server::SyncRequestThreadManager::PollForWork(void**, bool*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#9  0x00007f8b5506d62c in grpc::ThreadManager::MainWorkLoop() () from /usr/lib/ixe/plugins/libotg_grpc.so
+#10 0x00007f8b5506d83c in grpc::ThreadManager::WorkerThread::Run() () from /usr/lib/ixe/plugins/libotg_grpc.so
+#11 0x00007f8b5552e633 in grpc_core::(anonymous namespace)::ThreadInternalsPosix::ThreadInternalsPosix(char const*, void (*)(void*), void*, bool*, grpc_core::Thread::Options const&)::{lambda(void*)#1}::_FUN(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#12 0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#13 0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 28 (Thread 0x7f8b4d7fa700 (LWP 115)):
+#0  0x00007f8b8039f73d in syscall () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b55541ac6 in absl::lts_20210324::synchronization_internal::Waiter::Wait(absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#2  0x00007f8b555419e1 in AbslInternalPerThreadSemWait_lts_20210324 () from /usr/lib/ixe/plugins/libotg_grpc.so
+#3  0x00007f8b5554146b in absl::lts_20210324::CondVar::WaitCommon(absl::lts_20210324::Mutex*, absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#4  0x00007f8b5552c333 in gpr_cv_wait () from /usr/lib/ixe/plugins/libotg_grpc.so
+#5  0x00007f8b551e5ee8 in (anonymous namespace)::non_polling_poller_work(grpc_pollset*, grpc_pollset_worker**, long) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#6  0x00007f8b551e80af in cq_next(grpc_completion_queue*, gpr_timespec, void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#7  0x00007f8b55058118 in grpc::CompletionQueue::AsyncNextInternal(void**, bool*, gpr_timespec) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#8  0x00007f8b5507170a in grpc::DefaultHealthCheckService::HealthCheckServiceImpl::Serve(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#9  0x00007f8b5552e633 in grpc_core::(anonymous namespace)::ThreadInternalsPosix::ThreadInternalsPosix(char const*, void (*)(void*), void*, bool*, grpc_core::Thread::Options const&)::{lambda(void*)#1}::_FUN(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#10 0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#11 0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 27 (Thread 0x7f8b4dffb700 (LWP 114)):
+#0  0x00007f8b8039f73d in syscall () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b55541b34 in absl::lts_20210324::synchronization_internal::Waiter::Wait(absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#2  0x00007f8b555419e1 in AbslInternalPerThreadSemWait_lts_20210324 () from /usr/lib/ixe/plugins/libotg_grpc.so
+#3  0x00007f8b5554146b in absl::lts_20210324::CondVar::WaitCommon(absl::lts_20210324::Mutex*, absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#4  0x00007f8b5552c317 in gpr_cv_wait () from /usr/lib/ixe/plugins/libotg_grpc.so
+#5  0x00007f8b551cef15 in timer_thread(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#6  0x00007f8b5552e633 in grpc_core::(anonymous namespace)::ThreadInternalsPosix::ThreadInternalsPosix(char const*, void (*)(void*), void*, bool*, grpc_core::Thread::Options const&)::{lambda(void*)#1}::_FUN(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#7  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#8  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 26 (Thread 0x7f8b4e7fc700 (LWP 113)):
+#0  0x00007f8b8039f73d in syscall () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b55541ac6 in absl::lts_20210324::synchronization_internal::Waiter::Wait(absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#2  0x00007f8b555419e1 in AbslInternalPerThreadSemWait_lts_20210324 () from /usr/lib/ixe/plugins/libotg_grpc.so
+#3  0x00007f8b5554146b in absl::lts_20210324::CondVar::WaitCommon(absl::lts_20210324::Mutex*, absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#4  0x00007f8b5552c333 in gpr_cv_wait () from /usr/lib/ixe/plugins/libotg_grpc.so
+#5  0x00007f8b551be218 in grpc_core::Executor::ThreadMain(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#6  0x00007f8b5552e633 in grpc_core::(anonymous namespace)::ThreadInternalsPosix::ThreadInternalsPosix(char const*, void (*)(void*), void*, bool*, grpc_core::Thread::Options const&)::{lambda(void*)#1}::_FUN(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#7  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#8  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 25 (Thread 0x7f8b4effd700 (LWP 112)):
+#0  0x00007f8b8039f73d in syscall () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b55541ac6 in absl::lts_20210324::synchronization_internal::Waiter::Wait(absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#2  0x00007f8b555419e1 in AbslInternalPerThreadSemWait_lts_20210324 () from /usr/lib/ixe/plugins/libotg_grpc.so
+#3  0x00007f8b5554146b in absl::lts_20210324::CondVar::WaitCommon(absl::lts_20210324::Mutex*, absl::lts_20210324::synchronization_internal::KernelTimeout) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#4  0x00007f8b5552c333 in gpr_cv_wait () from /usr/lib/ixe/plugins/libotg_grpc.so
+#5  0x00007f8b551be218 in grpc_core::Executor::ThreadMain(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#6  0x00007f8b5552e633 in grpc_core::(anonymous namespace)::ThreadInternalsPosix::ThreadInternalsPosix(char const*, void (*)(void*), void*, bool*, grpc_core::Thread::Options const&)::{lambda(void*)#1}::_FUN(void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#7  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#8  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 24 (Thread 0x7f8b74603700 (LWP 111)):
+#0  0x00007f8b8039999f in poll () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b5674a2f6 in RBProto_eHal::ENativeSocket::WaitForData(int, int) () from /usr/lib/ixe/plugins/libixps.so
+#2  0x00007f8b5680b866 in RBProto_eHal::NSMSendRecvThread::ThreadRoutine() () from /usr/lib/ixe/plugins/libixps.so
+#3  0x00007f8b5674acf1 in RBProto_EThreadObject::WorkerThread(void*) () from /usr/lib/ixe/plugins/libixps.so
+#4  0x00007f8b566b953f in RBProto_LinuxThreadWrapperFunc(void*) () from /usr/lib/ixe/plugins/libixps.so
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 23 (Thread 0x7f8b4f7fe700 (LWP 110)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b5533f270 in pollset_work(grpc_pollset*, grpc_pollset_worker**, long) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#2  0x00007f8b551e80af in cq_next(grpc_completion_queue*, gpr_timespec, void*) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#3  0x00007f8b55058118 in grpc::CompletionQueue::AsyncNextInternal(void**, bool*, gpr_timespec) () from /usr/lib/ixe/plugins/libotg_grpc.so
+#4  0x00007f8b54ffd2b9 in grpc::CompletionQueue::Next (ok=0x7f8b4f7fda87, tag=0x7f8b4f7fda88, this=0x7f8b48009630) at ../api/grpcpp/impl/codegen/completion_queue.h:178
+#5  ServerImpl::HandleRpcs (this=this@entry=0x7f8b4f7fdc80) at src/server.cpp:669
+#6  0x00007f8b54ffda60 in ServerImpl::Run (this=this@entry=0x7f8b4f7fdc80) at src/server.cpp:658
+#7  0x00007f8b54ff9a5e in RunOtgServer () at src/server.cpp:692
+#8  0x00007f8b54ffdb6f in thread_func (arg=<optimized out>) at src/server.cpp:827
+#9  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#10 0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 22 (Thread 0x7f8b4ffff700 (LWP 109)):
+#0  0x00007f8b8036423f in clock_nanosleep () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b80369ec7 in nanosleep () from /lib/x86_64-linux-gnu/libc.so.6
+#2  0x00007f8b8039c85f in usleep () from /lib/x86_64-linux-gnu/libc.so.6
+#3  0x00007f8b54fe7f0a in ProcessNeighborDiscovery (args=<optimized out>) at src/ixtcpPlugin.cpp:304
+#4  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#5  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 21 (Thread 0x7f8b747fc700 (LWP 104)):
+#0  0x00007f8b8036423f in clock_nanosleep () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b80369ec7 in nanosleep () from /lib/x86_64-linux-gnu/libc.so.6
+#2  0x00007f8b80369dfe in sleep () from /lib/x86_64-linux-gnu/libc.so.6
+#3  0x00007f8b566b90ef in PSStarterThread(void*) () from /usr/lib/ixe/plugins/libixps.so
+#4  0x00007f8b566b953f in RBProto_LinuxThreadWrapperFunc(void*) () from /usr/lib/ixe/plugins/libixps.so
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 20 (Thread 0x7f8b57ff7700 (LWP 94)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b761fe7b8) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b807e3fe4 in neigh_cache_state_monitor_thread (arg=0x7f8b761fe710) at /home/ixsdk/build/jenkins/ixtcp_uspace_ixn_9.00.2006.108/packages/ixtcp/uspace_ixn/build/ixstack_v2/x86_64/8.50/release/host/tcp_tput_config-sys/common/neigh_cache.c:1470
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b761fe7d8) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 19 (Thread 0x7f8b587f8700 (LWP 93)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b761fe578) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b807e3fe4 in neigh_cache_state_monitor_thread (arg=0x7f8b761fe4d0) at /home/ixsdk/build/jenkins/ixtcp_uspace_ixn_9.00.2006.108/packages/ixtcp/uspace_ixn/build/ixstack_v2/x86_64/8.50/release/host/tcp_tput_config-sys/common/neigh_cache.c:1470
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b761fe598) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 18 (Thread 0x7f8b58ff9700 (LWP 92)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b762879d0) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b80a63e28 in ixrte_wq_exec_ctx (ctx=0x7f8b76287950, thread=0x7f8b76287960) at build/x86_64/8.50/release/src/user/sys/ixrte_wq.c:836
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b76287960) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 17 (Thread 0x7f8b597fa700 (LWP 91)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b80c9cf77 in ixnam_epoll_wait (epfd=37, events=events@entry=0x7f8b597f9c10, maxevents=maxevents@entry=9, timeout=<optimized out>) at /home/ixsdk/build/jenkins/ixnam_uspace_rustic_1.0.10.3/packages/ixnam/uspace_rustic/build/raw-socket-user/x86_64/8.50/release/host/src/ixnam_raw.c:2751
+#2  0x00007f8b807d7152 in prv_event_loop (rtc=<optimized out>, wait=wait@entry=1, cpu_state=cpu_state@entry=0x7f8b762040d0, cpu=1) at /home/ixsdk/build/jenkins/ixtcp_uspace_ixn_9.00.2006.108/packages/ixtcp/uspace_ixn/build/ixstack_v2/x86_64/8.50/release/host/tcp_tput_config-sys/user/lin_main.c:187
+#3  0x00007f8b807d728c in event_loop_thread (arg=0x7f8b762040d0) at /home/ixsdk/build/jenkins/ixtcp_uspace_ixn_9.00.2006.108/packages/ixtcp/uspace_ixn/build/ixstack_v2/x86_64/8.50/release/host/tcp_tput_config-sys/user/lin_main.c:232
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b76204a78) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 16 (Thread 0x7f8b59ffb700 (LWP 90)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b80c9cf77 in ixnam_epoll_wait (epfd=35, events=events@entry=0x7f8b59ffac10, maxevents=maxevents@entry=9, timeout=<optimized out>) at /home/ixsdk/build/jenkins/ixnam_uspace_rustic_1.0.10.3/packages/ixnam/uspace_rustic/build/raw-socket-user/x86_64/8.50/release/host/src/ixnam_raw.c:2751
+#2  0x00007f8b807d7152 in prv_event_loop (rtc=<optimized out>, wait=wait@entry=1, cpu_state=cpu_state@entry=0x7f8b76203090, cpu=0) at /home/ixsdk/build/jenkins/ixtcp_uspace_ixn_9.00.2006.108/packages/ixtcp/uspace_ixn/build/ixstack_v2/x86_64/8.50/release/host/tcp_tput_config-sys/user/lin_main.c:187
+#3  0x00007f8b807d728c in event_loop_thread (arg=0x7f8b76203090) at /home/ixsdk/build/jenkins/ixtcp_uspace_ixn_9.00.2006.108/packages/ixtcp/uspace_ixn/build/ixstack_v2/x86_64/8.50/release/host/tcp_tput_config-sys/user/lin_main.c:232
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b76203a38) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 15 (Thread 0x7f8b6e7fc700 (LWP 42)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b80a7f6ee in ixrte_console_thread_proc (arg=<optimized out>) at build/x86_64/8.50/release/src/user/sys/ixrte_console.c:497
+#2  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b80c8fcf0 <ixrte_console_data+176>) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#3  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 14 (Thread 0x7f8b6effd700 (LWP 41)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b80c8e4c0 <ixrte_sh_task_ctx+128>) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b80a63e28 in ixrte_wq_exec_ctx (ctx=0x7f8b80c8e440 <ixrte_sh_task_ctx>, thread=0x7f8b761e25d0) at build/x86_64/8.50/release/src/user/sys/ixrte_wq.c:836
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b761e25d0) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 13 (Thread 0x7f8b6f7fe700 (LWP 40)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b80c8e4c0 <ixrte_sh_task_ctx+128>) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b80a63e28 in ixrte_wq_exec_ctx (ctx=0x7f8b80c8e440 <ixrte_sh_task_ctx>, thread=0x7f8b761e2190) at build/x86_64/8.50/release/src/user/sys/ixrte_wq.c:836
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b761e2190) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 12 (Thread 0x7f8b6ffff700 (LWP 39)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b761e25b0) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b80a63e28 in ixrte_wq_exec_ctx (ctx=0x7f8b761e2530, thread=0x7f8b761e2540) at build/x86_64/8.50/release/src/user/sys/ixrte_wq.c:836
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b761e2540) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 11 (Thread 0x7f8b74ffd700 (LWP 38)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b761e2170) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b80a63e28 in ixrte_wq_exec_ctx (ctx=0x7f8b761e20f0, thread=0x7f8b761e2100) at build/x86_64/8.50/release/src/user/sys/ixrte_wq.c:836
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b761e2100) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 10 (Thread 0x7f8b757fe700 (LWP 37)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b761e2510) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b80a63e28 in ixrte_wq_exec_ctx (ctx=0x7f8b761e2490, thread=0x7f8b761e24a0) at build/x86_64/8.50/release/src/user/sys/ixrte_wq.c:836
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b761e24a0) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 9 (Thread 0x7f8b75fff700 (LWP 36)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d8d7 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b761e20d0) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b80a63e28 in ixrte_wq_exec_ctx (ctx=0x7f8b761e2050, thread=0x7f8b761e2060) at build/x86_64/8.50/release/src/user/sys/ixrte_wq.c:836
+#4  0x00007f8b80a7e116 in ixrte_thread_proc (arg=0x7f8b761e2060) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:354
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 8 (Thread 0x7f8b7ce3d700 (LWP 35)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7d938 in ixrte_sem_wait_imp (sem=sem@entry=0x7f8b80c8f650 <ixrte_sig_data+80>) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:76
+#3  0x00007f8b80a744af in ixrte_signal_thread_proc (arg=<optimized out>) at build/x86_64/8.50/release/src/user/sys/ixrte_user.c:562
+#4  0x00007f8b80a7e0da in ixrte_thread_proc (arg=0x7f8b80c8f600 <ixrte_sig_data>) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:357
+#5  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 7 (Thread 0x7f8b7d63e700 (LWP 33)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b8116480d in ixeRN::WaitAndDispatchEvents (this=this@entry=0xe04138, timeout=timeout@entry=24) at src/libim/ixeRN.cpp:162
+#2  0x00007f8b81164af6 in ixeScheduler::Run (data=0xe040f8) at src/libim/ixeScheduler.cpp:323
+#3  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 6 (Thread 0x7f8b7de3f700 (LWP 32)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b8116480d in ixeRN::WaitAndDispatchEvents (this=this@entry=0xe04078, timeout=timeout@entry=25) at src/libim/ixeRN.cpp:162
+#2  0x00007f8b81164af6 in ixeScheduler::Run (data=0xe04038) at src/libim/ixeScheduler.cpp:323
+#3  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 5 (Thread 0x7f8b7e640700 (LWP 31)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b8116480d in ixeRN::WaitAndDispatchEvents (this=this@entry=0xe03fb8, timeout=timeout@entry=25) at src/libim/ixeRN.cpp:162
+#2  0x00007f8b81164af6 in ixeScheduler::Run (data=0xe03f78) at src/libim/ixeScheduler.cpp:323
+#3  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 4 (Thread 0x7f8b7ee41700 (LWP 30)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b8116480d in ixeRN::WaitAndDispatchEvents (this=this@entry=0xe03ef8, timeout=timeout@entry=24) at src/libim/ixeRN.cpp:162
+#2  0x00007f8b81164af6 in ixeScheduler::Run (data=0xe03eb8) at src/libim/ixeScheduler.cpp:323
+#3  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 3 (Thread 0x7f8b7f642700 (LWP 29)):
+#0  0x00007f8b80ebb454 in do_futex_wait.constprop () from /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007f8b80ebb548 in __new_sem_wait_slow.constprop.0 () from /lib/x86_64-linux-gnu/libpthread.so.0
+#2  0x00007f8b80a7e6ee in ixrte_sem_wait (sem=sem@entry=0x64d2c0 <event>) at build/x86_64/8.50/release/src/user/sys/ixrte_smp.c:101
+#3  0x0000000000415e0a in IxPort::EPortInterface::IxStackWork::Executor (arg=<optimized out>) at src/interface-manager/EPortInterfaceIxStack.cpp:39
+#4  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#5  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 2 (Thread 0x7f8b7fe43700 (LWP 28)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b8116480d in ixeRN::WaitAndDispatchEvents (this=this@entry=0xe465e0, timeout=timeout@entry=20) at src/libim/ixeRN.cpp:162
+#2  0x00007f8b81164af6 in ixeScheduler::Run (data=0xe465a0) at src/libim/ixeScheduler.cpp:323
+#3  0x00007f8b80eb1609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007f8b803a6133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 1 (Thread 0x7f8b80278940 (LWP 23)):
+#0  0x00007f8b803a646e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007f8b8116480d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x7f8b813eec00 <ixeUtil::Scheduler+64>, timeout=timeout@entry=25) at src/libim/ixeRN.cpp:162
+#2  0x00007f8b81164af6 in ixeScheduler::Run (data=data@entry=0x7f8b813eebc0 <ixeUtil::Scheduler>) at src/libim/ixeScheduler.cpp:323
+#3  0x0000000000415bca in IxPort::EPortInterface::ReceiveRequestsForever () at src/interface-manager/EPortInterface.cpp:677
+#4  0x0000000000412d48 in main (argc=<optimized out>, argv=<optimized out>) at src/interface-manager/InterfaceManager.cpp:474
+[Inferior 1 (process 23) detached]

@@ -876,17 +876,14 @@ create_fol() {
 }
 
 cp_file() {
-    # printf "%s %s %s\n" "$1 $2 $3"
     con=$1
     p=$2
     pod=$3
 
     file=$(basename $p)
     dir=$(echo $p | sed "s/$file//")
-    # printf "%s\n" "$dir"
     for i in $(kubectl exec -n ${NAMESPACE} $pod -c $con -- ls $dir | grep $file) 
         do
-            # printf "%s %s\n" "$con $i"
             kubectl cp -n ${NAMESPACE} $pod:$dir$i ${NEWDIR}/$con/$i -c $con > /dev/null
         done
 }
@@ -894,9 +891,7 @@ cp_file() {
 get_paths() {
     for con in $(yq '.containers[] | .name' ${YFILE})
     do
-        # echo $con
         path=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
-        # printf "%s\n" "$path"
         for p in $path
         do
             if [ "$p" = - ]
@@ -918,16 +913,21 @@ get_execs() {
     mkdir ${EXECDIR}
     for con in $(yq '.containers[] | .name' ${YFILE})
     do
-        # echo $con
         x=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_execs[] | .name' ${YFILE})
-        # printf "%s\n" "$x"
         mkdir ${EXECDIR}/$con
         for j in $x
         do
             c=$(i=$con p=$j yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .cmd' ${YFILE})
             pod=$(i=$con yq '.containers[] | select(.name == env(i)) | .pod' ${YFILE})
-            # printf "%s abc\n" "$c"
-            kubectl exec -n ${NAMESPACE} $pod -c $con -- ${c} > ${EXECDIR}/$con/$j
+            pc=$(i=$con p=$j yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .precmd' ${YFILE})
+            # echo ${pc}
+
+            if [ ! "$pc" = null ]
+            then
+                kubectl exec -n ${NAMESPACE} $pod -c $con -- $pc "$c" > ${EXECDIR}/$con/$j
+            else
+                kubectl exec -n ${NAMESPACE} $pod -c $con -- $c > ${EXECDIR}/$con/$j
+            fi
         done
     done
 }
@@ -936,10 +936,8 @@ get_stdout() {
     mkdir ${STDOUTDIR}
     for con in $(yq '.containers[] | .name' ${YFILE})
     do
-        # echo $con
         x=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_stdout' ${YFILE})
         pod=$(i=$con yq '.containers[] | select(.name == env(i)) | .pod' ${YFILE})
-        # printf "%s\n" "$x"
         if [ ! "$pod" = null ] && [ "$x" = true ]
         then
             kubectl logs -n ${NAMESPACE} $pod -c $con > ${STDOUTDIR}/${con}_stdout

@@ -1,0 +1,11 @@
+containers:
+  - name: otg-port-eth1-protocol-engine #ixia-c-protocol-engine
+    pod: otg-port-eth1
+    collect_paths:
+    -   /var/log/ixia-c-protocol-engine.*
+    exclude_paths:
+    collect_execs:
+    - name: interface-manager-shared-sos
+      precmd: sh -c
+      cmd: 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
+    collect_stdout: true

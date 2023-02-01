@@ -27,11 +27,14 @@ containers:
     - name: cpu-info
       cmd: cat /proc/cpuinfo
     - name: interface-manager-threads-iter1
-      cmd : sh -c 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
+      precmd : sh -c
+      cmd : 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
     - name: interface-manager-threads-iter2
-      cmd : sh -c 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
+      precmd : sh -c
+      cmd : 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
     - name: interface-manager-shared-sos
-      cmd: sh -c 'cat /proc/$(pidof InterfaceManager)/maps'
+      precmd : sh -c
+      cmd: 'cat /proc/$(pidof InterfaceManager)/maps'
     - name: netstat
       cmd: netstat -an
     - name: dmesg
@@ -84,11 +87,14 @@ containers:
     - name: cpu-info
       cmd: cat /proc/cpuinfo
     - name: interface-manager-threads-iter1
-      cmd : sh -c 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
+      precmd : sh -c
+      cmd : 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
     - name: interface-manager-threads-iter2
-      cmd : sh -c 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
+      precmd : sh -c
+      cmd : 'gdb --eval-command "set pagination 0" --eval-command "thread apply all bt" --batch --pid $(pidof InterfaceManager)'
     - name: interface-manager-shared-sos
-      cmd: sh -c 'cat /proc/$(pidof InterfaceManager)/maps'
+      precmd : sh -c
+      cmd: 'cat /proc/$(pidof InterfaceManager)/maps'
     - name: netstat
       cmd: netstat -an
     - name: dmesg

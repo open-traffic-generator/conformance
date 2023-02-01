@@ -1,0 +1,12 @@
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                          
+LISTEN 0      4          127.0.0.1:1023       0.0.0.0:*                                    
+LISTEN 0      3            0.0.0.0:2601       0.0.0.0:*                                    
+LISTEN 0      10           0.0.0.0:6665       0.0.0.0:*                                    
+LISTEN 0      511          0.0.0.0:6379       0.0.0.0:*                                    
+LISTEN 0      3            0.0.0.0:3601       0.0.0.0:*                                    
+LISTEN 0      50           0.0.0.0:8881       0.0.0.0:*                                    
+LISTEN 0      4          127.0.0.1:23         0.0.0.0:*                                    
+LISTEN 0      5            0.0.0.0:4601       0.0.0.0:*                                    
+LISTEN 0      511             [::]:6379          [::]:*                                    
+LISTEN 0      100                *:5555             *:*    users:(("usstream",pid=1,fd=27))
+LISTEN 0      4096               *:50071            *:*                                    

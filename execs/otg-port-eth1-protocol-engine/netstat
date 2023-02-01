@@ -1,0 +1,22 @@
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+tcp        0      0 127.0.0.1:23            0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:4601            0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:1023          0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:6665            0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:6379            0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:8881            0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:2601            0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:3601            0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:50586         127.0.0.1:6379          ESTABLISHED
+tcp        0      0 127.0.0.1:6379          127.0.0.1:50586         ESTABLISHED
+tcp        0      0 127.0.0.1:50602         127.0.0.1:6379          ESTABLISHED
+tcp        0      0 127.0.0.1:6379          127.0.0.1:50602         ESTABLISHED
+tcp6       0      0 :::5555                 :::*                    LISTEN     
+tcp6       0      0 :::6379                 :::*                    LISTEN     
+tcp6       0      0 :::50071                :::*                    LISTEN     
+Active UNIX domain sockets (servers and established)
+Proto RefCnt Flags       Type       State         I-Node   Path
+unix  2      [ ACC ]     STREAM     LISTENING     5490362  /tmp/.nsmserv
+unix  3      [ ]         STREAM     CONNECTED     5490423  /tmp/.nsmserv
+unix  3      [ ]         STREAM     CONNECTED     5490406  

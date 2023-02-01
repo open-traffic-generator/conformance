@@ -1,0 +1,29 @@
+Name        : dpdk
+Version     : 21.11.0
+Release     : 11
+Architecture: x86_64
+Install Date: Tue Sep 20 13:04:26 2022
+Group       : Development/Libraries
+Size        : 22195969
+License     : LGPL
+Signature   : (none)
+Source RPM  : dpdk-21.11.0-11.src.rpm
+Build Date  : Wed Jul  6 19:24:43 2022
+Build Host  : bd401613c3f9
+Relocations : (not relocatable)
+Packager    : Keysight Technologies
+Summary     : Data Plane Development Kit that consists of libraries to accelerate packet processing workloads.
+Description :
+DPDK is the Data Plane Development Kit that consists of libraries to
+accelerate packet processing workloads running on a wide variety of CPU architectures.
+
+In a world where the network is becoming fundamental to the way
+people communicate, performance, throughput, and latency are increasingly
+important for applications like wireless core and access,
+wireline infrastructure, routers, load balancers, firewalls, video streaming,
+VoIP, and more. By enabling very fast packet processing,
+DPDK is making it possible for the telecommunications industry
+to move performance-sensitive applications like the backbone for
+mobile networks and voice to the cloud. It was also identified as
+a key enabling technology for Network Functions Virtualization (NFV)
+in the original ETSI NFV White Paper.

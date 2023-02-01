@@ -1,0 +1,21 @@
+Name        : usstream
+Version     : 1.6.0
+Release     : 19
+Architecture: x86_64
+Install Date: Tue Sep 20 13:04:27 2022
+Group       : Applications/Networking
+Size        : 11542194
+License     : Keysight
+Signature   : (none)
+Source RPM  : usstream-1.6.0-19.src.rpm
+Build Date  : Tue Sep 20 13:04:03 2022
+Build Host  : 89910f578654
+Relocations : (not relocatable)
+Packager    : Keysight Technologies
+Vendor      : Keysight Technologies
+URL         : http://www.ixiacom.com
+Summary     : IxVM L23 Traffic Engine
+Description :
+This is the core component of the IxVM Traffic Engine in User Space.
+It is responsible with generating and receiving traffic
+while also collecting and computing statistics.

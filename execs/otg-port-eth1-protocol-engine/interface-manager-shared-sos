@@ -1,0 +1,200 @@
+00400000-0044b000 r-xp 00000000 00:17f 1977449                           /docker_im/opt/Ixia/sstream/bin/InterfaceManager
+0064b000-0064c000 r--p 0004b000 00:17f 1977449                           /docker_im/opt/Ixia/sstream/bin/InterfaceManager
+0064c000-0064d000 rw-p 0004c000 00:17f 1977449                           /docker_im/opt/Ixia/sstream/bin/InterfaceManager
+0064d000-0064e000 rw-p 00000000 00:00 0 
+00df2000-01006000 rw-p 00000000 00:00 0                                  [heap]
+7f8b28000000-7f8b28021000 rw-p 00000000 00:00 0 
+7f8b28021000-7f8b2c000000 ---p 00000000 00:00 0 
+7f8b2c000000-7f8b2c021000 rw-p 00000000 00:00 0 
+7f8b2c021000-7f8b30000000 ---p 00000000 00:00 0 
+7f8b30000000-7f8b30021000 rw-p 00000000 00:00 0 
+7f8b30021000-7f8b34000000 ---p 00000000 00:00 0 
+7f8b34000000-7f8b34021000 rw-p 00000000 00:00 0 
+7f8b34021000-7f8b38000000 ---p 00000000 00:00 0 
+7f8b38000000-7f8b38021000 rw-p 00000000 00:00 0 
+7f8b38021000-7f8b3c000000 ---p 00000000 00:00 0 
+7f8b40000000-7f8b40021000 rw-p 00000000 00:00 0 
+7f8b40021000-7f8b44000000 ---p 00000000 00:00 0 
+7f8b48000000-7f8b48057000 rw-p 00000000 00:00 0 
+7f8b48057000-7f8b4c000000 ---p 00000000 00:00 0 
+7f8b4c7f9000-7f8b4c7fa000 ---p 00000000 00:00 0 
+7f8b4c7fa000-7f8b4cffa000 rwxp 00000000 00:00 0 
+7f8b4cffa000-7f8b4cffb000 ---p 00000000 00:00 0 
+7f8b4cffb000-7f8b4d7fb000 rwxp 00000000 00:00 0 
+7f8b4d7fb000-7f8b4d7fc000 ---p 00000000 00:00 0 
+7f8b4d7fc000-7f8b4dffc000 rwxp 00000000 00:00 0 
+7f8b4dffc000-7f8b4dffd000 ---p 00000000 00:00 0 
+7f8b4dffd000-7f8b4e7fd000 rwxp 00000000 00:00 0 
+7f8b4e7fd000-7f8b4e7fe000 ---p 00000000 00:00 0 
+7f8b4e7fe000-7f8b4effe000 rwxp 00000000 00:00 0 
+7f8b4effe000-7f8b4efff000 ---p 00000000 00:00 0 
+7f8b4efff000-7f8b4f7ff000 rwxp 00000000 00:00 0 
+7f8b4f7ff000-7f8b4f800000 ---p 00000000 00:00 0 
+7f8b4f800000-7f8b50000000 rwxp 00000000 00:00 0 
+7f8b50000000-7f8b50021000 rw-p 00000000 00:00 0 
+7f8b50021000-7f8b54000000 ---p 00000000 00:00 0 
+7f8b54749000-7f8b558dd000 r-xp 00000000 00:17f 1977491                   /usr/lib/ixe/plugins/libotg_grpc.so
+7f8b558dd000-7f8b55adc000 ---p 01194000 00:17f 1977491                   /usr/lib/ixe/plugins/libotg_grpc.so
+7f8b55adc000-7f8b55b39000 r--p 01193000 00:17f 1977491                   /usr/lib/ixe/plugins/libotg_grpc.so
+7f8b55b39000-7f8b55b6a000 rw-p 011f0000 00:17f 1977491                   /usr/lib/ixe/plugins/libotg_grpc.so
+7f8b55b6a000-7f8b55b76000 rw-p 00000000 00:00 0 
+7f8b55b76000-7f8b57530000 r-xp 00000000 00:17f 1977490                   /usr/lib/ixe/plugins/libixps.so
+7f8b57530000-7f8b57730000 ---p 019ba000 00:17f 1977490                   /usr/lib/ixe/plugins/libixps.so
+7f8b57730000-7f8b577a8000 r--p 019ba000 00:17f 1977490                   /usr/lib/ixe/plugins/libixps.so
+7f8b577a8000-7f8b577e7000 rw-p 01a32000 00:17f 1977490                   /usr/lib/ixe/plugins/libixps.so
+7f8b577e7000-7f8b577f7000 rw-p 00000000 00:00 0 
+7f8b577f7000-7f8b577f8000 ---p 00000000 00:00 0 
+7f8b577f8000-7f8b57ff8000 rwxp 00000000 00:00 0 
+7f8b57ff8000-7f8b57ff9000 ---p 00000000 00:00 0 
+7f8b57ff9000-7f8b587f9000 rwxp 00000000 00:00 0 
+7f8b587f9000-7f8b587fa000 ---p 00000000 00:00 0 
+7f8b587fa000-7f8b58ffa000 rwxp 00000000 00:00 0 
+7f8b58ffa000-7f8b58ffb000 ---p 00000000 00:00 0 
+7f8b58ffb000-7f8b597fb000 rwxp 00000000 00:00 0 
+7f8b597fb000-7f8b597fc000 ---p 00000000 00:00 0 
+7f8b597fc000-7f8b59ffc000 rwxp 00000000 00:00 0 
+7f8b59ffc000-7f8b63ffc000 rw-s 00000000 00:08 5490828                    socket:[5490828]
+7f8b63ffc000-7f8b6dffc000 rw-s 00000000 00:08 5490806                    socket:[5490806]
+7f8b6dffc000-7f8b6dffd000 ---p 00000000 00:00 0 
+7f8b6dffd000-7f8b6e7fd000 rwxp 00000000 00:00 0 
+7f8b6e7fd000-7f8b6e7fe000 ---p 00000000 00:00 0 
+7f8b6e7fe000-7f8b6effe000 rwxp 00000000 00:00 0 
+7f8b6effe000-7f8b6efff000 ---p 00000000 00:00 0 
+7f8b6efff000-7f8b6f7ff000 rwxp 00000000 00:00 0 
+7f8b6f7ff000-7f8b6f800000 ---p 00000000 00:00 0 
+7f8b6f800000-7f8b70000000 rwxp 00000000 00:00 0 
+7f8b70000000-7f8b70078000 rw-p 00000000 00:00 0 
+7f8b70078000-7f8b74000000 ---p 00000000 00:00 0 
+7f8b7440b000-7f8b7440c000 ---p 00000000 00:00 0 
+7f8b7440c000-7f8b74604000 rwxp 00000000 00:00 0 
+7f8b74604000-7f8b74605000 ---p 00000000 00:00 0 
+7f8b74605000-7f8b747fd000 rwxp 00000000 00:00 0 
+7f8b747fd000-7f8b747fe000 ---p 00000000 00:00 0 
+7f8b747fe000-7f8b74ffe000 rwxp 00000000 00:00 0 
+7f8b74ffe000-7f8b74fff000 ---p 00000000 00:00 0 
+7f8b74fff000-7f8b757ff000 rwxp 00000000 00:00 0 
+7f8b757ff000-7f8b75800000 ---p 00000000 00:00 0 
+7f8b75800000-7f8b76000000 rwxp 00000000 00:00 0 
+7f8b76000000-7f8b78000000 rw-p 00000000 00:00 0 
+7f8b78000000-7f8b78021000 rw-p 00000000 00:00 0 
+7f8b78021000-7f8b7c000000 ---p 00000000 00:00 0 
+7f8b7c1b2000-7f8b7c1c2000 rw-p 00000000 00:00 0 
+7f8b7c1c2000-7f8b7c1c5000 r--p 00000000 00:17f 1715153                   /usr/lib/x86_64-linux-gnu/libnss_files-2.31.so
+7f8b7c1c5000-7f8b7c1cc000 r-xp 00003000 00:17f 1715153                   /usr/lib/x86_64-linux-gnu/libnss_files-2.31.so
+7f8b7c1cc000-7f8b7c1ce000 r--p 0000a000 00:17f 1715153                   /usr/lib/x86_64-linux-gnu/libnss_files-2.31.so
+7f8b7c1ce000-7f8b7c1cf000 r--p 0000b000 00:17f 1715153                   /usr/lib/x86_64-linux-gnu/libnss_files-2.31.so
+7f8b7c1cf000-7f8b7c1d0000 rw-p 0000c000 00:17f 1715153                   /usr/lib/x86_64-linux-gnu/libnss_files-2.31.so
+7f8b7c1d0000-7f8b7c1d6000 rw-p 00000000 00:00 0 
+7f8b7c1d6000-7f8b7c1da000 r--p 00000000 00:17f 1715147                   /usr/lib/x86_64-linux-gnu/libnsl-2.31.so
+7f8b7c1da000-7f8b7c1ea000 r-xp 00004000 00:17f 1715147                   /usr/lib/x86_64-linux-gnu/libnsl-2.31.so
+7f8b7c1ea000-7f8b7c1ef000 r--p 00014000 00:17f 1715147                   /usr/lib/x86_64-linux-gnu/libnsl-2.31.so
+7f8b7c1ef000-7f8b7c1f0000 r--p 00018000 00:17f 1715147                   /usr/lib/x86_64-linux-gnu/libnsl-2.31.so
+7f8b7c1f0000-7f8b7c1f1000 rw-p 00019000 00:17f 1715147                   /usr/lib/x86_64-linux-gnu/libnsl-2.31.so
+7f8b7c1f1000-7f8b7c1f3000 rw-p 00000000 00:00 0 
+7f8b7c1f3000-7f8b7c1f5000 r--p 00000000 00:17f 1715095                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f8b7c1f5000-7f8b7c20a000 r-xp 00002000 00:17f 1715095                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f8b7c20a000-7f8b7c224000 r--p 00017000 00:17f 1715095                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f8b7c224000-7f8b7c225000 r--p 00030000 00:17f 1715095                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f8b7c225000-7f8b7c226000 rw-p 00031000 00:17f 1715095                   /usr/lib/x86_64-linux-gnu/libcrypt.so.1.1.0
+7f8b7c226000-7f8b7c22e000 rw-p 00000000 00:00 0 
+7f8b7c22e000-7f8b7c232000 r-xp 00000000 00:17f 1977437                   /docker_im/opt/Ixia/sstream/usr/lib/liberrhand.so
+7f8b7c232000-7f8b7c432000 ---p 00004000 00:17f 1977437                   /docker_im/opt/Ixia/sstream/usr/lib/liberrhand.so
+7f8b7c432000-7f8b7c433000 r--p 00004000 00:17f 1977437                   /docker_im/opt/Ixia/sstream/usr/lib/liberrhand.so
+7f8b7c433000-7f8b7c434000 rw-p 00005000 00:17f 1977437                   /docker_im/opt/Ixia/sstream/usr/lib/liberrhand.so
+7f8b7c434000-7f8b7c43c000 r-xp 00000000 00:17f 1977436                   /docker_im/opt/Ixia/sstream/usr/lib/libcommonc.so
+7f8b7c43c000-7f8b7c63b000 ---p 00008000 00:17f 1977436                   /docker_im/opt/Ixia/sstream/usr/lib/libcommonc.so
+7f8b7c63b000-7f8b7c63c000 r--p 00007000 00:17f 1977436                   /docker_im/opt/Ixia/sstream/usr/lib/libcommonc.so
+7f8b7c63c000-7f8b7c63d000 rw-p 00008000 00:17f 1977436                   /docker_im/opt/Ixia/sstream/usr/lib/libcommonc.so
+7f8b7c63d000-7f8b7c63e000 ---p 00000000 00:00 0 
+7f8b7c63e000-7f8b7ce3e000 rwxp 00000000 00:00 0 
+7f8b7ce3e000-7f8b7ce3f000 ---p 00000000 00:00 0 
+7f8b7ce3f000-7f8b7d63f000 rwxp 00000000 00:00 0 
+7f8b7d63f000-7f8b7d640000 ---p 00000000 00:00 0 
+7f8b7d640000-7f8b7de40000 rwxp 00000000 00:00 0 
+7f8b7de40000-7f8b7de41000 ---p 00000000 00:00 0 
+7f8b7de41000-7f8b7e641000 rwxp 00000000 00:00 0 
+7f8b7e641000-7f8b7e642000 ---p 00000000 00:00 0 
+7f8b7e642000-7f8b7ee42000 rwxp 00000000 00:00 0 
+7f8b7ee42000-7f8b7ee43000 ---p 00000000 00:00 0 
+7f8b7ee43000-7f8b7f643000 rwxp 00000000 00:00 0 
+7f8b7f643000-7f8b7f644000 ---p 00000000 00:00 0 
+7f8b7f644000-7f8b7fe44000 rwxp 00000000 00:00 0 
+7f8b7fe44000-7f8b80067000 r-xp 00000000 00:17f 1977489                   /usr/lib/ixe/plugins/libStatManager.so
+7f8b80067000-7f8b80266000 ---p 00223000 00:17f 1977489                   /usr/lib/ixe/plugins/libStatManager.so
+7f8b80266000-7f8b80273000 r--p 00222000 00:17f 1977489                   /usr/lib/ixe/plugins/libStatManager.so
+7f8b80273000-7f8b80278000 rw-p 0022f000 00:17f 1977489                   /usr/lib/ixe/plugins/libStatManager.so
+7f8b80278000-7f8b8027d000 rw-p 00000000 00:00 0 
+7f8b8027d000-7f8b8027f000 r--p 00000000 00:17f 1715186                   /usr/lib/x86_64-linux-gnu/librt-2.31.so
+7f8b8027f000-7f8b80283000 r-xp 00002000 00:17f 1715186                   /usr/lib/x86_64-linux-gnu/librt-2.31.so
+7f8b80283000-7f8b80285000 r--p 00006000 00:17f 1715186                   /usr/lib/x86_64-linux-gnu/librt-2.31.so
+7f8b80285000-7f8b80286000 r--p 00007000 00:17f 1715186                   /usr/lib/x86_64-linux-gnu/librt-2.31.so
+7f8b80286000-7f8b80287000 rw-p 00008000 00:17f 1715186                   /usr/lib/x86_64-linux-gnu/librt-2.31.so
+7f8b80287000-7f8b802a9000 r--p 00000000 00:17f 1715088                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f8b802a9000-7f8b80421000 r-xp 00022000 00:17f 1715088                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f8b80421000-7f8b8046f000 r--p 0019a000 00:17f 1715088                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f8b8046f000-7f8b80473000 r--p 001e7000 00:17f 1715088                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f8b80473000-7f8b80475000 rw-p 001eb000 00:17f 1715088                   /usr/lib/x86_64-linux-gnu/libc-2.31.so
+7f8b80475000-7f8b80479000 rw-p 00000000 00:00 0 
+7f8b80479000-7f8b8047c000 r--p 00000000 00:17f 1715113                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f8b8047c000-7f8b8048e000 r-xp 00003000 00:17f 1715113                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f8b8048e000-7f8b80492000 r--p 00015000 00:17f 1715113                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f8b80492000-7f8b80493000 r--p 00018000 00:17f 1715113                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f8b80493000-7f8b80494000 rw-p 00019000 00:17f 1715113                   /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+7f8b80494000-7f8b804a1000 r--p 00000000 00:17f 1715130                   /usr/lib/x86_64-linux-gnu/libm-2.31.so
+7f8b804a1000-7f8b80548000 r-xp 0000d000 00:17f 1715130                   /usr/lib/x86_64-linux-gnu/libm-2.31.so
+7f8b80548000-7f8b805e1000 r--p 000b4000 00:17f 1715130                   /usr/lib/x86_64-linux-gnu/libm-2.31.so
+7f8b805e1000-7f8b805e2000 r--p 0014c000 00:17f 1715130                   /usr/lib/x86_64-linux-gnu/libm-2.31.so
+7f8b805e2000-7f8b805e3000 rw-p 0014d000 00:17f 1715130                   /usr/lib/x86_64-linux-gnu/libm-2.31.so
+7f8b805e3000-7f8b80679000 r--p 00000000 00:17f 1715198                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28
+7f8b80679000-7f8b8076a000 r-xp 00096000 00:17f 1715198                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28
+7f8b8076a000-7f8b807b3000 r--p 00187000 00:17f 1715198                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28
+7f8b807b3000-7f8b807b4000 ---p 001d0000 00:17f 1715198                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28
+7f8b807b4000-7f8b807bf000 r--p 001d0000 00:17f 1715198                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28
+7f8b807bf000-7f8b807c2000 rw-p 001db000 00:17f 1715198                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28
+7f8b807c2000-7f8b807c5000 rw-p 00000000 00:00 0 
+7f8b807c5000-7f8b8083a000 r-xp 00000000 00:17f 1977478                   /docker_im/lib64/libixtcp_tput-sys.so
+7f8b8083a000-7f8b80a39000 ---p 00075000 00:17f 1977478                   /docker_im/lib64/libixtcp_tput-sys.so
+7f8b80a39000-7f8b80a3a000 r--p 00074000 00:17f 1977478                   /docker_im/lib64/libixtcp_tput-sys.so
+7f8b80a3a000-7f8b80a52000 rw-p 00075000 00:17f 1977478                   /docker_im/lib64/libixtcp_tput-sys.so
+7f8b80a52000-7f8b80a55000 rw-p 00000000 00:00 0 
+7f8b80a55000-7f8b80a8c000 r-xp 00000000 00:17f 1977477                   /docker_im/lib64/libixrte-sys.so
+7f8b80a8c000-7f8b80c8b000 ---p 00037000 00:17f 1977477                   /docker_im/lib64/libixrte-sys.so
+7f8b80c8b000-7f8b80c8c000 r--p 00036000 00:17f 1977477                   /docker_im/lib64/libixrte-sys.so
+7f8b80c8c000-7f8b80c8f000 rw-p 00037000 00:17f 1977477                   /docker_im/lib64/libixrte-sys.so
+7f8b80c8f000-7f8b80c90000 rw-p 00000000 00:00 0 
+7f8b80c90000-7f8b80ca2000 r-xp 00000000 00:17f 1977476                   /docker_im/lib64/libixnam-raw-socket-user.so
+7f8b80ca2000-7f8b80ea1000 ---p 00012000 00:17f 1977476                   /docker_im/lib64/libixnam-raw-socket-user.so
+7f8b80ea1000-7f8b80ea2000 r--p 00011000 00:17f 1977476                   /docker_im/lib64/libixnam-raw-socket-user.so
+7f8b80ea2000-7f8b80ea3000 rw-p 00012000 00:17f 1977476                   /docker_im/lib64/libixnam-raw-socket-user.so
+7f8b80ea3000-7f8b80ea4000 r--p 00000000 00:17f 1715099                   /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+7f8b80ea4000-7f8b80ea6000 r-xp 00001000 00:17f 1715099                   /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+7f8b80ea6000-7f8b80ea7000 r--p 00003000 00:17f 1715099                   /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+7f8b80ea7000-7f8b80ea8000 r--p 00003000 00:17f 1715099                   /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+7f8b80ea8000-7f8b80ea9000 rw-p 00004000 00:17f 1715099                   /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+7f8b80ea9000-7f8b80eaf000 r--p 00000000 00:17f 1715182                   /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+7f8b80eaf000-7f8b80ec0000 r-xp 00006000 00:17f 1715182                   /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+7f8b80ec0000-7f8b80ec6000 r--p 00017000 00:17f 1715182                   /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+7f8b80ec6000-7f8b80ec7000 r--p 0001c000 00:17f 1715182                   /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+7f8b80ec7000-7f8b80ec8000 rw-p 0001d000 00:17f 1715182                   /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+7f8b80ec8000-7f8b80ecc000 rw-p 00000000 00:00 0 
+7f8b80ecc000-7f8b80ed7000 r-xp 00000000 00:17f 1977439                   /docker_im/opt/Ixia/sstream/usr/lib/libixml.so
+7f8b80ed7000-7f8b810d6000 ---p 0000b000 00:17f 1977439                   /docker_im/opt/Ixia/sstream/usr/lib/libixml.so
+7f8b810d6000-7f8b810d7000 r--p 0000a000 00:17f 1977439                   /docker_im/opt/Ixia/sstream/usr/lib/libixml.so
+7f8b810d7000-7f8b810d8000 rw-p 0000b000 00:17f 1977439                   /docker_im/opt/Ixia/sstream/usr/lib/libixml.so
+7f8b810d8000-7f8b810da000 rw-p 00000000 00:00 0 
+7f8b810da000-7f8b811e0000 r-xp 00000000 00:17f 1977438                   /docker_im/opt/Ixia/sstream/usr/lib/libim.so
+7f8b811e0000-7f8b813df000 ---p 00106000 00:17f 1977438                   /docker_im/opt/Ixia/sstream/usr/lib/libim.so
+7f8b813df000-7f8b813e4000 r--p 00105000 00:17f 1977438                   /docker_im/opt/Ixia/sstream/usr/lib/libim.so
+7f8b813e4000-7f8b813e6000 rw-p 0010a000 00:17f 1977438                   /docker_im/opt/Ixia/sstream/usr/lib/libim.so
+7f8b813e6000-7f8b813f2000 rw-p 00000000 00:00 0 
+7f8b813f2000-7f8b813f3000 r--p 00000000 00:17f 1715066                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f8b813f3000-7f8b81416000 r-xp 00001000 00:17f 1715066                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f8b81416000-7f8b8141e000 r--p 00024000 00:17f 1715066                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f8b8141f000-7f8b81420000 r--p 0002c000 00:17f 1715066                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f8b81420000-7f8b81421000 rw-p 0002d000 00:17f 1715066                   /usr/lib/x86_64-linux-gnu/ld-2.31.so
+7f8b81421000-7f8b81422000 rw-p 00000000 00:00 0 
+7fff903ec000-7fff9040c000 rwxp 00000000 00:00 0                          [stack]
+7fff9040c000-7fff9040d000 rw-p 00000000 00:00 0 
+7fff90582000-7fff90586000 r--p 00000000 00:00 0                          [vvar]
+7fff90586000-7fff90588000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]
