@@ -35,6 +35,10 @@ func NewSshClient(t *testing.T, location string, username string, password strin
 		Auth: authMethod,
 		HostKeyCallback: ssh.HostKeyCallback(
 			func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+				// TODO: replace this with a more appropriate validation
+				if len(key.Marshal()) == 0 {
+					return fmt.Errorf("key is empty")
+				}
 				return nil
 			}),
 	}
