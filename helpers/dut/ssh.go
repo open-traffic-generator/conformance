@@ -3,6 +3,7 @@ package dut
 import (
 	"bytes"
 	"fmt"
+	"net"
 	"testing"
 
 	"golang.org/x/crypto/ssh"
@@ -30,9 +31,12 @@ func NewSshClient(t *testing.T, location string, username string, password strin
 	}
 
 	sshConfig := ssh.ClientConfig{
-		User:            username,
-		Auth:            authMethod,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		User: username,
+		Auth: authMethod,
+		HostKeyCallback: ssh.HostKeyCallback(
+			func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+				return nil
+			}),
 	}
 
 	t.Logf("Dialing ssh://%s@%s ...\n", username, location)

@@ -60,7 +60,9 @@ func (d *DutApi) SetSshConfig(setCfg string, unsetCfg string) func() {
 	d.t.Log("Setting SSH config on DUT ...")
 	if _, err := d.PushSshConfig(setCfg); err != nil {
 		d.t.Error("Failure occurred while pushing SSH config, undoing it ...")
-		d.PushSshConfig(unsetCfg)
+		if _, e := d.PushSshConfig(unsetCfg); e != nil {
+			d.t.Errorf("Failure occurred while undoing SSH config: %v\n", e)
+		}
 		d.t.Fatal(err)
 	}
 
