@@ -13,6 +13,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type DutConfig struct {
+	Name         string   `yaml:"name,omitempty"`
+	Host         string   `yaml:"host,omitempty"`
+	SshUsername  string   `yaml:"ssh_username,omitempty"`
+	SshPassword  string   `yaml:"ssh_password,omitempty"`
+	SshPort      int      `yaml:"ssh_port,omitempty"`
+	GnmiUsername string   `yaml:"gnmi_username,omitempty"`
+	GnmiPassword string   `yaml:"gnmi_password,omitempty"`
+	GnmiPort     int      `yaml:"gnmi_port,omitempty"`
+	Interfaces   []string `yaml:"interfaces,omitempty"`
+}
+
 type TestConfig struct {
 	OtgHost          string                 `yaml:"otg_host,omitempty"`
 	OtgPorts         []string               `yaml:"otg_ports,omitempty"`
@@ -20,6 +32,7 @@ type TestConfig struct {
 	OtgIterations    int                    `yaml:"otg_iterations,omitempty"`
 	OtgCaptureCheck  bool                   `yaml:"otg_capture_check,omitempty"`
 	OtgGrpcTransport bool                   `yaml:"otg_grpc_transport,omitempty"`
+	DutConfigs       []DutConfig            `yaml:"dut_configs,omitempty"`
 	OtgTestConst     map[string]interface{} `yaml:"otg_test_const,omitempty"`
 }
 
@@ -47,6 +60,7 @@ func NewTestConfig(t *testing.T) *TestConfig {
 		OtgHost:          "https://localhost:8443",
 		OtgPorts:         []string{"localhost:5555", "localhost:5556"},
 		OtgSpeed:         "speed_1_gbps",
+		DutConfigs:       []DutConfig{},
 		OtgIterations:    100,
 		OtgCaptureCheck:  true,
 		OtgGrpcTransport: false,

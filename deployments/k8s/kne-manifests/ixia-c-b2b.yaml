@@ -1,7 +1,7 @@
 name: ixia-c
 nodes:
   - name: otg
-    type: IXIA_TG
+    vendor: KEYSIGHT
     version: local
     services:
       8443:

@@ -6,7 +6,7 @@ from helpers.otg import otg
 @pytest.mark.all
 @pytest.mark.feature
 @pytest.mark.b2b
-def test_ipv4_fowarding():
+def test_ipv4_forwarding():
     test_const = {
         "pktRate": 50,
         "pktCount": 100,

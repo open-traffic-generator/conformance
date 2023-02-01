@@ -1,15 +1,17 @@
-//go:build all || feature || b2b
+//go:build all || topo_pdp
 
 package interfaces
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
+	"github.com/open-traffic-generator/tests/helpers/dut"
 	"github.com/open-traffic-generator/tests/helpers/otg"
 )
 
-func TestIpv4Forwarding(t *testing.T) {
+func TestIpv4ForwardingPdp(t *testing.T) {
 
 	testConst := map[string]interface{}{
 		"pktRate":   int64(50),
@@ -20,30 +22,70 @@ func TestIpv4Forwarding(t *testing.T) {
 		"txGateway": "1.1.1.2",
 		"txPrefix":  int32(24),
 		"rxMac":     "00:00:01:01:01:02",
-		"rxIp":      "1.1.1.2",
-		"rxGateway": "1.1.1.1",
+		"rxIp":      "2.2.2.1",
+		"rxGateway": "2.2.2.2",
 		"rxPrefix":  int32(24),
 	}
 
 	api := otg.NewOtgApi(t)
-	c := ipv4ForwardingConfig(api, testConst)
+
+	rmDutConfig := ipv4ForwardingPdpDutConfig(api, testConst)
+	defer rmDutConfig()
+
+	c := ipv4ForwardingPdpConfig(api, testConst)
 
 	api.SetConfig(c)
 
 	api.WaitFor(
-		func() bool { return ipv4NeighborsOk(api) },
+		func() bool { return ipv4NeighborsPdpOk(api) },
 		&otg.WaitForOpts{FnName: "WaitForMacResolution"},
 	)
 
 	api.StartTransmit()
 
 	api.WaitFor(
-		func() bool { return flowMetricsOk(api, testConst) },
+		func() bool { return flowMetricsPdpOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
 }
 
-func ipv4ForwardingConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func ipv4ForwardingPdpDutConfig(api *otg.OtgApi, tc map[string]interface{}) func() {
+	dc := &api.TestConfig().DutConfigs[0]
+
+	setCfg := fmt.Sprintf(`
+		interface %s
+			no switchport
+			ip address %s/%d
+		!
+		interface %s
+			no switchport
+			ip address %s/%d
+		!
+	`,
+		dc.Interfaces[0],
+		tc["txGateway"].(string),
+		tc["txPrefix"].(int32),
+		dc.Interfaces[1],
+		tc["rxGateway"].(string),
+		tc["rxPrefix"].(int32),
+	)
+
+	unsetCfg := fmt.Sprintf(`
+		interface %s
+			no ip address
+		!
+		interface %s
+			no ip address
+		!
+	`,
+		dc.Interfaces[0],
+		dc.Interfaces[1],
+	)
+
+	return dut.NewDutApi(api.Testing(), dc).SetSshConfig(setCfg, unsetCfg)
+}
+
+func ipv4ForwardingPdpConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
@@ -109,7 +151,7 @@ func ipv4ForwardingConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 	return c
 }
 
-func flowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func flowMetricsPdpOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	pktCount := int64(tc["pktCount"].(int32))
 
 	for _, m := range api.GetFlowMetrics() {
@@ -124,7 +166,7 @@ func flowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	return true
 }
 
-func ipv4NeighborsOk(api *otg.OtgApi) bool {
+func ipv4NeighborsPdpOk(api *otg.OtgApi) bool {
 	neighbors := api.GetIpv4Neighbors()
 
 	for _, n := range neighbors {

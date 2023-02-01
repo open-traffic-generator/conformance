@@ -16,8 +16,14 @@ KIND_VERSION=v0.16.0
 METALLB_VERSION=v0.13.6
 MESHNET_COMMIT=f26c193
 MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
-IXIA_C_OPERATOR_VERSION="0.3.0"
+IXIA_C_OPERATOR_VERSION="0.3.1"
 IXIA_C_OPERATOR_YAML="https://github.com/open-traffic-generator/ixia-c-operator/releases/download/v${IXIA_C_OPERATOR_VERSION}/ixiatg-operator.yaml"
+NOKIA_SRL_OPERATOR_VERSION="0.4.6"
+NOKIA_SRL_OPERATOR_YAML="https://github.com/srl-labs/srl-controller/config/default?ref=v${NOKIA_SRL_OPERATOR_VERSION}"
+ARISTA_CEOS_OPERATOR_VERSION="2.0.1"
+ARISTA_CEOS_OPERATOR_YAML="https://github.com/aristanetworks/arista-ceoslab-operator/config/default?ref=v${ARISTA_CEOS_OPERATOR_VERSION}"
+ARISTA_CEOS_VERSION="4.29.1F-29233963"
+ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
 KNE_COMMIT=a20cc6f
 
 TIMEOUT_SECONDS=300
@@ -360,15 +366,44 @@ gen_config_b2b_lag() {
 }
 
 gen_config_kne() {
-    ADDR=$(kubectl get service -n ixia-c service-https-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-    # TODO: only works for B2B topology
-    ETH1=$(grep a_int deployments/k8s/kne-manifests/${1}.yaml | cut -d\: -f2 | cut -d\  -f2)
-    ETH2=$(grep z_int deployments/k8s/kne-manifests/${1}.yaml | cut -d\: -f2 | cut -d\  -f2)
-    yml="otg_host: https://${ADDR}:8443
-        otg_ports:
-          - ${ETH1}
-          - ${ETH2}
-        "
+    OTG_ADDR=$(kubectl get service -n ixia-c service-https-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    
+    topo=$(kne_topo_file ${1} ${2})
+    yml="        otg_ports:\n"
+    for p in $(grep "_node: otg" ${topo} -A 1 | grep _int | sed s/\\s//g)
+    do
+        yml="${yml}          - $(echo ${p} | cut -d: -f2)\n"
+    done
+    if [ ! -z "${2}" ]
+    then
+        out=$(kne_cli show ${topo} 2>&1)
+        yml="${yml}        dut_configs:\n"
+
+        DUT_ADDR=$(kubectl get service -n ixia-c service-dut -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        yml="${yml}          - name: dut\n"
+        yml="${yml}            host: ${DUT_ADDR}\n"
+        
+        SSH_PORT=$(grep "\- name: dut" -A 30 ${topo} | grep -m 1 services -A 10 | grep 'name: ssh' -B 1 | head -n 1 | tr -d ' :')
+        yml="${yml}            ssh_username: admin\n"
+        # yml="${yml}            ssh_password: admin\n"
+        yml="${yml}            ssh_port: ${SSH_PORT}\n"
+
+        GNMI_PORT=$(grep "\- name: dut" -A 30 ${topo} | grep -m 1 services -A 10 | grep 'name: gnmi' -B 1 | head -n 1 | tr -d ' :')
+        yml="${yml}            gnmi_username: admin\n"
+        yml="${yml}            gnmi_password: admin\n"
+        yml="${yml}            gnmi_port: ${GNMI_PORT}\n"
+        yml="${yml}            interfaces:\n"
+        for i in $(echo -e $out | grep interfaces -A 8 | grep 'peer_name: \\"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
+        do
+            ifc=$(echo -e $i | sed s/\\\\\"/_/g | cut -d_ -f2)
+            yml="${yml}              - ${ifc}\n"
+        done
+
+        wait_for_sock ${DUT_ADDR} ${GNMI_PORT}
+        wait_for_sock ${DUT_ADDR} ${SSH_PORT}
+    fi
+
+    yml="otg_host: https://${OTG_ADDR}:8443\n${yml}"
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
     gen_config_common
@@ -697,8 +732,41 @@ get_meshnet() {
 
 get_ixia_c_operator() {
     echo "Installing ixia-c-operator ${IXIA_C_OPERATOR_YAML} ..."
-    kubectl apply -f ${IXIA_C_OPERATOR_YAML} \
+    load_image_to_kind $(ixia_c_operator_image) \
+    && kubectl apply -f ${IXIA_C_OPERATOR_YAML} \
     && wait_for_pods ixiatg-op-system
+}
+
+rm_ixia_c_operator() {
+    echo "Removing ixia-c-operator ${IXIA_C_OPERATOR_YAML} ..."
+    kubectl delete -f ${IXIA_C_OPERATOR_YAML} \
+    && wait_for_no_namespace ixiatg-op-system
+}
+
+get_nokia_srl_operator() {
+    echo "Installing nokia srl operator ${NOKIA_SRL_OPERATOR_YAML} ..."
+    load_image_to_kind $(nokia_srl_operator_image) "local" \
+    && kubectl apply -k ${NOKIA_SRL_OPERATOR_YAML} \
+    && wait_for_pods srlinux-controller
+}
+
+rm_nokia_srl_operator() {
+    echo "Removing nokia srl operator ${NOKIA_SRL_OPERATOR_YAML} ..."
+    kubectl delete -k ${NOKIA_SRL_OPERATOR_YAML} \
+    && wait_for_no_namespace srlinux-controller
+}
+
+get_arista_ceos_operator() {
+    echo "Installing arista ceos operator ${ARISTA_CEOS_OPERATOR_YAML} ..."
+    load_image_to_kind $(arista_ceos_operator_image) "local" \
+    && kubectl apply -k ${ARISTA_CEOS_OPERATOR_YAML} \
+    && wait_for_pods arista-ceoslab-operator-system
+}
+
+rm_arista_ceos_operator() {
+    echo "Removing arista ceos operator ${ARISTA_CEOS_OPERATOR_YAML} ..."
+    kubectl delete -k ${ARISTA_CEOS_OPERATOR_YAML} \
+    && wait_for_no_namespace arista-ceoslab-operator-system
 }
 
 get_kne() {
@@ -715,7 +783,7 @@ get_kubemod() {
 }
 
 setup_k8s_plugins() {
-    echo "Setting up K8S plugins for ${1} ..."
+    echo "Setting up K8S plugins for ${1} ${2} ..."
     case $1 in
         kne  )
             get_metallb \
@@ -727,6 +795,19 @@ setup_k8s_plugins() {
             get_metallb
         ;;
     esac
+
+    case $2 in
+        nokia   )
+            get_nokia_srl_operator
+        ;;
+        arista  )
+            get_arista_ceos_operator \
+            && load_arista_ceos_image
+        ;;
+        *       )
+            echo "second argument '${2}' ignored"
+        ;;
+    esac
 }
 
 ixia_c_image_path() {
@@ -735,6 +816,44 @@ ixia_c_image_path() {
 
 ixia_c_image_tag() {
     grep "\"${1}\"" -A 2 deployments/ixia-c-config.yaml | grep tag | cut -d\" -f4
+}
+
+ixia_c_operator_image() {
+    curl -kLs ${IXIA_C_OPERATOR_YAML} | grep image | grep operator | tr -s ' ' | cut -d\  -f3
+}
+
+nokia_srl_operator_image() {
+    yml="$(curl -kLs https://raw.githubusercontent.com/srl-labs/srl-controller/v${NOKIA_SRL_OPERATOR_VERSION}/config/manager/kustomization.yaml)"
+    path=$(echo "${yml}" | grep newName | tr -s ' ' | cut -d\  -f 3)
+    tag=$(echo "${yml}" | grep newTag | tr -s ' ' | cut -d\  -f 3)
+    echo "${path}:${tag}"
+}
+
+arista_ceos_operator_image() {
+    yml="$(curl -kLs https://raw.githubusercontent.com/aristanetworks/arista-ceoslab-operator/v${ARISTA_CEOS_OPERATOR_VERSION}/config/manager/kustomization.yaml)"
+    path=$(echo "${yml}" | grep newName | tr -s ' ' | cut -d\  -f 3)
+    tag=$(echo "${yml}" | grep newTag | tr -s ' ' | cut -d\  -f 3)
+    echo "${path}:${tag}"
+}
+
+load_image_to_kind() {
+    echo "Loading ${1}"
+
+    login_ghcr \
+    && docker pull "${1}" \
+    && kind load docker-image "${1}" \
+    || return 1
+
+    if [ "${2}" = "local" ]
+    then
+        localimg="$(echo ${1} | cut -d: -f1):local"
+        docker tag "${1}" "${localimg}" \
+        && kind load docker-image "${localimg}"
+    fi
+}
+
+load_arista_ceos_image() {
+    load_image_to_kind "${ARISTA_CEOS_IMAGE}:${ARISTA_CEOS_VERSION}" "local"
 }
 
 load_ixia_c_images() {
@@ -804,7 +923,7 @@ wait_for_no_namespace() {
 new_k8s_cluster() {
     common_install \
     && setup_kind_cluster \
-    && setup_k8s_plugins ${1} \
+    && setup_k8s_plugins ${1} ${2} \
     && load_ixia_c_images
 }
 
@@ -814,26 +933,38 @@ rm_k8s_cluster() {
     rm -rf $HOME/.kube
 }
 
+kne_topo_file() {
+    path=deployments/k8s/kne-manifests
+    if [ -z "${2}" ]
+    then
+        echo ${path}/${1}.yaml
+    else
+        echo ${path}/${1}-${2}.yaml
+    fi
+}
+
 kne_namespace() {
-    grep -E "^name" deployments/k8s/kne-manifests/${1}.yaml | cut -d\  -f2 | sed -e s/\"//g
+    grep -E "^name" $(kne_topo_file ${1} ${2}) | cut -d\  -f2 | sed -e s/\"//g
 }
  
 create_ixia_c_kne() {
-    echo "Creating KNE ${1} topology ..."
-    ns=$(kne_namespace ${1})
+    echo "Creating KNE ${1} ${2} topology ..."
+    ns=$(kne_namespace ${1} ${2})
+    topo=$(kne_topo_file ${1} ${2})
     kubectl apply -f deployments/ixia-c-config.yaml \
-    && kne_cli create deployments/k8s/kne-manifests/${1}.yaml \
+    && kne_cli create ${topo} \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
-    && gen_config_kne ${1} \
+    && gen_config_kne ${1} ${2} \
     && echo "Successfully deployed !"
 }
 
 rm_ixia_c_kne() {
     echo "Removing KNE ${1} topology ..."
-    ns=$(kne_namespace ${1})
-    kne_cli delete deployments/k8s/kne-manifests/${1}.yaml \
+    ns=$(kne_namespace ${1} ${2})
+    topo=$(kne_topo_file ${1} ${2})
+    kne_cli delete ${topo} \
     && wait_for_no_namespace ${ns}
 }
 
@@ -875,6 +1006,9 @@ topo() {
                 kneb2b )
                     create_ixia_c_kne ixia-c-b2b
                 ;;
+                knepdp )
+                    create_ixia_c_kne ixia-c-pdp ${3}
+                ;;
                 k8seth0 )
                     create_ixia_c_k8s ixia-c-b2b-eth0
                 ;;
@@ -897,6 +1031,9 @@ topo() {
                 ;;
                 kneb2b )
                     rm_ixia_c_kne ixia-c-b2b
+                ;;
+                knepdp )
+                    rm_ixia_c_kne ixia-c-pdp ${3}
                 ;;
                 k8seth0 )
                     rm_ixia_c_k8s ixia-c-b2b-eth0
