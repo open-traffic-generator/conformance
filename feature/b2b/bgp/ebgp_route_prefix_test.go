@@ -28,13 +28,13 @@ func TestEbgpRoutePrefix(t *testing.T) {
 		"txRouteCount": int32(1),
 		"rxRouteCount": int32(1),
 		"txNextHopV4":  "1.1.1.3",
-		"txNextHopV6":  "::01:01:01:03",
+		"txNextHopV6":  "::1:1:1:3",
 		"rxNextHopV4":  "1.1.1.4",
-		"rxNextHopV6":  "::01:01:01:04",
+		"rxNextHopV6":  "::1:1:1:4",
 		"txAdvRouteV4": "10.10.10.1",
 		"rxAdvRouteV4": "20.20.20.1",
-		"txAdvRouteV6": "::10:10:10:01",
-		"rxAdvRouteV6": "::20:20:20:01",
+		"txAdvRouteV6": "::10:10:10:1",
+		"rxAdvRouteV6": "::20:20:20:1",
 	}
 
 	api := otg.NewOtgApi(t)
@@ -47,6 +47,11 @@ func TestEbgpRoutePrefix(t *testing.T) {
 	api.WaitFor(
 		func() bool { return ebgpRoutePrefixBgpMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForBgpv4Metrics"},
+	)
+
+	api.WaitFor(
+		func() bool { return ebgpRoutePrefixBgpPrefixesOk(api, testConst) },
+		&otg.WaitForOpts{FnName: "WaitForBgpRoutePrefixes"},
 	)
 
 	api.StartTransmit()
@@ -101,6 +106,8 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 		SetPeerAddress(tc["txGateway"].(string)).
 		SetName("dtxBgpv4Peer")
 
+	dtxBgpv4Peer.LearnedInformationFilter().SetUnicastIpv4Prefix(true).SetUnicastIpv6Prefix(true)
+
 	dtxBgpv4PeerRrV4 := dtxBgpv4Peer.
 		V4Routes().
 		Add().
@@ -141,7 +148,7 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 	dtxBgpv4PeerRrV6.Addresses().Add().
 		SetAddress(tc["txAdvRouteV6"].(string)).
-		SetPrefix(32).
+		SetPrefix(128).
 		SetCount(tc["txRouteCount"].(int32)).
 		SetStep(1)
 
@@ -191,6 +198,8 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 		SetPeerAddress(tc["rxGateway"].(string)).
 		SetName("drxBgpv4Peer")
 
+	drxBgpv4Peer.LearnedInformationFilter().SetUnicastIpv4Prefix(true).SetUnicastIpv6Prefix(true)
+
 	drxBgpv4PeerRrV4 := drxBgpv4Peer.
 		V4Routes().
 		Add().
@@ -231,7 +240,7 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 	drxBgpv4PeerRrV6.Addresses().Add().
 		SetAddress(tc["rxAdvRouteV6"].(string)).
-		SetPrefix(32).
+		SetPrefix(128).
 		SetCount(tc["rxRouteCount"].(int32)).
 		SetStep(1)
 
@@ -340,6 +349,27 @@ func ebgpRoutePrefixBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) boo
 		}
 	}
 	return true
+}
+
+func ebgpRoutePrefixBgpPrefixesOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+	prefixCount := 0
+	for _, m := range api.GetBgpPrefixes() {
+		for _, p := range m.Ipv4UnicastPrefixes().Items() {
+			for _, key := range []string{"tx", "rx"} {
+				if p.Ipv4Address() == tc[key+"AdvRouteV4"].(string) && p.Ipv4NextHop() == tc[key+"NextHopV4"].(string) {
+					prefixCount += 1
+				}
+			}
+		}
+		for _, p := range m.Ipv6UnicastPrefixes().Items() {
+			for _, key := range []string{"tx", "rx"} {
+				if p.Ipv6Address() == tc[key+"AdvRouteV6"].(string) && p.Ipv6NextHop() == tc[key+"NextHopV6"].(string) {
+					prefixCount += 1
+				}
+			}
+		}
+	}
+	return prefixCount == 4
 }
 
 func ebgpRoutePrefixFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {

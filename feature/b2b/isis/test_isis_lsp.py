@@ -5,7 +5,7 @@ from helpers.otg import otg
 
 @pytest.mark.all
 @pytest.mark.cpdp
-def test_isis_route_prefix():
+def test_isis_lsp():
     test_const = {
         "pktRate": 50,
         "pktCount": 100,
@@ -37,7 +37,7 @@ def test_isis_route_prefix():
     }
 
     api = otg.OtgApi()
-    c = isis_route_prefix_config(api, test_const)
+    c = isis_lsp_config(api, test_const)
 
     api.set_config(c)
 
@@ -56,7 +56,7 @@ def test_isis_route_prefix():
     )
 
 
-def isis_route_prefix_config(api, tc):
+def isis_lsp_config(api, tc):
     c = api.api.config()
     ptx = c.ports.add(name="ptx", location=api.test_config.otg_ports[0])
     prx = c.ports.add(name="prx", location=api.test_config.otg_ports[1])

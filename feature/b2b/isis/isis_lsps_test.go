@@ -10,7 +10,7 @@ import (
 	"github.com/open-traffic-generator/snappi/gosnappi"
 )
 
-func TestIsIsRoutePrefix(t *testing.T) {
+func TestIsisLsp(t *testing.T) {
 
 	testConst := map[string]interface{}{
 		"pktRate":           int64(50),
@@ -43,14 +43,14 @@ func TestIsIsRoutePrefix(t *testing.T) {
 	}
 
 	api := otg.NewOtgApi(t)
-	c := isisRoutePrefixConfig(api, testConst)
+	c := isisLspConfig(api, testConst)
 
 	api.SetConfig(c)
 
 	api.StartProtocols()
 
 	api.WaitFor(
-		func() bool { return isisRoutePrefixMetricsOk(api, testConst) },
+		func() bool { return isisLspMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForIsIsMetrics",
 			Timeout: time.Duration(20) * time.Second},
 	)
@@ -58,12 +58,12 @@ func TestIsIsRoutePrefix(t *testing.T) {
 	api.StartTransmit()
 
 	api.WaitFor(
-		func() bool { return isisRoutePrefixFlowMetricsOk(api, testConst) },
+		func() bool { return isisLspFlowMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
 }
 
-func isisRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func isisLspConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
@@ -293,7 +293,7 @@ func isisRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 	return c
 }
 
-func isisRoutePrefixMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func isisLspMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	// TODO:  L1/L2 database size check does not ensure that routes are correctly advertised.
 	// Hence, for that, one MUST rely on isis states (not supported as of now).
 	for _, m := range api.GetIsIsMetrics() {
@@ -305,7 +305,7 @@ func isisRoutePrefixMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	return true
 }
 
-func isisRoutePrefixFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func isisLspFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	pktCount := int64(tc["pktCount"].(int32))
 
 	for _, m := range api.GetFlowMetrics() {
