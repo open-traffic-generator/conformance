@@ -4,7 +4,6 @@ from helpers.otg import otg
 
 
 @pytest.mark.all
-@pytest.mark.client_perf
 def test_config_serdes_perf():
     test_const = {
         "flowCounts": [1, 2, 16, 64, 128, 256, 1024],

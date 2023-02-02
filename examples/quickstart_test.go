@@ -1,4 +1,4 @@
-//go:build all || example
+//go:build all
 
 package examples
 

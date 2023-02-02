@@ -54,7 +54,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python example tests
         run: |
-          ./do.sh pytest -m example
+          ./do.sh pytest ./examples/
       - name: Get container logs
         if: always()
         run: |
@@ -89,7 +89,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go example tests
         run: |
-          ./do.sh gotest -tags example
+          ./do.sh gotest -tags=all ./examples/...
       - name: Get container logs
         if: always()
         run: |
@@ -124,7 +124,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python DP-only tests
         run: |
-          ./do.sh pytest -m dp_feature
+          ./do.sh pytest -m dp ./feature/b2b/
       - name: Get container logs
         if: always()
         run: |
@@ -159,7 +159,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go DP-only tests
         run: |
-          ./do.sh gotest -tags="dp_feature"
+          ./do.sh gotest -tags="dp" ./feature/b2b/...
       - name: Get container logs
         if: always()
         run: |
@@ -194,7 +194,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python tests
         run: |
-          ./do.sh pytest -m feature
+          ./do.sh pytest ./feature/b2b/
       - name: Get container logs
         if: always()
         run: |
@@ -229,7 +229,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags="feature"
+          ./do.sh gotest -tags=all ./feature/b2b/...
       - name: Get container logs
         if: always()
         run: |
@@ -264,7 +264,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python tests
         run: |
-          ./do.sh pytest -m feature
+          ./do.sh pytest ./feature/b2b/
       - name: Get container logs
         if: always()
         run: |
@@ -299,7 +299,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags="feature"
+          ./do.sh gotest -tags=all ./feature/b2b/...
       - name: Get container logs
         if: always()
         run: |
@@ -341,7 +341,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python tests
         run: |
-          ./do.sh pytest -m feature
+          ./do.sh pytest ./feature/b2b/
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -375,7 +375,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags="feature"
+          ./do.sh gotest -tags=all ./feature/b2b/...
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -409,46 +409,12 @@ jobs:
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags="topo_pdp"
+          ./do.sh gotest -tags=all ./feature/pdp/...
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: kne_pdp_arista_go
-          path: |
-            logs
-      - name: Teardown KNE OTG port-dut-port topology
-        run: |
-          ./do.sh topo rm knepdp arista
-
-  kne_pdp_oc_arista_go:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-      - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Setup KNE cluster
-        run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster kne arista
-      - name: Deploy KNE OTG port-dut-port topology
-        run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new knepdp arista
-      - name: Setup test prerequisites
-        run: |
-          ./do.sh pregotest
-      - name: Run Go tests
-        run: |
-          ./do.sh gotest -tags="topo_oc_pdp"
-      - name: Archive logs
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: kne_pdp_oc_arista_go
           path: |
             logs
       - name: Teardown KNE OTG port-dut-port topology
@@ -477,7 +443,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go eth0 tests
         run: |
-          ./do.sh gotest -tags="all" -run="^TestUdpHeaderEth0$"
+          ./do.sh gotest feature/b2b/packet/udp/udp_port_value_eth0_test.go
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -489,7 +455,7 @@ jobs:
         run: |
           ./do.sh topo rm k8seth0
 
-  lag:
+  b2blag:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout source
@@ -498,7 +464,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back LAG CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new lag
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new b2blag
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -508,7 +474,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go LAG tests
         run: |
-          ./do.sh gotest -tags="lag_feature"
+          ./do.sh gotest -tags="all" ./feature/b2blag/3p3p/...
       - name: Get container logs
         if: always()
         run: |
@@ -517,12 +483,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: lag
+          name: b2blag
           path: |
             logs
       - name: Teardown back-to-back LAG CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm lag
+          ./do.sh topo rm b2blag
 
   client_perf_py:
     runs-on: ubuntu-22.04
@@ -538,7 +504,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python tests
         run: |
-          OTG_ITERATIONS=2 ./do.sh pytest -m client_perf
+          OTG_ITERATIONS=2 ./do.sh pytest ./performance/client/
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -561,7 +527,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          OTG_ITERATIONS=10 ./do.sh gotest -tags=client_perf
+          OTG_ITERATIONS=10 ./do.sh gotest -tags="all" ./performance/client/...
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -589,7 +555,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Throughput test
         run: |
-          ./do.sh gotest -tags=perf -run "^TestUdpHeaderTputPerf$"
+          ./do.sh gotest ./performance/b2b/udp_tput_perf_test.go
       - name: Get container logs
         if: always()
         run: |
@@ -624,7 +590,7 @@ jobs:
           ./do.sh pregotest
       - name: Run DP perf test (HTTP)
         run: |
-          OTG_ITERATIONS=2 ./do.sh gotest -tags=dp_perf
+          OTG_ITERATIONS=2 ./do.sh gotest performance/b2b/udp_mesh_flows_perf_test.go
       - name: Get container logs
         if: always()
         run: |
@@ -659,7 +625,7 @@ jobs:
           ./do.sh pregotest
       - name: Run DP perf test (gRPC)
         run: |
-          OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=dp_perf
+          OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest performance/b2b/udp_mesh_flows_perf_test.go
       - name: Get container logs
         if: always()
         run: |
@@ -694,7 +660,7 @@ jobs:
           ./do.sh pregotest
       - name: Run DP perf test (HTTP)
         run: |
-          OTG_ITERATIONS=10 ./do.sh gotest -tags=cp_perf
+          OTG_ITERATIONS=10 ./do.sh gotest performance/b2b/ebgp_route_prefix_perf_test.go
       - name: Get container logs
         if: always()
         run: |
@@ -729,7 +695,7 @@ jobs:
           ./do.sh pregotest
       - name: Run DP perf test (gRPC)
         run: |
-          OTG_ITERATIONS=10 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=cp_perf
+          OTG_ITERATIONS=10 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest performance/b2b/ebgp_route_prefix_perf_test.go
       - name: Get container logs
         if: always()
         run: |

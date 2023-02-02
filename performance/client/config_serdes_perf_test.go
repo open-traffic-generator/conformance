@@ -1,4 +1,4 @@
-//go:build all || client_perf
+//go:build all
 
 package client
 

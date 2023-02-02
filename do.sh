@@ -1088,7 +1088,7 @@ topo() {
                 cpdp)
                     create_ixia_c_b2b_cpdp $3
                 ;;
-                lag )
+                b2blag )
                     create_ixia_c_b2b_lag
                 ;;
                 kneb2b )
@@ -1114,7 +1114,7 @@ topo() {
                 cpdp)
                     rm_ixia_c_b2b_cpdp
                 ;;
-                lag )
+                b2blag )
                     rm_ixia_c_b2b_cpdp
                 ;;
                 kneb2b )
@@ -1159,10 +1159,6 @@ topo() {
 }
 
 pregotest() {
-    if [ "${1}" = "oc" ]
-    then
-        gen_openconfig_models_sdk || return 1
-    fi
     go mod tidy \
     && go mod download \
     && echo "Successfully setup gotest !"
@@ -1180,7 +1176,7 @@ gotest() {
     mkdir -p logs
     log=logs/gotest.log
 
-    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./features/... ./performance/... | tee ${log}
+    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} | tee ${log}
 
     echo "Summary:"
     grep ": Test" ${log}
@@ -1227,18 +1223,18 @@ pylint() {
 golint() {
 
     GO111MODULE=on CGO_ENABLED=0 go install -v github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.2
-    
+    # TODO: skip-dirs does not actually skip analysis, it just supresses warnings
     if [ -z "${CI}" ]
     then
-        fmtdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
+        fmtdir=$([ -z "${1}" ] && echo "." || echo ${1})
         gofmt -s -w ${fmtdir} \
         && echo "files reformatted"
 
         lintdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
-        golangci-lint run --disable gosimple --timeout 5m -v ${lintdir} --skip-dirs helpers/dut/gnmi
+        golangci-lint run --disable gosimple --timeout 30m -v ${lintdir} --skip-dirs helpers/dut/gnmi
     else
         lintdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
-        golangci-lint run --disable gosimple --timeout 5m -v ${lintdir} --skip-dirs helpers/dut/gnmi
+        golangci-lint run --disable gosimple --timeout 30m -v ${lintdir} --skip-dirs helpers/dut/gnmi
     fi 
 
 }
