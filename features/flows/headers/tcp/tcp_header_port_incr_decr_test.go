@@ -133,7 +133,7 @@ func tcpHeaderPortIncrDecrCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[s
 		j := int32(i - ignoredCount)
 		cPackets.ValidateField(t, "tcp src", i, 34, api.Uint64ToBytes(uint64(txStart-(j%txCount)*txStep), 2))
 		cPackets.ValidateField(t, "tcp dst", i, 36, api.Uint64ToBytes(uint64(rxStart+(j%rxCount)*rxStep), 2))
-		cPackets.ValidateField(t, "tcp data offset", i, 46, api.Uint64ToBytes(uint64(5), 1))
+		cPackets.ValidateField(t, "tcp data offset", i, 65, api.Uint64ToBytes(uint64(5), 1))
 	}
 	expCount := int(tc["pktCount"].(int32))
 	actCount := len(cPackets.Packets) - ignoredCount
