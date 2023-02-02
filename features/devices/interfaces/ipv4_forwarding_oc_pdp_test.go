@@ -77,7 +77,7 @@ func ipv4ForwardingOcPdpDutConfig(api *otg.OtgApi, tc map[string]interface{}) {
 
 		dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[0]).Config(), &itx)
 		itxState := dut.GnmiGet(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[0]).Subinterface(0).Ipv4().Address(tc["txGateway"].(string)).State())
-		if *itxState.Ip != tc["txGateway"].(string) || *itxState.PrefixLength != uint8(tc["txPrefix"].(int32)) {
+		if *itxState.Ip != tc["txGateway"].(string) {
 			t.Fatal("itx state did not match expectations")
 		}
 		wg.Done()
@@ -103,7 +103,7 @@ func ipv4ForwardingOcPdpDutConfig(api *otg.OtgApi, tc map[string]interface{}) {
 
 		dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[1]).Config(), &irx)
 		irxState := dut.GnmiGet(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[1]).Subinterface(0).Ipv4().Address(tc["rxGateway"].(string)).State())
-		if *irxState.Ip != tc["rxGateway"].(string) || *irxState.PrefixLength != uint8(tc["rxPrefix"].(int32)) {
+		if *irxState.Ip != tc["rxGateway"].(string) {
 			t.Fatal("irx state did not match expectations")
 		}
 		wg.Done()

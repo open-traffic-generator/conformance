@@ -9,10 +9,9 @@ import (
 )
 
 type DutApi struct {
-	t          *testing.T
-	dutConfig  *testconfig.DutConfig
-	sshClient  *SshClient
-	gnmiClient *GnmiClient
+	t         *testing.T
+	dutConfig *testconfig.DutConfig
+	sshClient *SshClient
 }
 
 func NewDutApi(t *testing.T, dc *testconfig.DutConfig) *DutApi {

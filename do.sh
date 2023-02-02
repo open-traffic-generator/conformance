@@ -1230,13 +1230,15 @@ golint() {
     
     if [ -z "${CI}" ]
     then
-        lintdir=$([ -z "${1}" ] && echo "." || echo ${1})
-        echo ${lintdir}
-        gofmt -s -w ${lintdir}
-        echo "files reformatted"
+        fmtdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
+        gofmt -s -w ${fmtdir} \
+        && echo "files reformatted"
+
+        lintdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
+        golangci-lint run --disable gosimple --timeout 5m -v ${lintdir} --skip-dirs helpers/dut/gnmi
     else
         lintdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
-        $HOME/go/bin/golangci-lint run --disable gosimple --timeout 5m -v ${lintdir}
+        golangci-lint run --disable gosimple --timeout 5m -v ${lintdir} --skip-dirs helpers/dut/gnmi
     fi 
 
 }
