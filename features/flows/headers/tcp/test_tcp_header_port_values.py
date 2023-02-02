@@ -137,6 +137,9 @@ def capture_ok(api, c, tc):
                 2,
             ),
         )
+        captured_packets.validate_field(
+            "tcp data offset", i, 46, api.num_to_bytes(5, 1)
+        )
 
     exp_count = tc["pktCount"]
     act_count = len(captured_packets.packets) - ignored_count

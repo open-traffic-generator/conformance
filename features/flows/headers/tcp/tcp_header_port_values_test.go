@@ -120,6 +120,7 @@ func tcpHeaderPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[str
 		j := i - ignoredCount
 		cPackets.ValidateField(t, "tcp src", i, 34, api.Uint64ToBytes(uint64(txTcpPortValues[j%len(txTcpPortValues)]), 2))
 		cPackets.ValidateField(t, "tcp dst", i, 36, api.Uint64ToBytes(uint64(rxTcpPortValues[j%len(rxTcpPortValues)]), 2))
+		cPackets.ValidateField(t, "tcp data offset", i, 46, api.Uint64ToBytes(uint64(5), 1))
 	}
 
 	expCount := int(tc["pktCount"].(int32))
