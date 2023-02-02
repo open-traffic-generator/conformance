@@ -69,7 +69,7 @@ func NewGnmiClient(d *DutApi) (*GnmiClient, error) {
 	}, nil
 }
 
-func DumpGnmiConfig(t *testing.T, s ygot.GoStruct) {
+func DumpGnmiConfig(t *testing.T, msg string, s ygot.GoStruct) {
 	m, err := ygot.ConstructIETFJSON(s, nil)
 	if err != nil {
 		t.Fatalf("Could not construct IETF JSON from YGOT struct: %v", err)
@@ -78,14 +78,25 @@ func DumpGnmiConfig(t *testing.T, s ygot.GoStruct) {
 	if err != nil {
 		t.Fatalf("Could not marshal IETF JSON: %v", err)
 	}
-	t.Logf("Pushing DUT config:\n%s\n", string(b))
+	t.Logf("%s\n%s\n", msg, string(b))
 }
 
 // TODO: originally T was supposed to by 'any'
 func GnmiReplace[T ygot.GoStruct](g *GnmiClient, q ygnmi.ConfigQuery[T], val T) {
-	DumpGnmiConfig(g.d.t, val)
+	DumpGnmiConfig(g.d.t, "Pushing DUT config:", val)
 	_, err := ygnmi.Replace(context.Background(), g.ygnmiClient, q, val)
 	if err != nil {
 		g.d.t.Fatal(err)
 	}
+}
+
+// TODO: originally T was supposed to by 'any'
+func GnmiGet[T ygot.GoStruct](g *GnmiClient, q ygnmi.SingletonQuery[T]) T {
+
+	v, err := ygnmi.Get(context.Background(), g.ygnmiClient, q)
+	if err != nil {
+		g.d.t.Fatal(err)
+	}
+	DumpGnmiConfig(g.d.t, "Got DUT Config:", v)
+	return v
 }

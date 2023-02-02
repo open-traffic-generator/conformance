@@ -3,6 +3,7 @@
 package interfaces
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/open-traffic-generator/conformance/helpers/dut"
@@ -53,35 +54,62 @@ func ipv4ForwardingOcPdpDutConfig(api *otg.OtgApi, tc map[string]interface{}) {
 	dc := &api.TestConfig().DutConfigs[0]
 	t := api.Testing()
 
-	itx, irx := gnmi.Interface{}, gnmi.Interface{}
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	itx.SetName(dc.Interfaces[0])
-	itx.SetDescription("DUT ifc connected to OTG tx")
-	itx.SetType(gnmi.IETFInterfaces_InterfaceType_ethernetCsmacd)
-	itx.SetEnabled(true)
+	go func() {
+		itx := gnmi.Interface{}
+		itx.SetName(dc.Interfaces[0])
+		itx.SetDescription("DUT ifc connected to OTG tx")
+		itx.SetType(gnmi.IETFInterfaces_InterfaceType_ethernetCsmacd)
+		itx.SetEnabled(true)
 
-	irx.SetName(dc.Interfaces[1])
-	irx.SetDescription("DUT ifc connected to OTG rx")
-	irx.SetType(gnmi.IETFInterfaces_InterfaceType_ethernetCsmacd)
-	irx.SetEnabled(true)
+		itxIp := itx.GetOrCreateSubinterface(0).GetOrCreateIpv4()
+		itxIp.SetEnabled(true)
+		itxIp.GetOrCreateAddress(tc["txGateway"].(string)).
+			SetPrefixLength(uint8(tc["txPrefix"].(int32)))
 
-	itxIp := itx.GetOrCreateSubinterface(0).GetOrCreateIpv4()
-	itxIp.SetEnabled(true)
-	itxIp.GetOrCreateAddress(tc["txGateway"].(string)).
-		SetPrefixLength(uint8(tc["txPrefix"].(int32)))
+		dutApi := dut.NewDutApi(api.Testing(), dc)
+		gnmiClient, err := dut.NewGnmiClient(dutApi)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	irxIp := irx.GetOrCreateSubinterface(0).GetOrCreateIpv4()
-	irxIp.SetEnabled(true)
-	irxIp.GetOrCreateAddress(tc["rxGateway"].(string)).
-		SetPrefixLength(uint8(tc["rxPrefix"].(int32)))
+		dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[0]).Config(), &itx)
+		itxState := dut.GnmiGet(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[0]).Subinterface(0).Ipv4().Address(tc["txGateway"].(string)).State())
+		if *itxState.Ip != tc["txGateway"].(string) || *itxState.PrefixLength != uint8(tc["txPrefix"].(int32)) {
+			t.Fatal("itx state did not match expectations")
+		}
+		wg.Done()
+	}()
 
-	dutApi := dut.NewDutApi(api.Testing(), dc)
-	gnmiClient, err := dut.NewGnmiClient(dutApi)
-	if err != nil {
-		t.Fatal(err)
-	}
-	dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[0]).Config(), &itx)
-	dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[1]).Config(), &irx)
+	go func() {
+		irx := gnmi.Interface{}
+		irx.SetName(dc.Interfaces[1])
+		irx.SetDescription("DUT ifc connected to OTG rx")
+		irx.SetType(gnmi.IETFInterfaces_InterfaceType_ethernetCsmacd)
+		irx.SetEnabled(true)
+
+		irxIp := irx.GetOrCreateSubinterface(0).GetOrCreateIpv4()
+		irxIp.SetEnabled(true)
+		irxIp.GetOrCreateAddress(tc["rxGateway"].(string)).
+			SetPrefixLength(uint8(tc["rxPrefix"].(int32)))
+
+		dutApi := dut.NewDutApi(api.Testing(), dc)
+		gnmiClient, err := dut.NewGnmiClient(dutApi)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[1]).Config(), &irx)
+		irxState := dut.GnmiGet(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[1]).Subinterface(0).Ipv4().Address(tc["rxGateway"].(string)).State())
+		if *irxState.Ip != tc["rxGateway"].(string) || *irxState.PrefixLength != uint8(tc["rxPrefix"].(int32)) {
+			t.Fatal("irx state did not match expectations")
+		}
+		wg.Done()
+	}()
+
+	wg.Wait()
 }
 
 func ipv4ForwardingOcPdpConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
