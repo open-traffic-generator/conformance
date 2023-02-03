@@ -1158,12 +1158,6 @@ topo() {
     esac
 }
 
-pregotest() {
-    go mod tidy \
-    && go mod download \
-    && echo "Successfully setup gotest !"
-}
-
 prepytest() {
     rm -rf .env
     python -m pip install virtualenv \
