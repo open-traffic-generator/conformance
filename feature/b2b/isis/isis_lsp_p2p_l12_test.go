@@ -3,6 +3,7 @@
 package isis
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/open-traffic-generator/snappi/gosnappi"
 )
 
-func TestIsisLsp(t *testing.T) {
+func TestIsisLspP2pL12(t *testing.T) {
 
 	testConst := map[string]interface{}{
 		"pktRate":           int64(50),
@@ -32,7 +33,7 @@ func TestIsisLsp(t *testing.T) {
 		"rxIpv6":            "1100::2",
 		"rxv6Gateway":       "1100::1",
 		"rxv6Prefix":        int32(64),
-		"rxIsisSystemId":    "640000000001",
+		"rxIsisSystemId":    "640000000002",
 		"rxIsisAreaAddress": []string{"490001"},
 		"txRouteCount":      int32(1),
 		"rxRouteCount":      int32(1),
@@ -43,27 +44,33 @@ func TestIsisLsp(t *testing.T) {
 	}
 
 	api := otg.NewOtgApi(t)
-	c := isisLspConfig(api, testConst)
+	c := isisLspP2pL12Config(api, testConst)
 
 	api.SetConfig(c)
 
 	api.StartProtocols()
 
 	api.WaitFor(
-		func() bool { return isisLspMetricsOk(api, testConst) },
-		&otg.WaitForOpts{FnName: "WaitForIsIsMetrics",
+		func() bool { return isisLspP2pL12MetricsOk(api, testConst) },
+		&otg.WaitForOpts{FnName: "WaitForIsisMetrics",
+			Timeout: time.Duration(20) * time.Second},
+	)
+
+	api.WaitFor(
+		func() bool { return isisLspP2pL12IsisLspsOk(api, testConst) },
+		&otg.WaitForOpts{FnName: "WaitForIsisLsps",
 			Timeout: time.Duration(20) * time.Second},
 	)
 
 	api.StartTransmit()
 
 	api.WaitFor(
-		func() bool { return isisLspFlowMetricsOk(api, testConst) },
+		func() bool { return isisLspP2pL12FlowMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
 }
 
-func isisLspConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
@@ -107,7 +114,8 @@ func isisLspConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 
 	dtxIsis.Basic().
 		SetIpv4TeRouterId(tc["txIp"].(string)).
-		SetHostname(dtxIsis.Name())
+		SetHostname(dtxIsis.Name()).
+		SetLearnedLspFilter(true)
 
 	dtxIsis.Advanced().
 		SetAreaAddresses(tc["txIsisAreaAddress"].([]string)).
@@ -175,7 +183,8 @@ func isisLspConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 
 	drxIsis.Basic().
 		SetIpv4TeRouterId(tc["rxIp"].(string)).
-		SetHostname(drxIsis.Name())
+		SetHostname(drxIsis.Name()).
+		SetLearnedLspFilter(true)
 
 	drxIsis.Advanced().
 		SetAreaAddresses(tc["rxIsisAreaAddress"].([]string)).
@@ -293,9 +302,26 @@ func isisLspConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	return c
 }
 
-func isisLspMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	// TODO:  L1/L2 database size check does not ensure that routes are correctly advertised.
-	// Hence, for that, one MUST rely on isis states (not supported as of now).
+func isisLspP2pL12IsisLspsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+	lspCount := 0
+	for _, m := range api.GetIsisLsps() {
+		for _, l := range m.Lsps().Items() {
+			for _, id := range []string{"txIsisSystemId", "rxIsisSystemId"} {
+				if fmt.Sprintf("%s-00-00", tc[id].(string)) == l.LspId() {
+					if l.PduType() == gosnappi.IsisLspStatePduType.LEVEL_1 {
+						lspCount += 1
+					}
+					if l.PduType() == gosnappi.IsisLspStatePduType.LEVEL_2 {
+						lspCount += 1
+					}
+				}
+			}
+		}
+	}
+	return lspCount == 4
+}
+
+func isisLspP2pL12MetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	for _, m := range api.GetIsIsMetrics() {
 		if m.L1SessionsUp() != 1 || m.L2SessionsUp() != 1 ||
 			m.L1DatabaseSize() != 1 || m.L2DatabaseSize() != 1 {
@@ -305,7 +331,7 @@ func isisLspMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	return true
 }
 
-func isisLspFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func isisLspP2pL12FlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	pktCount := int64(tc["pktCount"].(int32))
 
 	for _, m := range api.GetFlowMetrics() {

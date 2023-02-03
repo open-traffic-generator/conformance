@@ -105,3 +105,41 @@ func (o *OtgApi) GetBgpPrefixes() []gosnappi.BgpPrefixesState {
 	t.Log(tb.String())
 	return res.BgpPrefixes().Items()
 }
+
+func (o *OtgApi) GetIsisLsps() []gosnappi.IsisLspsState {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting ISIS LSPs ...")
+	defer o.Timer(time.Now(), "GetIsisLsps")
+
+	sr := api.NewStatesRequest()
+	sr.IsisLsps()
+	res, err := api.GetStates(sr)
+	o.LogWrnErr(nil, err, true)
+
+	tb := table.NewTable(
+		"ISIS LSPs",
+		[]string{
+			"Name",
+			"LSP ID",
+			"PDU Type",
+			"IS Type",
+		},
+		30,
+	)
+
+	for _, v := range res.IsisLsps().Items() {
+		for _, w := range v.Lsps().Items() {
+			tb.AppendRow([]interface{}{
+				v.IsisRouterName(),
+				w.LspId(),
+				w.PduType(),
+				w.IsType(),
+			})
+		}
+	}
+
+	t.Log(tb.String())
+	return res.IsisLsps().Items()
+}
