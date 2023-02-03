@@ -33,7 +33,7 @@ func TestIsisLspP2pL12(t *testing.T) {
 		"rxIpv6":            "1100::2",
 		"rxv6Gateway":       "1100::1",
 		"rxv6Prefix":        int32(64),
-		"rxIsisSystemId":    "640000000002",
+		"rxIsisSystemId":    "650000000001",
 		"rxIsisAreaAddress": []string{"490001"},
 		"txRouteCount":      int32(1),
 		"rxRouteCount":      int32(1),
