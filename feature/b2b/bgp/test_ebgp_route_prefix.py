@@ -24,13 +24,13 @@ def test_ebgp_route_prefix():
         "txRouteCount": 1,
         "rxRouteCount": 1,
         "txNextHopV4": "1.1.1.3",
-        "txNextHopV6": "::01:01:01:03",
+        "txNextHopV6": "::1:1:1:3",
         "rxNextHopV4": "1.1.1.4",
-        "rxNextHopV6": "::01:01:01:04",
+        "rxNextHopV6": "::1:1:1:4",
         "txAdvRouteV4": "10.10.10.1",
         "rxAdvRouteV4": "20.20.20.1",
-        "txAdvRouteV6": "::10:10:10:01",
-        "rxAdvRouteV6": "::20:20:20:01",
+        "txAdvRouteV6": "::10:10:10:1",
+        "rxAdvRouteV6": "::20:20:20:1",
     }
 
     api = otg.OtgApi()
@@ -43,6 +43,11 @@ def test_ebgp_route_prefix():
     api.wait_for(
         fn=lambda: bgp_metrics_ok(api, test_const),
         fn_name="wait_for_bgp_metrics",
+    )
+
+    api.wait_for(
+        fn=lambda: bgp_prefixes_ok(api, test_const),
+        fn_name="wait_for_bgp_prefixes",
     )
 
     api.start_transmit()
@@ -82,6 +87,8 @@ def ebgp_route_prefix_config(api, tc):
     dtx_bgpv4_peer.as_number = tc["txAs"]
     dtx_bgpv4_peer.as_type = dtx_bgpv4_peer.EBGP
     dtx_bgpv4_peer.peer_address = tc["txGateway"]
+    dtx_bgpv4_peer.learned_information_filter.unicast_ipv4_prefix = True
+    dtx_bgpv4_peer.learned_information_filter.unicast_ipv6_prefix = True
 
     dtx_bgpv4_peer_rrv4 = dtx_bgpv4_peer.v4_routes.add(name="dtx_bgpv4_peer_rrv4")
     dtx_bgpv4_peer_rrv4.next_hop_ipv4_address = tc["txNextHopV4"]
@@ -112,7 +119,7 @@ def ebgp_route_prefix_config(api, tc):
     dtx_bgpv4_peer_rrv6.next_hop_mode = dtx_bgpv4_peer_rrv6.MANUAL
 
     dtx_bgpv4_peer_rrv6.addresses.add(
-        address=tc["txAdvRouteV6"], prefix=32, count=tc["txRouteCount"], step=1
+        address=tc["txAdvRouteV6"], prefix=128, count=tc["txRouteCount"], step=1
     )
 
     dtx_bgpv4_peer_rrv6.advanced.multi_exit_discriminator = 50
@@ -148,6 +155,8 @@ def ebgp_route_prefix_config(api, tc):
     drx_bgpv4_peer.as_number = tc["rxAs"]
     drx_bgpv4_peer.as_type = drx_bgpv4_peer.EBGP
     drx_bgpv4_peer.peer_address = tc["rxGateway"]
+    drx_bgpv4_peer.learned_information_filter.unicast_ipv4_prefix = True
+    drx_bgpv4_peer.learned_information_filter.unicast_ipv6_prefix = True
 
     drx_bgpv4_peer_rrv4 = drx_bgpv4_peer.v4_routes.add(name="drx_bgpv4_peer_rrv4")
     drx_bgpv4_peer_rrv4.next_hop_ipv4_address = tc["rxNextHopV4"]
@@ -178,7 +187,7 @@ def ebgp_route_prefix_config(api, tc):
     drx_bgpv4_peer_rrv6.next_hop_mode = drx_bgpv4_peer_rrv6.MANUAL
 
     drx_bgpv4_peer_rrv6.addresses.add(
-        address=tc["rxAdvRouteV6"], prefix=32, count=tc["rxRouteCount"], step=1
+        address=tc["rxAdvRouteV6"], prefix=128, count=tc["rxRouteCount"], step=1
     )
 
     drx_bgpv4_peer_rrv6.advanced.multi_exit_discriminator = 50
@@ -263,6 +272,21 @@ def bgp_metrics_ok(api, tc):
         ):
             return False
     return True
+
+
+def bgp_prefixes_ok(api, tc):
+    prefix_count = 0
+    for m in api.get_bgp_prefixes():
+        for p in m.ipv4_unicast_prefixes:
+            for key in ["tx", "rx"]:
+                if p.ipv4_address == tc[key + "AdvRouteV4"] and p.ipv4_next_hop == tc[key + "NextHopV4"]:
+                    prefix_count += 1
+        for p in m.ipv6_unicast_prefixes:
+            for key in ["tx", "rx"]:
+                if p.ipv6_address == tc[key + "AdvRouteV6"] and p.ipv6_next_hop == tc[key + "NextHopV6"]:
+                    prefix_count += 1
+
+    return prefix_count == 4
 
 
 def flow_metrics_ok(api, tc):
