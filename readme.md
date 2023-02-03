@@ -37,9 +37,6 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 3. Setup and run Go tests
 
     ```sh
-    # setup test requirements
-    ./do.sh pregotest
-
     # run all feature tests against DP-only distribution of ixia-c
     ./do.sh gotest -tags="dp" ./feature/b2b/...
     # run all feature tests against CP/DP distribution of ixia-c
@@ -116,8 +113,6 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh new_k8s_cluster
     # create topology
     ./do.sh topo new k8seth0
-    # setup Go tests
-    ./do.sh pregotest
     # run single test
     ./do.sh gotest ./feature/b2b/packet/udp/udp_port_value_eth0_test.go
     # delete topology
@@ -133,8 +128,6 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh new_k8s_cluster kne
     # create KNE topology
     ./do.sh topo new kneb2b
-    # setup Go tests
-    ./do.sh pregotest
     # run all back-to-back feature tests
     ./do.sh gotest -tags="all" ./feature/b2b/...
     # delete KNE topology
@@ -150,8 +143,6 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh new_k8s_cluster kne arista
     # create KNE topology
     ./do.sh topo new knepdp arista
-    # setup Go tests
-    ./do.sh pregotest
     # run all port-dut-port feature tests
     ./do.sh gotest -tags="all" ./feature/pdp/...
     # delete KNE topology
