@@ -107,7 +107,6 @@ def capture_ok(api, c, tc):
     captured_packets = api.get_capture(c.ports[1].name)
 
     for i, p in enumerate(captured_packets.packets):
-
         # ignore unexpected packets based on ethernet src MAC
         if not captured_packets.has_field(
             "ethernet src", i, 6, api.mac_addr_to_bytes(tc["txMac"])

@@ -100,3 +100,12 @@ func GnmiGet[T ygot.GoStruct](g *GnmiClient, q ygnmi.SingletonQuery[T]) T {
 	DumpGnmiConfig(g.d.t, "Got DUT Config:", v)
 	return v
 }
+
+// TODO: originally T was supposed to by 'any'
+func GnmiDelete[T ygot.GoStruct](g *GnmiClient, q ygnmi.ConfigQuery[T]) {
+
+	_, err := ygnmi.Delete(context.Background(), g.ygnmiClient, q)
+	if err != nil {
+		g.d.t.Fatal(err)
+	}
+}

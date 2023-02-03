@@ -31,15 +31,15 @@ func TestIpNeighborsOc(t *testing.T) {
 
 	api := otg.NewOtgApi(t)
 
-	ipNeighborsOcDutConfig(api, testConst)
+	rmDutConfig := ipNeighborsOcDutConfig(api, testConst)
+	defer rmDutConfig()
 
 	c := ipNeighborsOcConfig(api, testConst)
-
 	api.SetConfig(c)
 
 	api.WaitFor(
-		func() bool { return ipNeighborsOcOk(api) },
-		&otg.WaitForOpts{FnName: "WaitForIpNeighbors"},
+		func() bool { return ipNeighborsOcIpv4NeighborsOk(api, testConst) },
+		&otg.WaitForOpts{FnName: "WaitForIpv4Neighbors"},
 	)
 
 	api.StartTransmit()
@@ -50,7 +50,7 @@ func TestIpNeighborsOc(t *testing.T) {
 	)
 }
 
-func ipNeighborsOcDutConfig(api *otg.OtgApi, tc map[string]interface{}) {
+func ipNeighborsOcDutConfig(api *otg.OtgApi, tc map[string]interface{}) func() {
 	dc := &api.TestConfig().DutConfigs[0]
 
 	var wg sync.WaitGroup
@@ -85,6 +85,17 @@ func ipNeighborsOcDutConfig(api *otg.OtgApi, tc map[string]interface{}) {
 	}()
 
 	wg.Wait()
+
+	return func() {
+		dutApi := dut.NewDutApi(api.Testing(), dc)
+		gnmiClient, err := dut.NewGnmiClient(dutApi)
+		if err != nil {
+			api.Testing().Fatal(err)
+		}
+
+		dut.GnmiDelete(gnmiClient, gnmipath.Root().Interface(tc["txGateway"].(string)).Config())
+		dut.GnmiDelete(gnmiClient, gnmipath.Root().Interface(tc["rxGateway"].(string)).Config())
+	}
 }
 
 func ipNeighborsOcCreateDutInterface(api *otg.OtgApi, dutApi *dut.DutApi, name string, description string, ipv4Addr string, ipv4Prefix uint8) {
@@ -209,15 +220,17 @@ func ipNeighborsOcFlowMetricsOcOk(api *otg.OtgApi, tc map[string]interface{}) bo
 	return true
 }
 
-func ipNeighborsOcOk(api *otg.OtgApi) bool {
-	neighbors := api.GetIpv4Neighbors()
-
-	for _, n := range neighbors {
-		if !n.HasLinkLayerAddress() {
-			return false
+func ipNeighborsOcIpv4NeighborsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+	count := 0
+	for _, n := range api.GetIpv4Neighbors() {
+		if n.HasLinkLayerAddress() {
+			for _, key := range []string{"txGateway", "rxGateway"} {
+				if n.Ipv4Address() == tc[key].(string) {
+					count += 1
+				}
+			}
 		}
 	}
 
-	return len(neighbors) > 0
-
+	return count == 2
 }

@@ -33,12 +33,11 @@ func TestIpNeighbors(t *testing.T) {
 	defer rmDutConfig()
 
 	c := ipNeighborsConfig(api, testConst)
-
 	api.SetConfig(c)
 
 	api.WaitFor(
-		func() bool { return ipNeighborsOk(api) },
-		&otg.WaitForOpts{FnName: "WaitForIpNeighbors"},
+		func() bool { return ipNeighborsIpv4NeighborsOk(api, testConst) },
+		&otg.WaitForOpts{FnName: "WaitForIpv4Neighbors"},
 	)
 
 	api.StartTransmit()
@@ -166,15 +165,17 @@ func ipNeighborsFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	return true
 }
 
-func ipNeighborsOk(api *otg.OtgApi) bool {
-	neighbors := api.GetIpv4Neighbors()
-
-	for _, n := range neighbors {
-		if !n.HasLinkLayerAddress() {
-			return false
+func ipNeighborsIpv4NeighborsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+	count := 0
+	for _, n := range api.GetIpv4Neighbors() {
+		if n.HasLinkLayerAddress() {
+			for _, key := range []string{"txGateway", "rxGateway"} {
+				if n.Ipv4Address() == tc[key].(string) {
+					count += 1
+				}
+			}
 		}
 	}
 
-	return len(neighbors) > 0
-
+	return count == 2
 }

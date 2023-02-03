@@ -26,7 +26,9 @@ def test_ip_neighbors():
 
     api.set_config(c)
 
-    api.wait_for(fn=lambda: ipv4_neighbors_ok(api), fn_name="wait_for_ipv4_neighbors")
+    api.wait_for(
+        fn=lambda: ipv4_neighbors_ok(api, test_const), fn_name="wait_for_ipv4_neighbors"
+    )
 
     api.start_transmit()
 
@@ -85,14 +87,15 @@ def ip_neighbors_config(api, tc):
     return c
 
 
-def ipv4_neighbors_ok(api):
-    neighbors = api.get_ipv4_neighbors()
+def ipv4_neighbors_ok(api, tc):
+    count = 0
+    for n in api.get_ipv4_neighbors():
+        if n.link_layer_address is not None:
+            for key in ["txGateway", "rxGateway"]:
+                if n.ipv4_address == tc[key]:
+                    count += 1
 
-    for n in neighbors:
-        if n.link_layer_address is None:
-            return False
-
-    return len(neighbors) > 0
+    return count == 2
 
 
 def flow_metrics_ok(api, tc):

@@ -32,11 +32,9 @@ func (o *OtgApi) GetIpv4Neighbors() []gosnappi.Neighborsv4State {
 
 	for _, v := range res.Ipv4Neighbors().Items() {
 		if v != nil {
-			var linkLayerAddress string
+			linkLayerAddress := ""
 			if v.HasLinkLayerAddress() {
 				linkLayerAddress = v.LinkLayerAddress()
-			} else {
-				linkLayerAddress = ""
 			}
 			tb.AppendRow([]interface{}{
 				v.EthernetName(),

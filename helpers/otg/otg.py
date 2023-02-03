@@ -316,7 +316,7 @@ class OtgApi(object):
                     "IPv4 Address",
                     "Link Layer Address",
                 ],
-                30,
+                20,
             )
 
             for n in neighbors:
@@ -324,7 +324,7 @@ class OtgApi(object):
                     [
                         n.ethernet_name,
                         n.ipv4_address,
-                        n.link_layer_address,
+                        "" if n.link_layer_address is None else n.link_layer_address,
                     ]
                 )
 

@@ -279,11 +279,17 @@ def bgp_prefixes_ok(api, tc):
     for m in api.get_bgp_prefixes():
         for p in m.ipv4_unicast_prefixes:
             for key in ["tx", "rx"]:
-                if p.ipv4_address == tc[key + "AdvRouteV4"] and p.ipv4_next_hop == tc[key + "NextHopV4"]:
+                if (
+                    p.ipv4_address == tc[key + "AdvRouteV4"]
+                    and p.ipv4_next_hop == tc[key + "NextHopV4"]
+                ):
                     prefix_count += 1
         for p in m.ipv6_unicast_prefixes:
             for key in ["tx", "rx"]:
-                if p.ipv6_address == tc[key + "AdvRouteV6"] and p.ipv6_next_hop == tc[key + "NextHopV6"]:
+                if (
+                    p.ipv6_address == tc[key + "AdvRouteV6"]
+                    and p.ipv6_next_hop == tc[key + "NextHopV6"]
+                ):
                     prefix_count += 1
 
     return prefix_count == 4
