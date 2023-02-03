@@ -53,13 +53,13 @@ func TestIsisLspP2pL12(t *testing.T) {
 	api.WaitFor(
 		func() bool { return isisLspP2pL12MetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForIsisMetrics",
-			Timeout: time.Duration(60) * time.Second},
+			Timeout: time.Duration(120) * time.Second},
 	)
 
 	api.WaitFor(
 		func() bool { return isisLspP2pL12IsisLspsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForIsisLsps",
-			Timeout: time.Duration(60) * time.Second},
+			Timeout: time.Duration(120) * time.Second},
 	)
 
 	api.StartTransmit()

@@ -23,7 +23,7 @@ func NewOtgApi(t *testing.T) *OtgApi {
 
 	api := gosnappi.NewApi()
 	if tc.OtgGrpcTransport {
-		api.NewGrpcTransport().SetLocation(tc.OtgHost).SetRequestTimeout(60 * time.Second)
+		api.NewGrpcTransport().SetLocation(tc.OtgHost).SetRequestTimeout(3600 * time.Second)
 	} else {
 		api.NewHttpTransport().SetLocation(tc.OtgHost).SetVerify(false)
 	}

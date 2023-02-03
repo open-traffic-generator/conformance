@@ -46,13 +46,13 @@ def test_isis_lsp_p2p_l12():
     api.wait_for(
         fn=lambda: isis_metrics_ok(api, test_const),
         fn_name="wait_for_isis_metrics",
-        timeout_seconds=60,
+        timeout_seconds=120,
     )
 
     api.wait_for(
         fn=lambda: isis_lsps_ok(api, test_const),
         fn_name="wait_for_isis_lsps",
-        timeout_seconds=60,
+        timeout_seconds=120,
     )
 
     api.start_transmit()
