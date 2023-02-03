@@ -334,6 +334,42 @@ class OtgApi(object):
         finally:
             self.timer("get_ipv4_neighbors", start)
 
+    def get_isis_lsps(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting ISIS LSPs ...")
+            req = self.api.states_request()
+            req.isis_lsps.isis_router_names = []
+            isis_lsps = self.api.get_states(req).isis_lsps
+
+            tb = table.Table(
+                "ISIS LSPs",
+                [
+                    "Name",
+                    "LSP ID",
+                    "PDU Type",
+                    "IS Type",
+                ],
+                30,
+            )
+
+            for n in isis_lsps:
+                for l in n.lsps:
+                    tb.append_row(
+                        [
+                            n.isis_router_name,
+                            l.lsp_id,
+                            l.pdu_type,
+                            l.is_type,
+                        ]
+                    )
+
+            log.info(tb)
+            return isis_lsps
+
+        finally:
+            self.timer("get_isis_lsps", start)
+
     def get_capture(self, port_name):
         if not self.test_config.otg_capture_check:
             log.info("Skipped get_capture")

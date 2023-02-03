@@ -5,7 +5,7 @@ from helpers.otg import otg
 
 @pytest.mark.all
 @pytest.mark.cpdp
-def test_isis_lsp():
+def test_isis_lsp_p2p_l12():
     test_const = {
         "pktRate": 50,
         "pktCount": 100,
@@ -26,7 +26,7 @@ def test_isis_lsp():
         "rxIpv6": "1100::2",
         "rxv6Gateway": "1100::1",
         "rxv6Prefix": 64,
-        "rxIsisSystemId": "640000000001",
+        "rxIsisSystemId": "650000000001",
         "rxIsisAreaAddress": ["490001"],
         "txRouteCount": 1,
         "rxRouteCount": 1,
@@ -37,7 +37,7 @@ def test_isis_lsp():
     }
 
     api = otg.OtgApi()
-    c = isis_lsp_config(api, test_const)
+    c = isis_lsp_p2p_l12_config(api, test_const)
 
     api.set_config(c)
 
@@ -46,7 +46,13 @@ def test_isis_lsp():
     api.wait_for(
         fn=lambda: isis_metrics_ok(api, test_const),
         fn_name="wait_for_isis_metrics",
-        timeout_seconds=20,
+        timeout_seconds=60,
+    )
+
+    api.wait_for(
+        fn=lambda: isis_lsps_ok(api, test_const),
+        fn_name="wait_for_isis_lsps",
+        timeout_seconds=60,
     )
 
     api.start_transmit()
@@ -56,7 +62,7 @@ def test_isis_lsp():
     )
 
 
-def isis_lsp_config(api, tc):
+def isis_lsp_p2p_l12_config(api, tc):
     c = api.api.config()
     ptx = c.ports.add(name="ptx", location=api.test_config.otg_ports[0])
     prx = c.ports.add(name="prx", location=api.test_config.otg_ports[1])
@@ -92,12 +98,13 @@ def isis_lsp_config(api, tc):
 
     dtx.isis.basic.ipv4_te_router_id = tc["txIp"]
     dtx.isis.basic.hostname = dtx.isis.name
+    dtx.isis.basic.learned_lsp_filter = True
 
     dtx_isis_int = dtx.isis.interfaces.add()
     dtx_isis_int.eth_name = dtx_eth.name
-    dtx_isis_int.name = "dtx_isis_nt"
+    dtx_isis_int.name = "dtx_isis_int"
     dtx_isis_int.network_type = dtx_isis_int.POINT_TO_POINT
-    dtx_isis_int.level_type = "level_1_2"
+    dtx_isis_int.level_type = dtx_isis_int.LEVEL_1_2
 
     dtx_isis_int.l2_settings.dead_interval = 30
     dtx_isis_int.l2_settings.hello_interval = 10
@@ -141,12 +148,13 @@ def isis_lsp_config(api, tc):
 
     drx.isis.basic.ipv4_te_router_id = tc["rxIp"]
     drx.isis.basic.hostname = drx.isis.name
+    drx.isis.basic.learned_lsp_filter = True
 
     drx_isis_int = drx.isis.interfaces.add()
     drx_isis_int.eth_name = drx_eth.name
     drx_isis_int.name = "drx_isis_int"
     drx_isis_int.network_type = drx_isis_int.POINT_TO_POINT
-    drx_isis_int.level_type = "level_1_2"
+    drx_isis_int.level_type = drx_isis_int.LEVEL_1_2
 
     drx_isis_int.l2_settings.dead_interval = 30
     drx_isis_int.l2_settings.hello_interval = 10
@@ -226,8 +234,6 @@ def isis_lsp_config(api, tc):
 
 def isis_metrics_ok(api, tc):
     for m in api.get_isis_metrics():
-        # TODO:  L1/L2 database size check does not ensure that routes are correctly advertised.
-        # Hence, for that, one MUST rely on isis states (not supported as of now).
         if (
             m.l1_sessions_up != 1
             or m.l1_database_size != 1
@@ -236,6 +242,20 @@ def isis_metrics_ok(api, tc):
         ):
             return False
     return True
+
+
+def isis_lsps_ok(api, tc):
+    lsp_count = 0
+    for m in api.get_isis_lsps():
+        for l in m.lsps:
+            for i in ["txIsisSystemId", "rxIsisSystemId"]:
+                if tc[i] + "-00-00" == l.lsp_id:
+                    if l.pdu_type == l.LEVEL_1:
+                        lsp_count += 1
+                    if l.pdu_type == l.LEVEL_2:
+                        lsp_count += 1
+
+    return lsp_count == 4
 
 
 def flow_metrics_ok(api, tc):
