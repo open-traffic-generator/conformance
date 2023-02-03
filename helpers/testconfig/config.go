@@ -2,7 +2,6 @@ package testconfig
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -43,7 +42,7 @@ func testConfigPath() (string, error) {
 		if src == filepath.Dir(src) {
 			return "", fmt.Errorf("path exhausted")
 		}
-		files, err := ioutil.ReadDir(src)
+		files, err := os.ReadDir(src)
 		if err != nil {
 			return "", err
 		}

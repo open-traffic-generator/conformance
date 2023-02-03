@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/open-traffic-generator/tests/helpers/testconfig"
+	"github.com/open-traffic-generator/conformance/helpers/testconfig"
 )
 
 type DutApi struct {
@@ -16,6 +16,7 @@ type DutApi struct {
 
 func NewDutApi(t *testing.T, dc *testconfig.DutConfig) *DutApi {
 	t.Logf("DUT Host: %s\n", dc.Host)
+	t.Logf("DUT Interfaces: %s\n", dc.Interfaces)
 	t.Logf("DUT SSH Port: %v\n", dc.SshPort)
 	t.Logf("DUT gNMI Port: %v\n", dc.GnmiPort)
 

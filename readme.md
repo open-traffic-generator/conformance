@@ -41,12 +41,12 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh pregotest
 
     # run all feature tests against DP-only distribution of ixia-c
-    ./do.sh gotest -tags="dp_feature"
+    ./do.sh gotest -tags="dp" ./feature/b2b/...
     # run all feature tests against CP/DP distribution of ixia-c
-    ./do.sh gotest -tags="feature"
+    ./do.sh gotest -tags="all" ./feature/b2b/...
 
     # run single test
-    ./do.sh gotest -tags="all" -run="^TestUdpHeader$"
+    ./do.sh gotest ./feature/b2b/packet/udp/udp_port_value_test.go
     ```
 
 4. Setup and run Python tests
@@ -56,12 +56,12 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh prepytest
 
     # run all tests against DP-only distribution of ixia-c
-    ./do.sh pytest -m dp_feature
+    ./do.sh pytest -m dp ./feature/b2b/
     # run all tests against CP/DP distribution of ixia-c
-    ./do.sh pytest -m feature
+    ./do.sh pytest ./feature/b2b/
 
     # run single test
-    ./do.sh pytest -m all -k test_udp_header
+    ./do.sh pytest ./feature/b2b/packet/udp/test_udp_port_value.py
     ```
 
 5. Teardown topology
@@ -74,7 +74,9 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh topo rm cpdp
     ```
 
-6. Format python code
+### Advanced Usage:
+
+1. Format python code
     
     Note that if you submit any code which does not follow proper python format the CI will fail
 
@@ -86,7 +88,7 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh pylint features
     ```
 
-7. Format go code
+2. Format go code
 
    Note that if you submit any code which does not follow proper go format the CI will fail
 
@@ -98,20 +100,16 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh golint helpers
     ```
 
-### Advanced Usage:
-
-1. Run perf tests in Go
+3. Run perf tests in Go
 
     ```sh
-    # run all perf tests
-    ./do.sh gotest -tags=perf
     # run single perf test
-    ./do.sh gotest -tags=perf -run=TestUdpHeaderMeshFlowsPerf
+    ./do.sh gotest ./performance/b2b/udp_mesh_flows_perf_test.go
     # run single perf test with lesser number of iterations (default=100)
-    OTG_ITERATIONS=2 ./do.sh gotest -tags=perf -run=TestUdpHeaderMeshFlowsPerf
+    OTG_ITERATIONS=2 ./do.sh gotest ./performance/b2b/udp_mesh_flows_perf_test.go
     ```
 
-2. Run tests against ixia-c B2B deployed on K8S cluster using eth0 as test interface
+4. Run tests against ixia-c B2B deployed on K8S cluster using eth0 as test interface
 
     ```sh
     # setup K8S cluster
@@ -121,14 +119,14 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     # setup Go tests
     ./do.sh pregotest
     # run single test
-    ./do.sh gotest -tags="all" -run="^TestUdpHeaderEth0$"
+    ./do.sh gotest ./feature/b2b/packet/udp/udp_port_value_eth0_test.go
     # delete topology
     ./do.sh topo rm k8seth0
     # delete K8S cluster
     ./do.sh rm_k8s_cluster
     ```
 
-3. Run tests against KNE cluster
+5. Run tests against KNE cluster (Back-To-Back)
 
     ```sh
     # setup KNE cluster
@@ -137,12 +135,27 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh topo new kneb2b
     # setup Go tests
     ./do.sh pregotest
-    # run single test
-    ./do.sh gotest -tags="all" -run="^TestEbgpv4RouteInstall$"
-    # run all Go tests
-    ./do.sh gotest -tags="feature"
+    # run all back-to-back feature tests
+    ./do.sh gotest -tags="all" ./feature/b2b/...
     # delete KNE topology
     ./do.sh topo rm kneb2b
     # delete KNE cluster
     ./do.sh rm_k8s_cluster kne
+    ```
+
+6. Run tests against KNE cluster (Port-Dut-Port)
+
+    ```sh
+    # setup KNE cluster
+    ./do.sh new_k8s_cluster kne arista
+    # create KNE topology
+    ./do.sh topo new knepdp arista
+    # setup Go tests
+    ./do.sh pregotest
+    # run all port-dut-port feature tests
+    ./do.sh gotest -tags="all" ./feature/pdp/...
+    # delete KNE topology
+    ./do.sh topo rm knepdp arista
+    # delete KNE cluster
+    ./do.sh rm_k8s_cluster kne arista
     ```

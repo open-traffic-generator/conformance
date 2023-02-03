@@ -28,6 +28,15 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/.cache/golangci-lint
+            ~/go/pkg/mod
+          key: lint_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            lint_
       - name: Setup Go test prerequisites
         run: |
           ./do.sh pregotest
@@ -54,7 +63,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python example tests
         run: |
-          ./do.sh pytest -m example
+          ./do.sh pytest ./examples/
       - name: Get container logs
         if: always()
         run: |
@@ -80,6 +89,14 @@ jobs:
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: examples_go_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            examples_go_
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -89,7 +106,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go example tests
         run: |
-          ./do.sh gotest -tags example
+          ./do.sh gotest -tags=all ./examples/...
       - name: Get container logs
         if: always()
         run: |
@@ -124,7 +141,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python DP-only tests
         run: |
-          ./do.sh pytest -m dp_feature
+          ./do.sh pytest -m dp ./feature/b2b/
       - name: Get container logs
         if: always()
         run: |
@@ -154,12 +171,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: dp_go_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            dp_go_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run Go DP-only tests
         run: |
-          ./do.sh gotest -tags="dp_feature"
+          ./do.sh gotest -tags="dp" ./feature/b2b/...
       - name: Get container logs
         if: always()
         run: |
@@ -194,7 +219,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python tests
         run: |
-          ./do.sh pytest -m feature
+          ./do.sh pytest ./feature/b2b/
       - name: Get container logs
         if: always()
         run: |
@@ -224,12 +249,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: cpdp_go_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            cpdp_go_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags="feature"
+          ./do.sh gotest -tags=all ./feature/b2b/...
       - name: Get container logs
         if: always()
         run: |
@@ -264,7 +297,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python tests
         run: |
-          ./do.sh pytest -m feature
+          ./do.sh pytest ./feature/b2b/
       - name: Get container logs
         if: always()
         run: |
@@ -294,12 +327,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: cpdp_ipv6_go_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            cpdp_ipv6_go_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags="feature"
+          ./do.sh gotest -tags=all ./feature/b2b/...
       - name: Get container logs
         if: always()
         run: |
@@ -341,7 +382,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python tests
         run: |
-          ./do.sh pytest -m feature
+          ./do.sh pytest ./feature/b2b/
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -364,6 +405,14 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: kne_b2b_go_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            kne_b2b_go_
       - name: Setup KNE cluster
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster kne
@@ -375,7 +424,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags="feature"
+          ./do.sh gotest -tags=all ./feature/b2b/...
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -398,6 +447,14 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: kne_pdp_arista_go_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            kne_pdp_arista_go_
       - name: Setup KNE cluster
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster kne arista
@@ -409,7 +466,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags="topo_pdp"
+          ./do.sh gotest -tags=all ./feature/pdp/...
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -432,6 +489,14 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: kne_b2b_eth0_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            kne_b2b_eth0_
       - name: Setup K8S cluster
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster
@@ -443,7 +508,7 @@ jobs:
           ./do.sh pregotest
       - name: Run Go eth0 tests
         run: |
-          ./do.sh gotest -tags="all" -run="^TestUdpHeaderEth0$"
+          ./do.sh gotest feature/b2b/packet/udp/udp_port_value_eth0_test.go
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -455,7 +520,7 @@ jobs:
         run: |
           ./do.sh topo rm k8seth0
 
-  lag:
+  b2blag:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout source
@@ -464,17 +529,25 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back LAG CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new lag
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new b2blag
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: b2blag_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            b2blag_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run Go LAG tests
         run: |
-          ./do.sh gotest -tags="lag_feature"
+          ./do.sh gotest -tags="all" ./feature/b2blag/3p3p/...
       - name: Get container logs
         if: always()
         run: |
@@ -483,12 +556,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: lag
+          name: b2blag
           path: |
             logs
       - name: Teardown back-to-back LAG CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm lag
+          ./do.sh topo rm b2blag
 
   client_perf_py:
     runs-on: ubuntu-22.04
@@ -504,7 +577,7 @@ jobs:
           ./do.sh prepytest
       - name: Run Python tests
         run: |
-          OTG_ITERATIONS=2 ./do.sh pytest -m client_perf
+          OTG_ITERATIONS=2 ./do.sh pytest ./performance/client/
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -522,12 +595,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: client_perf_go_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            client_perf_go_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run Go tests
         run: |
-          OTG_ITERATIONS=10 ./do.sh gotest -tags=client_perf
+          OTG_ITERATIONS=10 ./do.sh gotest -tags="all" ./performance/client/...
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3
@@ -550,12 +631,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: dp_tput_perf_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            dp_tput_perf_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run Throughput test
         run: |
-          ./do.sh gotest -tags=perf -run "^TestUdpHeaderTputPerf$"
+          ./do.sh gotest ./performance/b2b/udp_tput_perf_test.go
       - name: Get container logs
         if: always()
         run: |
@@ -585,12 +674,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: dp_http_perf_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            dp_http_perf_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run DP perf test (HTTP)
         run: |
-          OTG_ITERATIONS=2 ./do.sh gotest -tags=dp_perf
+          OTG_ITERATIONS=2 ./do.sh gotest performance/b2b/udp_mesh_flows_perf_test.go
       - name: Get container logs
         if: always()
         run: |
@@ -620,12 +717,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: dp_grpc_perf_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            dp_grpc_perf_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run DP perf test (gRPC)
         run: |
-          OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=dp_perf
+          OTG_ITERATIONS=2 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest performance/b2b/udp_mesh_flows_perf_test.go
       - name: Get container logs
         if: always()
         run: |
@@ -655,12 +760,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: cp_http_perf_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            cp_http_perf_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run DP perf test (HTTP)
         run: |
-          OTG_ITERATIONS=10 ./do.sh gotest -tags=cp_perf
+          OTG_ITERATIONS=10 ./do.sh gotest performance/b2b/ebgp_route_prefix_perf_test.go
       - name: Get container logs
         if: always()
         run: |
@@ -690,12 +803,20 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: cp_grpc_perf_${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            cp_grpc_perf_
       - name: Setup test prerequisites
         run: |
           ./do.sh pregotest
       - name: Run DP perf test (gRPC)
         run: |
-          OTG_ITERATIONS=10 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest -tags=cp_perf
+          OTG_ITERATIONS=10 OTG_GRPC_TRANSPORT=true OTG_HOST="localhost:40051" ./do.sh gotest performance/b2b/ebgp_route_prefix_perf_test.go
       - name: Get container logs
         if: always()
         run: |

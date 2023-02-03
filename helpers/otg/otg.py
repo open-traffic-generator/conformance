@@ -316,7 +316,7 @@ class OtgApi(object):
                     "IPv4 Address",
                     "Link Layer Address",
                 ],
-                30,
+                20,
             )
 
             for n in neighbors:
@@ -324,7 +324,7 @@ class OtgApi(object):
                     [
                         n.ethernet_name,
                         n.ipv4_address,
-                        n.link_layer_address,
+                        "" if n.link_layer_address is None else n.link_layer_address,
                     ]
                 )
 
@@ -333,6 +333,90 @@ class OtgApi(object):
 
         finally:
             self.timer("get_ipv4_neighbors", start)
+
+    def get_bgp_prefixes(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting BGP prefixes ...")
+            req = self.api.states_request()
+            req.bgp_prefixes.bgp_peer_names = []
+            bgp_prefixes = self.api.get_states(req).bgp_prefixes
+
+            tb = table.Table(
+                "BGP Prefixes",
+                [
+                    "Name",
+                    "IPv4 Address",
+                    "IPv4 Next Hop",
+                    "IPv6 Address",
+                    "IPv6 Next Hop",
+                ],
+                20,
+            )
+
+            for b in bgp_prefixes:
+                for p in b.ipv4_unicast_prefixes:
+                    tb.append_row(
+                        [
+                            b.bgp_peer_name,
+                            "{}/{}".format(p.ipv4_address, p.prefix_length),
+                            p.ipv4_next_hop,
+                            "",
+                            "" if p.ipv6_next_hop is None else p.ipv6_next_hop,
+                        ]
+                    )
+                for p in b.ipv6_unicast_prefixes:
+                    tb.append_row(
+                        [
+                            b.bgp_peer_name,
+                            "",
+                            "" if p.ipv4_next_hop is None else p.ipv4_next_hop,
+                            "{}/{}".format(p.ipv6_address, p.prefix_length),
+                            p.ipv6_next_hop,
+                        ]
+                    )
+
+            log.info(tb)
+            return bgp_prefixes
+
+        finally:
+            self.timer("get_bgp_prefixes", start)
+
+    def get_isis_lsps(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting ISIS LSPs ...")
+            req = self.api.states_request()
+            req.isis_lsps.isis_router_names = []
+            isis_lsps = self.api.get_states(req).isis_lsps
+
+            tb = table.Table(
+                "ISIS LSPs",
+                [
+                    "Name",
+                    "LSP ID",
+                    "PDU Type",
+                    "IS Type",
+                ],
+                30,
+            )
+
+            for n in isis_lsps:
+                for l in n.lsps:
+                    tb.append_row(
+                        [
+                            n.isis_router_name,
+                            l.lsp_id,
+                            l.pdu_type,
+                            l.is_type,
+                        ]
+                    )
+
+            log.info(tb)
+            return isis_lsps
+
+        finally:
+            self.timer("get_isis_lsps", start)
 
     def get_capture(self, port_name):
         if not self.test_config.otg_capture_check:

@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/open-traffic-generator/conformance/helpers/plot"
+	"github.com/open-traffic-generator/conformance/helpers/testconfig"
 	"github.com/open-traffic-generator/snappi/gosnappi"
-	"github.com/open-traffic-generator/tests/helpers/plot"
-	"github.com/open-traffic-generator/tests/helpers/testconfig"
 )
 
 type OtgApi struct {
@@ -23,7 +23,7 @@ func NewOtgApi(t *testing.T) *OtgApi {
 
 	api := gosnappi.NewApi()
 	if tc.OtgGrpcTransport {
-		api.NewGrpcTransport().SetLocation(tc.OtgHost).SetRequestTimeout(30 * time.Second)
+		api.NewGrpcTransport().SetLocation(tc.OtgHost).SetRequestTimeout(3600 * time.Second)
 	} else {
 		api.NewHttpTransport().SetLocation(tc.OtgHost).SetVerify(false)
 	}
