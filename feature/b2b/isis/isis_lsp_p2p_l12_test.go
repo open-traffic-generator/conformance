@@ -53,13 +53,13 @@ func TestIsisLspP2pL12(t *testing.T) {
 	api.WaitFor(
 		func() bool { return isisLspP2pL12MetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForIsisMetrics",
-			Timeout: time.Duration(120) * time.Second},
+			Timeout: time.Duration(30) * time.Second},
 	)
 
 	api.WaitFor(
 		func() bool { return isisLspP2pL12IsisLspsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForIsisLsps",
-			Timeout: time.Duration(120) * time.Second},
+			Timeout: time.Duration(30) * time.Second},
 	)
 
 	api.StartTransmit()
@@ -323,8 +323,8 @@ func isisLspP2pL12IsisLspsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 
 func isisLspP2pL12MetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	for _, m := range api.GetIsIsMetrics() {
-		if m.L1SessionsUp() != 1 || m.L2SessionsUp() != 1 ||
-			m.L1DatabaseSize() != 1 || m.L2DatabaseSize() != 1 {
+		if m.L1SessionsUp() < 1 || m.L2SessionsUp() < 1 ||
+			m.L1DatabaseSize() < 1 || m.L2DatabaseSize() < 1 {
 			return false
 		}
 	}

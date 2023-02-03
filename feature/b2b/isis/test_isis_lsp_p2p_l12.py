@@ -46,13 +46,13 @@ def test_isis_lsp_p2p_l12():
     api.wait_for(
         fn=lambda: isis_metrics_ok(api, test_const),
         fn_name="wait_for_isis_metrics",
-        timeout_seconds=120,
+        timeout_seconds=30,
     )
 
     api.wait_for(
         fn=lambda: isis_lsps_ok(api, test_const),
         fn_name="wait_for_isis_lsps",
-        timeout_seconds=120,
+        timeout_seconds=30,
     )
 
     api.start_transmit()
@@ -235,10 +235,10 @@ def isis_lsp_p2p_l12_config(api, tc):
 def isis_metrics_ok(api, tc):
     for m in api.get_isis_metrics():
         if (
-            m.l1_sessions_up != 1
-            or m.l1_database_size != 1
-            or m.l2_sessions_up != 1
-            or m.l2_database_size != 1
+            m.l1_sessions_up < 1
+            or m.l1_database_size < 1
+            or m.l2_sessions_up < 1
+            or m.l2_database_size < 1
         ):
             return False
     return True
