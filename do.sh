@@ -24,7 +24,7 @@ ARISTA_CEOS_OPERATOR_VERSION="2.0.1"
 ARISTA_CEOS_OPERATOR_YAML="https://github.com/aristanetworks/arista-ceoslab-operator/config/default?ref=v${ARISTA_CEOS_OPERATOR_VERSION}"
 ARISTA_CEOS_VERSION="4.29.1F-29233963"
 ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
-KNE_COMMIT=a20cc6f
+KNE_COMMIT=bb9432a
 
 OPENCONFIG_MODELS_REPO=https://github.com/openconfig/public.git
 OPENCONFIG_MODELS_COMMIT=5ca6a36
@@ -379,7 +379,6 @@ gen_config_kne() {
     done
     if [ ! -z "${2}" ]
     then
-        out=$(kne_cli show ${topo} 2>&1)
         yml="${yml}        dut_configs:\n"
 
         DUT_ADDR=$(kubectl get service -n ixia-c service-dut -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -396,9 +395,9 @@ gen_config_kne() {
         yml="${yml}            gnmi_password: admin\n"
         yml="${yml}            gnmi_port: ${GNMI_PORT}\n"
         yml="${yml}            interfaces:\n"
-        for i in $(echo -e $out | grep interfaces -A 8 | grep 'peer_name: \\"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
+        for i in $(kne topology service ${topo} | grep interfaces -A 8 | grep 'peer_name:  \"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
         do
-            ifc=$(echo -e $i | sed s/\\\\\"/_/g | cut -d_ -f2)
+            ifc=$(echo $i | cut -d\" -f2)
             yml="${yml}              - ${ifc}\n"
         done
 
@@ -858,9 +857,10 @@ rm_arista_ceos_operator() {
 }
 
 get_kne() {
-    which kne_cli > /dev/null 2>&1 && return
+    which kne > /dev/null 2>&1 && return
     echo "Installing KNE ${KNE_COMMIT} ..."
-    CGO_ENBLED=0 go install github.com/openconfig/kne/kne_cli@${KNE_COMMIT}
+    CGO_ENBLED=0 go install github.com/openconfig/kne/kne_cli@${KNE_COMMIT} \
+    && mv $(which kne_cli) $(dirname $(which kne_cli))/kne
 }
 
 get_kubemod() {
@@ -1040,7 +1040,7 @@ create_ixia_c_kne() {
     ns=$(kne_namespace ${1} ${2})
     topo=$(kne_topo_file ${1} ${2})
     kubectl apply -f deployments/ixia-c-config.yaml \
-    && kne_cli create ${topo} \
+    && kne create ${topo} \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
@@ -1052,7 +1052,7 @@ rm_ixia_c_kne() {
     echo "Removing KNE ${1} topology ..."
     ns=$(kne_namespace ${1} ${2})
     topo=$(kne_topo_file ${1} ${2})
-    kne_cli delete ${topo} \
+    kne delete ${topo} \
     && wait_for_no_namespace ${ns}
 }
 

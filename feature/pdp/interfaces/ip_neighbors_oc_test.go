@@ -13,7 +13,7 @@ import (
 	"github.com/open-traffic-generator/snappi/gosnappi"
 )
 
-func TestIpv4NeighborsOc(t *testing.T) {
+func TestIpNeighborsOc(t *testing.T) {
 
 	testConst := map[string]interface{}{
 		"pktRate":   int64(50),
@@ -31,88 +31,104 @@ func TestIpv4NeighborsOc(t *testing.T) {
 
 	api := otg.NewOtgApi(t)
 
-	ipv4NeighborsOcDutConfig(api, testConst)
+	ipNeighborsOcDutConfig(api, testConst)
 
-	c := ipv4NeighborsOcConfig(api, testConst)
+	c := ipNeighborsOcConfig(api, testConst)
 
 	api.SetConfig(c)
 
 	api.WaitFor(
-		func() bool { return ipNeighborsOcIpv4NeighborsOk(api) },
-		&otg.WaitForOpts{FnName: "WaitForMacResolution"},
+		func() bool { return ipNeighborsOcOk(api) },
+		&otg.WaitForOpts{FnName: "WaitForIpNeighbors"},
 	)
 
 	api.StartTransmit()
 
 	api.WaitFor(
-		func() bool { return ipNeighborsFlowMetricsOcOk(api, testConst) },
+		func() bool { return ipNeighborsOcFlowMetricsOcOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
 }
 
-func ipv4NeighborsOcDutConfig(api *otg.OtgApi, tc map[string]interface{}) {
+func ipNeighborsOcDutConfig(api *otg.OtgApi, tc map[string]interface{}) {
 	dc := &api.TestConfig().DutConfigs[0]
-	t := api.Testing()
 
 	var wg sync.WaitGroup
 	wg.Add(2)
 
 	go func() {
-		itx := gnmi.Interface{}
-		itx.SetName(dc.Interfaces[0])
-		itx.SetDescription("DUT ifc connected to OTG tx")
-		itx.SetType(gnmi.IETFInterfaces_InterfaceType_ethernetCsmacd)
-		itx.SetEnabled(true)
-
-		itxIp := itx.GetOrCreateSubinterface(0).GetOrCreateIpv4()
-		itxIp.SetEnabled(true)
-		itxIp.GetOrCreateAddress(tc["txGateway"].(string)).
-			SetPrefixLength(uint8(tc["txPrefix"].(int32)))
-
 		dutApi := dut.NewDutApi(api.Testing(), dc)
-		gnmiClient, err := dut.NewGnmiClient(dutApi)
-		if err != nil {
-			t.Fatal(err)
-		}
+		ipNeighborsOcCreateDutInterface(
+			api,
+			dutApi,
+			dc.Interfaces[0],
+			"DUT ifc connected to OTG tx",
+			tc["txGateway"].(string),
+			uint8(tc["txPrefix"].(int32)),
+		)
 
-		dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[0]).Config(), &itx)
-		itxState := dut.GnmiGet(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[0]).Subinterface(0).Ipv4().Address(tc["txGateway"].(string)).State())
-		if *itxState.Ip != tc["txGateway"].(string) {
-			t.Fatal("itx state did not match expectations")
-		}
 		wg.Done()
 	}()
 
 	go func() {
-		irx := gnmi.Interface{}
-		irx.SetName(dc.Interfaces[1])
-		irx.SetDescription("DUT ifc connected to OTG rx")
-		irx.SetType(gnmi.IETFInterfaces_InterfaceType_ethernetCsmacd)
-		irx.SetEnabled(true)
-
-		irxIp := irx.GetOrCreateSubinterface(0).GetOrCreateIpv4()
-		irxIp.SetEnabled(true)
-		irxIp.GetOrCreateAddress(tc["rxGateway"].(string)).
-			SetPrefixLength(uint8(tc["rxPrefix"].(int32)))
-
 		dutApi := dut.NewDutApi(api.Testing(), dc)
-		gnmiClient, err := dut.NewGnmiClient(dutApi)
-		if err != nil {
-			t.Fatal(err)
-		}
+		ipNeighborsOcCreateDutInterface(
+			api,
+			dutApi,
+			dc.Interfaces[1],
+			"DUT ifc connected to OTG rx",
+			tc["rxGateway"].(string),
+			uint8(tc["rxPrefix"].(int32)),
+		)
 
-		dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[1]).Config(), &irx)
-		irxState := dut.GnmiGet(gnmiClient, gnmipath.Root().Interface(dc.Interfaces[1]).Subinterface(0).Ipv4().Address(tc["rxGateway"].(string)).State())
-		if *irxState.Ip != tc["rxGateway"].(string) {
-			t.Fatal("irx state did not match expectations")
-		}
 		wg.Done()
 	}()
 
 	wg.Wait()
 }
 
-func ipv4NeighborsOcConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func ipNeighborsOcCreateDutInterface(api *otg.OtgApi, dutApi *dut.DutApi, name string, description string, ipv4Addr string, ipv4Prefix uint8) {
+
+	ifc := gnmi.Interface{}
+	ifc.SetName(name)
+	ifc.SetDescription(description)
+	ifc.SetType(gnmi.IETFInterfaces_InterfaceType_ethernetCsmacd)
+	ifc.SetEnabled(true)
+
+	ifcIp := ifc.GetOrCreateSubinterface(0).GetOrCreateIpv4()
+	ifcIp.SetEnabled(true)
+	ifcIp.GetOrCreateAddress(ipv4Addr).
+		SetPrefixLength(ipv4Prefix)
+
+	gnmiClient, err := dut.NewGnmiClient(dutApi)
+	if err != nil {
+		api.Testing().Fatal(err)
+	}
+
+	dut.GnmiReplace(gnmiClient, gnmipath.Root().Interface(name).Config(), &ifc)
+
+	api.WaitFor(
+		func() bool { return ipNeighborsOcDutInterfaceStateOk(api, gnmiClient, name, ipv4Addr, ipv4Prefix) },
+		&otg.WaitForOpts{FnName: "WaitDutInterfaceState"},
+	)
+}
+
+func ipNeighborsOcDutInterfaceStateOk(api *otg.OtgApi, gnmiClient *dut.GnmiClient, name string, ipv4Addr string, ipv4Prefix uint8) bool {
+	ifcState := dut.GnmiGet(gnmiClient, gnmipath.Root().Interface(name).Subinterface(0).Ipv4().Address(ipv4Addr).State())
+	if ifcState.Ip == nil || ifcState.PrefixLength == nil {
+		return false
+	}
+	if *ifcState.Ip != ipv4Addr {
+		api.Testing().Fatalf("IPv4 address did not match; expected: %s, got: %s\n", ipv4Addr, *ifcState.Ip)
+	}
+	if *ifcState.PrefixLength != ipv4Prefix {
+		api.Testing().Fatalf("IPv4 prefix did not match; expected: %d, got: %d\n", ipv4Prefix, *ifcState.PrefixLength)
+	}
+
+	return true
+}
+
+func ipNeighborsOcConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
@@ -178,7 +194,7 @@ func ipv4NeighborsOcConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 	return c
 }
 
-func ipNeighborsFlowMetricsOcOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func ipNeighborsOcFlowMetricsOcOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	pktCount := int64(tc["pktCount"].(int32))
 
 	for _, m := range api.GetFlowMetrics() {
@@ -193,7 +209,7 @@ func ipNeighborsFlowMetricsOcOk(api *otg.OtgApi, tc map[string]interface{}) bool
 	return true
 }
 
-func ipNeighborsOcIpv4NeighborsOk(api *otg.OtgApi) bool {
+func ipNeighborsOcOk(api *otg.OtgApi) bool {
 	neighbors := api.GetIpv4Neighbors()
 
 	for _, n := range neighbors {
