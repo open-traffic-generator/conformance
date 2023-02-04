@@ -141,3 +141,51 @@ func (o *OtgApi) GetIsisLsps() []gosnappi.IsisLspsState {
 	t.Log(tb.String())
 	return res.IsisLsps().Items()
 }
+
+func (o *OtgApi) GetLldpNeighbors() []gosnappi.LldpNeighborsState {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting LLDP Neighbors ...")
+	defer o.Timer(time.Now(), "GetIpv4Neighbors")
+
+	sr := api.NewStatesRequest()
+	sr.LldpNeighbors()
+	res, err := api.GetStates(sr)
+	o.LogWrnErr(nil, err, true)
+
+	tb := table.NewTable(
+		"LLDP Neighbors",
+		[]string{
+			"LLDP Name",
+			"Chassis ID",
+			"Chassis ID Type",
+			"System Name",
+		},
+		20,
+	)
+
+	for _, v := range res.LldpNeighbors().Items() {
+		row := []interface{}{v.LldpName()}
+		if v.HasChassisId() {
+			row = append(row, v.ChassisId())
+		} else {
+			row = append(row, "")
+		}
+		if v.HasChassisIdType() {
+			row = append(row, v.ChassisIdType())
+		} else {
+			row = append(row, "")
+		}
+		if v.HasSystemName() {
+			row = append(row, v.SystemName())
+		} else {
+			row = append(row, "")
+		}
+
+		tb.AppendRow(row)
+	}
+
+	t.Log(tb.String())
+	return res.LldpNeighbors().Items()
+}

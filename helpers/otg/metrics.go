@@ -127,3 +127,38 @@ func (o *OtgApi) GetIsIsMetrics() []gosnappi.IsisMetric {
 	t.Log(tb.String())
 	return res.IsisMetrics().Items()
 }
+
+func (o *OtgApi) GetLldpMetrics() []gosnappi.LldpMetric {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting LLDP metrics ...")
+	defer o.Timer(time.Now(), "GetLldpMetrics")
+
+	mr := api.NewMetricsRequest()
+	mr.Lldp()
+	res, err := api.GetMetrics(mr)
+	o.LogWrnErr(nil, err, true)
+
+	tb := table.NewTable(
+		"LLDP Metrics",
+		[]string{
+			"Name",
+			"Frames Tx",
+			"Frames Rx",
+		},
+		15,
+	)
+	for _, v := range res.LldpMetrics().Items() {
+		if v != nil {
+			tb.AppendRow([]interface{}{
+				v.Name(),
+				v.FramesTx(),
+				v.FramesRx(),
+			})
+		}
+	}
+
+	t.Log(tb.String())
+	return res.LldpMetrics().Items()
+}
