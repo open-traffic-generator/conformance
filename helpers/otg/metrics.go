@@ -162,3 +162,89 @@ func (o *OtgApi) GetLldpMetrics() []gosnappi.LldpMetric {
 	t.Log(tb.String())
 	return res.LldpMetrics().Items()
 }
+
+func (o *OtgApi) GetLagMetrics() []gosnappi.LagMetric {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting LAG metrics ...")
+	defer o.Timer(time.Now(), "GetLagMetrics")
+
+	mr := api.NewMetricsRequest()
+	mr.Lag()
+	res, err := api.GetMetrics(mr)
+	o.LogWrnErr(nil, err, true)
+
+	tb := table.NewTable(
+		"LAG Metrics",
+		[]string{
+			"Name",
+			"Oper Status",
+			"Frames Tx",
+			"Frames Rx",
+			"FPS Tx",
+			"FPS Rx",
+			"Bytes Tx",
+			"Bytes Rx",
+		},
+		15,
+	)
+	for _, v := range res.LagMetrics().Items() {
+		if v != nil {
+			tb.AppendRow([]interface{}{
+				v.Name(),
+				v.OperStatus(),
+				v.FramesTx(),
+				v.FramesRx(),
+				v.FramesTxRate(),
+				v.FramesRxRate(),
+				v.BytesTx(),
+				v.BytesRx(),
+			})
+		}
+	}
+
+	t.Log(tb.String())
+	return res.LagMetrics().Items()
+}
+
+func (o *OtgApi) GetLacpMetrics() []gosnappi.LacpMetric {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting LACP metrics ...")
+	defer o.Timer(time.Now(), "GetLacpMetrics")
+
+	mr := api.NewMetricsRequest()
+	mr.Lacp()
+	res, err := api.GetMetrics(mr)
+	o.LogWrnErr(nil, err, true)
+
+	tb := table.NewTable(
+		"LACP Metrics",
+		[]string{
+			"LAG Name",
+			"LAG Member Port",
+			"System ID",
+			"Partner ID",
+			"LACP Packets Tx",
+			"LACP Packets Rx",
+		},
+		20,
+	)
+	for _, v := range res.LacpMetrics().Items() {
+		if v != nil {
+			tb.AppendRow([]interface{}{
+				v.LagName(),
+				v.LagMemberPortName(),
+				v.SystemId(),
+				v.PartnerId(),
+				v.LacpPacketsTx(),
+				v.LacpPacketsRx(),
+			})
+		}
+	}
+
+	t.Log(tb.String())
+	return res.LacpMetrics().Items()
+}
