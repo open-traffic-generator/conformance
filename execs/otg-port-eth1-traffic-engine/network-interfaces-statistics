@@ -1,18 +1,18 @@
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
     RX:  bytes packets errors dropped  missed   mcast           
-      11914880  238242      0       0       0       0 
+      12653932  253020      0       0       0       0 
     TX:  bytes packets errors dropped carrier collsns           
-      11914880  238242      0       0       0       0 
+      12653932  253020      0       0       0       0 
 2: eth0@if82: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
     link/ether a6:3c:c4:28:16:24 brd ff:ff:ff:ff:ff:ff link-netnsid 0
     RX:  bytes packets errors dropped  missed   mcast           
-      24081934  370231      0       0       0       0 
+      25577650  393223      0       0       0       0 
     TX:  bytes packets errors dropped carrier collsns           
-      17324440  186852      0       0       0       0 
+      18398954  198432      0       0       0       0 
 85: eth1@if84: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
     link/ether 66:22:e2:b3:a9:dd brd ff:ff:ff:ff:ff:ff link-netnsid 1
     RX:  bytes packets errors dropped  missed   mcast           
-       6074659   48862      0       0       0       0 
+       6452809   51903      0       0       0       0 
     TX:  bytes packets errors dropped carrier collsns           
-          2896      40      0       0       0       0 
+          2966      41      0       0       0       0 

@@ -13,9 +13,9 @@ VETH_Y="veth-y"
 
 YFILE="./collectables.yaml"
 NAMESPACE="ixia-c"
-NEWDIR="/home/alan/conformance/conLogs"
-EXECDIR="/home/alan/conformance/execs"
-STDOUTDIR="/home/alan/conformance/stdout"
+NEWDIR="conLogs"
+EXECDIR="execs"
+STDOUTDIR="stdout"
 
 GO_VERSION=1.19
 KIND_VERSION=v0.16.0
@@ -871,24 +871,22 @@ get_yq() {
 	go install github.com/mikefarah/yq/v4@latest
 }
 
-create_fol() {
-    mkdir ${NEWDIR}
-}
-
 cp_file() {
     con=$1
     p=$2
     pod=$3
+    ndir=$4
 
     file=$(basename $p)
     dir=$(echo $p | sed "s/$file//")
     for i in $(kubectl exec -n ${NAMESPACE} $pod -c $con -- ls $dir | grep $file) 
         do
-            kubectl cp -n ${NAMESPACE} $pod:$dir$i ${NEWDIR}/$con/$i -c $con > /dev/null
+            kubectl cp -n ${NAMESPACE} $pod:$dir$i $ndir/${NEWDIR}/$con/$i -c $con > /dev/null
         done
 }
 
 get_paths() {
+    mkdir $(pwd)/${NEWDIR}
     for con in $(yq '.containers[] | .name' ${YFILE})
     do
         path=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
@@ -899,48 +897,55 @@ get_paths() {
                 continue
             else
                 pod=$(i=$con yq '.containers[] | select(.name == env(i)) | .pod' ${YFILE})
-                cp_file $con $p $pod
+                cp_file $con $p $pod $(pwd)
             fi
         done
     done
 }
 
-arch_fol() {
-    tar czvf conLogs.tar.gz ${NEWDIR}
+arch_fol_colPath() {
+    tar czvf conLogs.tar.gz $(pwd)/${NEWDIR}
+}
+
+arch_fol_colEx() {
+    tar czvf execs.tar.gz $(pwd)/${EXECDIR}
+}
+
+arch_fol_colStd() {
+    tar czvf stdout.tar.gz $(pwd)/${STDOUTDIR}
 }
 
 get_execs() {
-    mkdir ${EXECDIR}
+    mkdir $(pwd)/${EXECDIR}
     for con in $(yq '.containers[] | .name' ${YFILE})
     do
         x=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_execs[] | .name' ${YFILE})
-        mkdir ${EXECDIR}/$con
+        mkdir $(pwd)/${EXECDIR}/$con
         for j in $x
         do
             c=$(i=$con p=$j yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .cmd' ${YFILE})
             pod=$(i=$con yq '.containers[] | select(.name == env(i)) | .pod' ${YFILE})
             pc=$(i=$con p=$j yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .precmd' ${YFILE})
-            # echo ${pc}
 
             if [ ! "$pc" = null ]
             then
-                kubectl exec -n ${NAMESPACE} $pod -c $con -- $pc "$c" > ${EXECDIR}/$con/$j
+                kubectl exec -n ${NAMESPACE} $pod -c $con -- $pc "$c" > $(pwd)/${EXECDIR}/$con/$j
             else
-                kubectl exec -n ${NAMESPACE} $pod -c $con -- $c > ${EXECDIR}/$con/$j
+                kubectl exec -n ${NAMESPACE} $pod -c $con -- $c > $(pwd)/${EXECDIR}/$con/$j
             fi
         done
     done
 }
 
 get_stdout() {
-    mkdir ${STDOUTDIR}
+    mkdir $(pwd)/${STDOUTDIR}
     for con in $(yq '.containers[] | .name' ${YFILE})
     do
         x=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_stdout' ${YFILE})
         pod=$(i=$con yq '.containers[] | select(.name == env(i)) | .pod' ${YFILE})
         if [ ! "$pod" = null ] && [ "$x" = true ]
         then
-            kubectl logs -n ${NAMESPACE} $pod -c $con > ${STDOUTDIR}/${con}_stdout
+            kubectl logs -n ${NAMESPACE} $pod -c $con > $(pwd)/${STDOUTDIR}/${con}_stdout
         fi
     done
 }
@@ -1015,17 +1020,18 @@ topo() {
         ;;
         collect_paths    )
             get_yq && \
-            create_fol && \
             get_paths && \
-            arch_fol
+            arch_fol_colPath
         ;;
         collect_execs   )
             get_yq && \
-            get_execs
+            get_execs && \
+            arch_fol_colEx
         ;;
         collect_stdout  )
             get_yq && \
-            get_stdout
+            get_stdout && \
+            arch_fol_colStd
         ;;
         *   )
             exit 1

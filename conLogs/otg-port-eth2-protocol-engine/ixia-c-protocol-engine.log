@@ -1,0 +1,4 @@
+18-01,05:48:43,Config,Ixstack NICS limit [8] 
+18-01,05:48:43,Config,Inserted ifaceName:[eth2] portId[0] 
+18-01,05:48:43,INFO,ARP Resolver: NSM socket, attempt to connect succeeded
+18-01,05:48:43,Config,NSM: Communication channel opened for Iface Notifications. Client Id 0 

@@ -1,0 +1,15 @@
+port-id=0, eth-name=eth1,pci=0,driver=0,driver ver=0
+Using core 1
+Using core 2
+
+*****Interface eth1 now available.
+IM ready to load sos.
+*********************************CONTAINER READY*************************************
+  Container IP Address:10.244.0.45
+  DUT should be connected to Test NIC: eth1
+*************************************************************************************
+18-01,05:48:41,Config,Ixstack NICS limit [8] 
+18-01,05:48:41,Config,Inserted ifaceName:[eth1] portId[0] 
+18-01,05:48:41,INFO,ARP Resolver: NSM socket, attempt to connect succeeded
+18-01,05:48:41,Config,NSM: Communication channel opened for Iface Notifications. Client Id 0 
+OK

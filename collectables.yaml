@@ -134,7 +134,8 @@ containers:
       - name: check-dpdk-version
         cmd: rpm -qi dpdk
     collect_stdout: true
-  - name: ixia-c-gnmi-server
+  - name: gnmi #ixia-c-gnmi-server
+    pod: otg-controller
     collect_paths:
     exclude_paths:
     collect_execs:

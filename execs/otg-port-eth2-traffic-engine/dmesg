@@ -1,16 +1,3 @@
-[178791.915667] sr 0:0:0:1: [sr0] tag#220 unaligned transfer
-[178791.915669] sr 0:0:0:1: [sr0] tag#221 unaligned transfer
-[178791.915671] sr 0:0:0:1: [sr0] tag#222 unaligned transfer
-[178791.915673] sr 0:0:0:1: [sr0] tag#223 unaligned transfer
-[178791.915675] sr 0:0:0:1: [sr0] tag#224 unaligned transfer
-[178791.915676] sr 0:0:0:1: [sr0] tag#225 unaligned transfer
-[178791.915678] sr 0:0:0:1: [sr0] tag#226 unaligned transfer
-[178791.915679] sr 0:0:0:1: [sr0] tag#227 unaligned transfer
-[178791.915681] sr 0:0:0:1: [sr0] tag#228 unaligned transfer
-[178791.915683] sr 0:0:0:1: [sr0] tag#229 unaligned transfer
-[178791.915685] sr 0:0:0:1: [sr0] tag#230 unaligned transfer
-[178791.915686] sr 0:0:0:1: [sr0] tag#231 unaligned transfer
-[178791.915688] sr 0:0:0:1: [sr0] tag#232 unaligned transfer
 [178791.915689] sr 0:0:0:1: [sr0] tag#233 unaligned transfer
 [178791.915691] sr 0:0:0:1: [sr0] tag#234 unaligned transfer
 [178791.915692] sr 0:0:0:1: [sr0] tag#235 unaligned transfer
@@ -4515,3 +4502,14 @@
 [227079.964209] hv_utils: TimeSync IC version 4.0
 [227079.964215] hv_utils: VSS IC version 5.0
 [227081.064085] hv_balloon: Max. dynamic memory size: 1048576 MB
+[229755.222297] hv_utils: Heartbeat IC version 3.0
+[229755.222400] hv_utils: Shutdown IC version 3.2
+[229755.222419] hv_utils: TimeSync IC version 4.0
+[229755.222436] hv_utils: VSS IC version 5.0
+[229755.237176] systemd[1]: Starting Discard unused blocks...
+[229755.265037] systemd[1]: fstrim.service: Main process exited, code=exited, status=32/n/a
+[229755.266751] systemd[1]: fstrim.service: Failed with result 'exit-code'.
+[229755.267267] systemd[1]: Failed to start Discard unused blocks.
+[229755.278481] systemd[1]: fstrim.service: Consumed 5ms CPU time
+[229756.778697] hv_balloon: Max. dynamic memory size: 1048576 MB
+[231579.338287] hv_storvsc 7c32ee81-acca-4334-b3c7-1e2af69cf681: tag#130 cmd 0x43 status: scsi 0x2 srb 0x84 hv 0xc0000001
