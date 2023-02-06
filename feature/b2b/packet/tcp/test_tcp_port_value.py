@@ -124,7 +124,7 @@ def capture_ok(api, c, tc):
             "tcp dst", i, 36, api.num_to_bytes(tc["rxTcpPort"], 2)
         )
         captured_packets.validate_field(
-            "tcp data offset", i, 65, api.num_to_bytes(5, 1)
+            "tcp data offset", i, 46, api.num_to_bytes(80, 1)
         )
 
     exp_count = tc["pktCount"]
