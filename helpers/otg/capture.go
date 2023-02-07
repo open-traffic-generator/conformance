@@ -44,7 +44,7 @@ func (c *CapturedPackets) CheckField(sequence int, startOffSet int, field []byte
 		return fmt.Errorf("endOffset %d not in range [0, %d); field: %v data: %v", endOffset, len(p.Data), field, p.Data)
 	}
 
-	if bytes.Compare(field, p.Data[startOffSet:endOffset+1]) != 0 {
+	if !bytes.Equal(field, p.Data[startOffSet:endOffset+1]) {
 		return fmt.Errorf("field %v != actualField %v; sequence: %d, startOffset: %d, data: %v", field, p.Data[startOffSet:endOffset+1], sequence, startOffSet, p.Data)
 	}
 

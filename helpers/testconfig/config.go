@@ -140,5 +140,4 @@ func (tc *TestConfig) PatchTestConst(t *testing.T, testConst map[string]interfac
 
 	t.Log(tc.OtgTestConst)
 	t.Log(testConst)
-	return
 }
