@@ -1225,10 +1225,10 @@ golint() {
         && echo "files reformatted"
 
         lintdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
-        golangci-lint run --disable gosimple --timeout 30m -v ${lintdir} --skip-dirs helpers/dut/gnmi
+        golangci-lint run --timeout 30m -v ${lintdir} --skip-dirs helpers/dut/gnmi
     else
         lintdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
-        golangci-lint run --disable gosimple --timeout 30m -v ${lintdir} --skip-dirs helpers/dut/gnmi
+        golangci-lint run --timeout 30m -v ${lintdir} --skip-dirs helpers/dut/gnmi
     fi 
 
 }
