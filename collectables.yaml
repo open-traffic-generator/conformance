@@ -2,8 +2,6 @@ containers:
   - name: ixia-c  #ixia-c-controller
     pod: otg-controller
     collect_paths:
-      - /home/ixia-c/controller/bin/version
-      - /home/ixia-c/controller/logs/*.log
       - /home/ixia-c/controller/config/config.yaml
       - /var/log
     exclude_paths:

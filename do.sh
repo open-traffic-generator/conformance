@@ -881,6 +881,10 @@ cp_file() {
     dir=$(echo $p | sed "s/$file//")
     for i in $(kubectl exec -n ${NAMESPACE} $pod -c $con -- ls $dir | grep $file) 
         do
+            for j in $(kubectl exec -n ${NAMESPACE} $pod -c $con -- find $dir$i -type l)
+            do
+                kubectl exec -n ${NAMESPACE} $pod -c $con -- cat $j > $ndir/${NEWDIR}/$con/$(basename $j)
+            done
             kubectl cp -n ${NAMESPACE} $pod:$dir$i $ndir/${NEWDIR}/$con/$i -c $con > /dev/null
         done
 }
@@ -889,6 +893,7 @@ get_paths() {
     mkdir $(pwd)/${NEWDIR}
     for con in $(yq '.containers[] | .name' ${YFILE})
     do
+        mkdir $(pwd)/${NEWDIR}/$con
         path=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
         for p in $path
         do
@@ -904,15 +909,15 @@ get_paths() {
 }
 
 arch_fol_colPath() {
-    tar czvf conLogs.tar.gz $(pwd)/${NEWDIR}
+    tar czvf conLogs.tar.gz $(pwd)/${NEWDIR} > /dev/null
 }
 
 arch_fol_colEx() {
-    tar czvf execs.tar.gz $(pwd)/${EXECDIR}
+    tar czvf execs.tar.gz $(pwd)/${EXECDIR} > /dev/null
 }
 
 arch_fol_colStd() {
-    tar czvf stdout.tar.gz $(pwd)/${STDOUTDIR}
+    tar czvf stdout.tar.gz $(pwd)/${STDOUTDIR} > /dev/null
 }
 
 get_execs() {
