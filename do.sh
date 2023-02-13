@@ -871,88 +871,149 @@ get_yq() {
 	go install github.com/mikefarah/yq/v4@latest
 }
 
-cp_file() {
-    con=$1
-    p=$2
-    pod=$3
-    ndir=$4
-
-    file=$(basename $p)
-    dir=$(echo $p | sed "s/$file//")
-    for i in $(kubectl exec -n ${NAMESPACE} $pod -c $con -- ls $dir | grep $file) 
-        do
-            for j in $(kubectl exec -n ${NAMESPACE} $pod -c $con -- find $dir$i -type l)
-            do
-                kubectl exec -n ${NAMESPACE} $pod -c $con -- cat $j > $ndir/${NEWDIR}/$con/$(basename $j)
-            done
-            kubectl cp -n ${NAMESPACE} $pod:$dir$i $ndir/${NEWDIR}/$con/$i -c $con > /dev/null
-        done
-}
-
-get_paths() {
-    mkdir $(pwd)/${NEWDIR}
-    for con in $(yq '.containers[] | .name' ${YFILE})
-    do
-        mkdir $(pwd)/${NEWDIR}/$con
-        path=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
-        for p in $path
-        do
-            if [ "$p" = - ]
-            then
-                continue
-            else
-                pod=$(i=$con yq '.containers[] | select(.name == env(i)) | .pod' ${YFILE})
-                cp_file $con $p $pod $(pwd)
-            fi
-        done
-    done
-}
-
-arch_fol_colPath() {
+arch_fol() {
     tar czvf conLogs.tar.gz $(pwd)/${NEWDIR} > /dev/null
 }
 
-arch_fol_colEx() {
-    tar czvf execs.tar.gz $(pwd)/${EXECDIR} > /dev/null
-}
+collect_paths()
+{
+    # echo $1 - $2 - $3
+    conf=$1
+    con=$2
+    pod=$3
+    path=$4
+    hostp=$5
 
-arch_fol_colStd() {
-    tar czvf stdout.tar.gz $(pwd)/${STDOUTDIR} > /dev/null
-}
+    file=$(basename $path)
+    dir=$(echo $path | sed "s/$file//")
+    # echo $file
 
-get_execs() {
-    mkdir $(pwd)/${EXECDIR}
-    for con in $(yq '.containers[] | .name' ${YFILE})
+    firstc=$(echo -n $file | cut -c 1)
+    lastc=$(echo -n $file | tail -c 1)
+    # echo "${firstc}" "${lastc}"
+
+    if [ "$firstc" = \* ]
+    then
+        file=$(echo $file | cut -c 2-)
+    fi
+
+    if [ "$lastc" = \* ]
+    then
+        file=$(echo $file | rev | cut -c 2- | rev)
+    fi 
+
+    for i in $(kubectl exec -n ${NAMESPACE} $pod -c $con -- ls $dir | grep $file) 
     do
-        x=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_execs[] | .name' ${YFILE})
-        mkdir $(pwd)/${EXECDIR}/$con
-        for j in $x
-        do
-            c=$(i=$con p=$j yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .cmd' ${YFILE})
-            pod=$(i=$con yq '.containers[] | select(.name == env(i)) | .pod' ${YFILE})
-            pc=$(i=$con p=$j yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .precmd' ${YFILE})
+        kubectl cp -n ${NAMESPACE} $pod:$dir$i $hostp/${NEWDIR}/$conf/${con}/$i -c $con > /dev/null
+    done
+}
 
-            if [ ! "$pc" = null ]
+call_func() #"$conf" "$con" "$pod"
+{
+    # echo end
+    # collect_paths
+    path=$(i=$1 yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
+    for p in $path
+    do
+        if [ "$p" = - ]
+        then
+            continue
+        else
+            collect_paths "$1" "$2" "$3" "$p" $(pwd)
+        fi
+    done
+
+    # collect_execs
+    for cmd_name in $(i=$1 yq '.containers[] | select(.name == env(i)) | .collect_execs[] | .name' ${YFILE})
+    do
+        cmd=$(i=$1 p=$cmd_name yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .cmd' ${YFILE})
+        pcmd=$(i=$1 p=$cmd_name yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .precmd' ${YFILE})
+        if [ ! "$pcmd" = null ]
+        then
+            kubectl exec -n ${NAMESPACE} $3 -c $2 -- $pcmd "$cmd" > $(pwd)/${NEWDIR}/$1/$2/$cmd_name
+        else
+            kubectl exec -n ${NAMESPACE} $3 -c $2 -- $cmd > $(pwd)/${NEWDIR}/$1/$2/$cmd_name
+        fi
+    done
+    
+    # collect_stdout
+    chk_std=$(i=$1 yq '.containers[] | select(.name == env(i)) | .collect_stdout' ${YFILE})
+    if [ ! "$3" = null ] && [ "$chk_std" = true ]
+    then
+        kubectl logs -n ${NAMESPACE} $3 -c $2 > $(pwd)/${NEWDIR}/$1/$2/${2}_stdout
+    fi
+
+}
+
+find_match() #"$s1" "$s2" "$conf" "$con" "$pod"
+{
+
+    count=0
+    flag1=0
+    flag2=0
+    # echo $1
+    for i in $1
+    do
+        if [ "$i" = gnmi ]
+        then
+            flag1=1
+        fi
+        for j in $2
+        do
+            if [ "$i" = "$j" ]
             then
-                kubectl exec -n ${NAMESPACE} $pod -c $con -- $pc "$c" > $(pwd)/${EXECDIR}/$con/$j
-            else
-                kubectl exec -n ${NAMESPACE} $pod -c $con -- $c > $(pwd)/${EXECDIR}/$con/$j
+                count=$((count+1))
+            fi
+            if [ "$j" = gnmi ]
+            then
+                flag2=1
             fi
         done
     done
+
+    # echo $flag1 $flag2 $count $1 $2
+    if [ $flag1 = 1 ] && [ $flag2 = 1 ]
+    then
+        if [ $count -gt 0 ]
+        then
+            # echo $3
+            mkdir $(pwd)/${NEWDIR}/$3
+            mkdir $(pwd)/${NEWDIR}/$3/$4
+            call_func "$3" "$4" "$5"
+            
+        fi
+    else
+        if [ $count -gt 1 ]
+        then
+            call_func "$3" "$4" "$5"
+        fi
+    fi
+
 }
 
-get_stdout() {
-    mkdir $(pwd)/${STDOUTDIR}
-    for con in $(yq '.containers[] | .name' ${YFILE})
+get_logs() {
+    get_yq && \
+    if [ -d "$(pwd)/$NEWDIR" ]
+    then
+        rm -Rf $(pwd)/$NEWDIR
+    fi
+    mkdir $(pwd)/$NEWDIR
+
+    for conf in $(yq '.containers[] | .name' ${YFILE})
     do
-        x=$(i=$con yq '.containers[] | select(.name == env(i)) | .collect_stdout' ${YFILE})
-        pod=$(i=$con yq '.containers[] | select(.name == env(i)) | .pod' ${YFILE})
-        if [ ! "$pod" = null ] && [ "$x" = true ]
-        then
-            kubectl logs -n ${NAMESPACE} $pod -c $con > $(pwd)/${STDOUTDIR}/${con}_stdout
-        fi
+        for pod in $(kubectl get pods -A | grep ${NAMESPACE} | awk '{print $2}')
+        do
+            for con in $(kubectl get pods -n ${NAMESPACE} $pod -o jsonpath='{.spec.containers[*].name}')
+            do
+                s1=$(echo "${pod} ${con}" | sed -e "s/ixia-c/ixiac/g" | tr '-' ' ')
+                s2=$(echo $conf | sed -e "s/ixia-c/ixiac/g" | tr '-' ' ')
+                # echo $s1 abc $s2
+                find_match "$s1" "$s2" "$conf" "$con" "$pod"
+            done
+        done
     done
+
+    arch_fol
 }
 
 topo() {
@@ -1022,21 +1083,6 @@ topo() {
                 docker logs ixia-c-protocol-engine-${VETH_Z} | tee logs/ixia-c-protocol-engine-${VETH_Z}/stdout.log > /dev/null
             fi
             top -bn2 | tee logs/resource-usage.log > /dev/null
-        ;;
-        collect_paths    )
-            get_yq && \
-            get_paths && \
-            arch_fol_colPath
-        ;;
-        collect_execs   )
-            get_yq && \
-            get_execs && \
-            arch_fol_colEx
-        ;;
-        collect_stdout  )
-            get_yq && \
-            get_stdout && \
-            arch_fol_colStd
         ;;
         *   )
             exit 1

@@ -1,0 +1,95 @@
+top - 06:56:13 up 3 days, 11:46,  0 users,  load average: 1.35, 1.03, 0.69
+Threads:  40 total,   1 running,  39 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  1.7 sy,  0.0 ni, 98.3 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :  12572.9 total,   1629.5 free,   4266.1 used,   6677.3 buff/cache
+MiB Swap:   2048.0 total,   2044.4 free,      3.6 used.   7545.7 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+   90 root      20   0 1312428 641268 386440 S   6.7   5.0   5:56.75 bin/InterfaceManager bin/interface_manager.log
+    1 root      20   0    4116   3060   2720 S   0.0   0.0   0:00.02 /bin/bash /docker_im/opt/Ixia/sstream/ixvm.sh
+   23 root      20   0 1312428 641268 386440 S   0.0   5.0   3:55.92 bin/InterfaceManager bin/interface_manager.log
+   28 root      20   0 1312428 641268 386440 S   0.0   5.0  12:41.35 bin/InterfaceManager bin/interface_manager.log
+   29 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.14 bin/InterfaceManager bin/interface_manager.log
+   30 root      20   0 1312428 641268 386440 S   0.0   5.0   3:55.03 bin/InterfaceManager bin/interface_manager.log
+   31 root      20   0 1312428 641268 386440 S   0.0   5.0   3:53.89 bin/InterfaceManager bin/interface_manager.log
+   32 root      20   0 1312428 641268 386440 S   0.0   5.0   3:54.99 bin/InterfaceManager bin/interface_manager.log
+   33 root      20   0 1312428 641268 386440 S   0.0   5.0   3:55.20 bin/InterfaceManager bin/interface_manager.log
+   35 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   36 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   37 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   38 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   39 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   40 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   41 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   42 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   91 root      20   0 1312428 641268 386440 S   0.0   5.0   5:44.48 bin/InterfaceManager bin/interface_manager.log
+   92 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   93 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   94 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  104 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  109 root      20   0 1312428 641268 386440 S   0.0   5.0   6:26.11 bin/InterfaceManager bin/interface_manager.log
+  110 root      20   0 1312428 641268 386440 S   0.0   5.0   1:30.45 bin/InterfaceManager bin/interface_manager.log
+  111 root      20   0 1312428 641268 386440 S   0.0   5.0   0:11.10 bin/InterfaceManager bin/interface_manager.log
+  112 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  113 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  114 root      20   0 1312428 641268 386440 S   0.0   5.0   0:20.44 bin/InterfaceManager bin/interface_manager.log
+  115 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  116 root      20   0 1312428 641268 386440 S   0.0   5.0   0:01.37 bin/InterfaceManager bin/interface_manager.log
+   95 root      20   0   12684   5196   3480 S   0.0   0.0   0:00.00 bin/nsm
+   96 root      20   0   47228   6116   4800 S   0.0   0.0   6:21.06 /usr/bin/redis-server *:6379
+   99 root      20   0   47228   6116   4800 S   0.0   0.0   0:00.00 /usr/bin/redis-server *:6379
+  100 root      20   0   47228   6116   4800 S   0.0   0.0   0:00.00 /usr/bin/redis-server *:6379
+  101 root      20   0   47228   6116   4800 S   0.0   0.0   0:00.00 /usr/bin/redis-server *:6379
+  124 root      20   0    2616   1592   1492 S   0.0   0.0   0:02.03 sh watch_log_size.sh
+  125 root      20   0    2616    240    200 S   0.0   0.0   0:00.00 sh dump_logs.sh
+  128 root      20   0    2552    228    188 S   0.0   0.0   0:13.19 tail -F /var/log/ixia-c-protocol-engine.log
+ 9147 root      20   0    2516    228    188 S   0.0   0.0   0:00.00 sleep 60
+ 9160 root      20   0    6104   3100   2672 R   0.0   0.0   0:00.00 top -c -n 2 -b -H -w 120
+
+top - 06:56:16 up 3 days, 11:46,  0 users,  load average: 1.35, 1.03, 0.69
+Threads:  40 total,   1 running,  39 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  2.4 us,  2.2 sy,  0.0 ni, 93.3 id,  1.4 wa,  0.0 hi,  0.7 si,  0.0 st
+MiB Mem :  12572.9 total,   1627.5 free,   4268.0 used,   6677.3 buff/cache
+MiB Swap:   2048.0 total,   2044.4 free,      3.6 used.   7543.7 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+   31 root      20   0 1312428 641268 386440 S   0.3   5.0   3:53.90 bin/InterfaceManager bin/interface_manager.log
+   90 root      20   0 1312428 641268 386440 S   0.3   5.0   5:56.76 bin/InterfaceManager bin/interface_manager.log
+   91 root      20   0 1312428 641268 386440 S   0.3   5.0   5:44.49 bin/InterfaceManager bin/interface_manager.log
+    1 root      20   0    4116   3060   2720 S   0.0   0.0   0:00.02 /bin/bash /docker_im/opt/Ixia/sstream/ixvm.sh
+   23 root      20   0 1312428 641268 386440 S   0.0   5.0   3:55.92 bin/InterfaceManager bin/interface_manager.log
+   28 root      20   0 1312428 641268 386440 S   0.0   5.0  12:41.35 bin/InterfaceManager bin/interface_manager.log
+   29 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.14 bin/InterfaceManager bin/interface_manager.log
+   30 root      20   0 1312428 641268 386440 S   0.0   5.0   3:55.03 bin/InterfaceManager bin/interface_manager.log
+   32 root      20   0 1312428 641268 386440 S   0.0   5.0   3:54.99 bin/InterfaceManager bin/interface_manager.log
+   33 root      20   0 1312428 641268 386440 S   0.0   5.0   3:55.20 bin/InterfaceManager bin/interface_manager.log
+   35 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   36 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   37 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   38 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   39 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   40 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   41 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   42 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   92 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   93 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+   94 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  104 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  109 root      20   0 1312428 641268 386440 S   0.0   5.0   6:26.11 bin/InterfaceManager bin/interface_manager.log
+  110 root      20   0 1312428 641268 386440 S   0.0   5.0   1:30.45 bin/InterfaceManager bin/interface_manager.log
+  111 root      20   0 1312428 641268 386440 S   0.0   5.0   0:11.10 bin/InterfaceManager bin/interface_manager.log
+  112 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  113 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  114 root      20   0 1312428 641268 386440 S   0.0   5.0   0:20.44 bin/InterfaceManager bin/interface_manager.log
+  115 root      20   0 1312428 641268 386440 S   0.0   5.0   0:00.00 bin/InterfaceManager bin/interface_manager.log
+  116 root      20   0 1312428 641268 386440 S   0.0   5.0   0:01.37 bin/InterfaceManager bin/interface_manager.log
+   95 root      20   0   12684   5196   3480 S   0.0   0.0   0:00.00 bin/nsm
+   96 root      20   0   47228   6116   4800 S   0.0   0.0   6:21.06 /usr/bin/redis-server *:6379
+   99 root      20   0   47228   6116   4800 S   0.0   0.0   0:00.00 /usr/bin/redis-server *:6379
+  100 root      20   0   47228   6116   4800 S   0.0   0.0   0:00.00 /usr/bin/redis-server *:6379
+  101 root      20   0   47228   6116   4800 S   0.0   0.0   0:00.00 /usr/bin/redis-server *:6379
+  124 root      20   0    2616   1592   1492 S   0.0   0.0   0:02.03 sh watch_log_size.sh
+  125 root      20   0    2616    240    200 S   0.0   0.0   0:00.00 sh dump_logs.sh
+  128 root      20   0    2552    228    188 S   0.0   0.0   0:13.19 tail -F /var/log/ixia-c-protocol-engine.log
+ 9147 root      20   0    2516    228    188 S   0.0   0.0   0:00.00 sleep 60
+ 9160 root      20   0    6104   3100   2672 R   0.0   0.0   0:00.00 top -c -n 2 -b -H -w 120
