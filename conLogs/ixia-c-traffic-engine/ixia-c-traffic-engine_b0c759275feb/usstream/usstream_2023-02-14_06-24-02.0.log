@@ -1,0 +1,43 @@
+2023-02-14 06:24:02.010359 [info]: Starting the Ixia Traffic Engine...
+2023-02-14 06:24:02.015827 [info]: [L2Manager] Registered dpdk driver: librte_net_mlx5.so
+2023-02-14 06:24:02.016573 [info]: [L2Manager] Registered dpdk driver: librte_net_af_packet.so
+2023-02-14 06:24:02.018289 [info]: [L2Manager] Registered dpdk driver: librte_net_af_xdp.so
+2023-02-14 06:24:02.018975 [info]: [L2Manager] Registered dpdk driver: librte_net_i40e.so
+2023-02-14 06:24:02.019800 [info]: [L2Manager] Registered dpdk driver: librte_net_ice.so
+2023-02-14 06:24:02.021117 [info]: [L2Manager] Registered dpdk driver: librte_net_iavf.so
+2023-02-14 06:24:02.021924 [info]: [L2Manager] Registered dpdk driver: librte_net_ixgbe.so
+2023-02-14 06:24:02.022446 [info]: [L2Manager] Registered dpdk driver: librte_net_e1000.so
+2023-02-14 06:24:02.023112 [info]: [L2Manager] Registered dpdk driver: librte_net_igc.so
+2023-02-14 06:24:02.023846 [info]: [L2Manager] Registered dpdk driver: librte_net_bnxt.so
+2023-02-14 06:24:02.024373 [info]: [L2Manager] Registered dpdk driver: librte_net_vmxnet3.so
+2023-02-14 06:24:02.025175 [info]: [L2Manager] Registered dpdk driver: librte_net_virtio.so
+2023-02-14 06:24:02.025893 [info]: [L2Manager] Registered dpdk driver: librte_net_netvsc.so
+2023-02-14 06:24:02.026536 [info]: [L2Manager] Registered dpdk driver: librte_net_ena.so
+2023-02-14 06:24:02.026741 [info]: Initializing L2Manager...
+2023-02-14 06:24:02.026845 [info]: [L2Manager] Provisioning 0 worker lcores for 1 network interfaces
+2023-02-14 06:24:02.045187 [info]: [L2Manager] Attempting to bypass the Qdisc for af_packet0
+2023-02-14 06:24:02.045485 [info]: [L2Manager] Initializing EAL with the following parameters:
+2023-02-14 06:24:02.045553 [info]: [L2Manager]  dpdk
+2023-02-14 06:24:02.045594 [info]: [L2Manager] --lcores (0-2)@(0,1,2,3)
+2023-02-14 06:24:02.045626 [info]: [L2Manager] --file-prefix usstream-340a24ff2f8e2b63e2ec110b5bdf98df
+2023-02-14 06:24:02.045654 [info]: [L2Manager] --no-pci
+2023-02-14 06:24:02.045682 [info]: [L2Manager] --no-shconf
+2023-02-14 06:24:02.045709 [info]: [L2Manager] --no-telemetry
+2023-02-14 06:24:02.045736 [info]: [L2Manager] --iova-mode=va
+2023-02-14 06:24:02.045763 [info]: [L2Manager] --no-huge
+2023-02-14 06:24:02.045790 [info]: [L2Manager] -m 512
+2023-02-14 06:24:02.045817 [info]: [L2Manager] --vdev=net_af_packet0,iface=veth-z,blocksz=16384,framesz=16384,framecnt=2048,qpairs=1,qdisc_bypass=1
+2023-02-14 06:24:02.277176 [info]: [L2Manager] Port 0: uses driver net_af_packet.
+2023-02-14 06:24:02.277279 [info]: [L2Manager] Found 1 ports
+2023-02-14 06:24:02.277331 [info]: [L2Manager] L2Manager successfully initialized
+2023-02-14 06:24:02.277364 [info]: Ixia port 1 = DPDK port 0 - interface af_packet
+2023-02-14 06:24:02.277556 [warning]: [KNI] Will proceed without Kni
+2023-02-14 06:24:02.277618 [info]: CreateCoreTxRuntimes: No pcore found for lcore 2. Using lcore as pcore number!
+2023-02-14 06:24:02.277696 [info]: CoreTxRuntime(lcore: 2 active: 0 should_stop: 0): Creating CoreTxRuntime
+2023-02-14 06:24:02.306488 [info]: GenerateDefaultTxLoop: Creating TxLoop of type N8usstream6TxLoopINS_24PacketChannelSpecializedINS_13NoopGeneratorENS_12NoopConsumerEEES4_EE
+2023-02-14 06:24:02.306610 [info]: StartLcore(lcore: 2 active: 0 should_stop: 0): Starting the Lcore
+2023-02-14 06:24:02.306815 [info]: StartLcore(lcore: 2 active: 1 should_stop: 0): Done trying to start the Lcore.
+2023-02-14 06:24:02.306874 [info]: Starting message server...
+2023-02-14 06:24:02.307801 [info]: Bound server to endpoint - tcp://*:5556
+2023-02-14 06:24:02.307982 [info]: ConfigureWorker: No pcore set for lcore 0. Will skip pinning!
+2023-02-14 06:24:02.308148 [info]: ZMQ worker thread started

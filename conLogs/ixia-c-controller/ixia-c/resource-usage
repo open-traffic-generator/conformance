@@ -1,11 +1,10 @@
-top - 06:56:12 up 3 days, 11:46,  0 users,  load average: 1.35, 1.03, 0.69
-Tasks:   4 total,   1 running,   3 sleeping,   0 stopped,   0 zombie
-%Cpu(s):  7.9 us,  7.9 sy,  0.0 ni, 81.0 id,  0.0 wa,  0.0 hi,  3.2 si,  0.0 st
-MiB Mem :  12572.9 total,   1604.9 free,   4290.7 used,   6677.3 buff/cache
-MiB Swap:   2048.0 total,   2044.4 free,      3.6 used.   7521.0 avail Mem 
+top - 09:59:26 up  5:22,  0 users,  load average: 0.50, 0.51, 0.53
+Tasks:   3 total,   1 running,   2 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  4.8 us,  4.8 sy,  0.0 ni, 84.1 id,  3.2 wa,  0.0 hi,  3.2 si,  0.0 st
+MiB Mem :  12076.9 total,   2044.3 free,   4073.1 used,   5959.5 buff/cache
+MiB Swap:   2048.0 total,   2010.4 free,     37.6 used.   7546.3 avail Mem 
 
   PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
-    1 root      20   0 1479828  21280   9032 S   0.0   0.2   0:50.62 ./bin/con+
-   30 root      20   0    2820   1092   1004 S   0.0   0.0   0:14.00 tail -f -+
-  742 root      20   0    4076    692    560 S   0.0   0.0   0:00.02 tar cf - +
- 4577 root      20   0    7180   3000   2668 R   0.0   0.0   0:00.00 top -c -n+
+    1 root      20   0 1406096  29092  16792 S   0.0   0.2   0:06.51 ./bin/con+
+   29 root      20   0    2820   1008    916 S   0.0   0.0   0:01.79 tail -f -+
+  746 root      20   0    7180   2936   2604 R   0.0   0.0   0:00.00 top -c -n+

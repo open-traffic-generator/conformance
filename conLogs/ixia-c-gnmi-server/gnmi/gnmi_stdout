@@ -1,4 +1,4 @@
-{"level":"info","ctx":"config","version":"","revision":"","commit":"","ts":"2023-01-18T05:48:26.646122282Z","msg":"Build Meta"}
-{"level":"trace","ctx":"main","ts":"2023-01-18T05:48:26.671558344Z","msg":"Parsed flags and initialized logger from main"}
-{"level":"info","ctx":"main","config":{"GNMIPort":50051,"HTTPServer":"https://localhost:8443","RootDir":"/home/ixia-c/ixia-c-gnmi-server","LogDir":"/home/ixia-c/ixia-c-gnmi-server/logs","CertsDir":"/home/ixia-c/ixia-c-gnmi-server/certs","Debug":true,"Cleanup":false,"DisableStdOutLogging":false,"MaxLogSizeMB":25,"MaxLogBackups":5,"DialTimeoutSeconds":10,"RPCTimeoutSeconds":60,"MockserverHttpPort":443},"ts":"2023-01-18T05:48:26.671695744Z","msg":"Config"}
-{"level":"info","ts":"2023-01-18T05:48:26.671706044Z","msg":"stdout logger routine initiated"}
+{"level":"info","ctx":"config","version":"","revision":"","commit":"","ts":"2023-02-13T07:46:17.524163406Z","msg":"Build Meta"}
+{"level":"trace","ctx":"main","ts":"2023-02-13T07:46:17.568064803Z","msg":"Parsed flags and initialized logger from main"}
+{"level":"info","ctx":"main","config":{"GNMIPort":50051,"HTTPServer":"https://localhost:8443","RootDir":"/home/ixia-c/ixia-c-gnmi-server","LogDir":"/home/ixia-c/ixia-c-gnmi-server/logs","CertsDir":"/home/ixia-c/ixia-c-gnmi-server/certs","Debug":true,"Cleanup":false,"DisableStdOutLogging":false,"MaxLogSizeMB":25,"MaxLogBackups":5,"DialTimeoutSeconds":10,"RPCTimeoutSeconds":60,"MockserverHttpPort":443},"ts":"2023-02-13T07:46:17.568173004Z","msg":"Config"}
+{"level":"info","ts":"2023-02-13T07:46:17.568182004Z","msg":"stdout logger routine initiated"}

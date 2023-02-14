@@ -1,11 +1,11 @@
-top - 06:56:37 up 3 days, 11:47,  0 users,  load average: 1.64, 1.13, 0.73
+top - 09:59:47 up  5:22,  0 users,  load average: 0.63, 0.54, 0.54
 Tasks:   4 total,   1 running,   3 sleeping,   0 stopped,   0 zombie
-%Cpu(s):  1.7 us,  3.4 sy,  0.0 ni, 89.7 id,  3.4 wa,  0.0 hi,  1.7 si,  0.0 st
-MiB Mem :  12572.9 total,   1617.2 free,   4285.6 used,   6670.2 buff/cache
-MiB Swap:   2048.0 total,   2044.4 free,      3.6 used.   7526.1 avail Mem 
+%Cpu(s):  5.2 us,  6.9 sy,  0.0 ni, 87.9 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+MiB Mem :  12076.9 total,   2034.4 free,   4081.9 used,   5960.6 buff/cache
+MiB Swap:   2048.0 total,   2010.4 free,     37.6 used.   7537.5 avail Mem 
 
   PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
-    1 root      20   0  969024 126460  81892 S   0.0   1.0   0:20.43 /opt/Ixia+
-   74 root      20   0   12300   2344   1792 S   0.0   0.0   0:08.91 bash ./en+
-18504 root      20   0   23052   1464   1276 S   0.0   0.0   0:00.00 /usr/bin/+
-18554 root      20   0   49004   3740   3208 R   0.0   0.0   0:00.01 top -c -n+
+    1 root      20   0  969024 126552  81980 S   0.0   1.0   0:02.92 /opt/Ixia+
+   75 root      20   0   12300   2092   1728 S   0.0   0.0   0:01.09 bash ./en+
+ 2552 root      20   0   23052   1472   1288 S   0.0   0.0   0:00.00 /usr/bin/+
+ 2602 root      20   0   49004   3816   3284 R   0.0   0.0   0:00.00 top -c -n+

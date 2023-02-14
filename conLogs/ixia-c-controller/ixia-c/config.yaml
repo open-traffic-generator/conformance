@@ -1,5 +1,5 @@
 location_map:
-- location: eth1
-  endpoint: service-otg-port-eth1.ixia-c.svc.cluster.local:5555+service-otg-port-eth1.ixia-c.svc.cluster.local:50071
 - location: eth2
   endpoint: service-otg-port-eth2.ixia-c.svc.cluster.local:5555+service-otg-port-eth2.ixia-c.svc.cluster.local:50071
+- location: eth1
+  endpoint: service-otg-port-eth1.ixia-c.svc.cluster.local:5555+service-otg-port-eth1.ixia-c.svc.cluster.local:50071

@@ -1,22 +1,22 @@
 Active Internet connections (servers and established)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State      
-tcp        0      0 0.0.0.0:2601            0.0.0.0:*               LISTEN     
-tcp        0      0 0.0.0.0:3601            0.0.0.0:*               LISTEN     
 tcp        0      0 0.0.0.0:8881            0.0.0.0:*               LISTEN     
-tcp        0      0 127.0.0.1:23            0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:3601            0.0.0.0:*               LISTEN     
 tcp        0      0 127.0.0.1:1023          0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:23            0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:2601            0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:4601            0.0.0.0:*               LISTEN     
 tcp        0      0 0.0.0.0:6379            0.0.0.0:*               LISTEN     
 tcp        0      0 0.0.0.0:6665            0.0.0.0:*               LISTEN     
-tcp        0      0 0.0.0.0:4601            0.0.0.0:*               LISTEN     
-tcp        0      0 127.0.0.1:6379          127.0.0.1:50622         ESTABLISHED
-tcp        0      0 127.0.0.1:50638         127.0.0.1:6379          ESTABLISHED
-tcp        0      0 127.0.0.1:6379          127.0.0.1:50638         ESTABLISHED
-tcp        0      0 127.0.0.1:50622         127.0.0.1:6379          ESTABLISHED
+tcp        0      0 127.0.0.1:41884         127.0.0.1:6379          ESTABLISHED
+tcp        0      0 127.0.0.1:6379          127.0.0.1:41884         ESTABLISHED
+tcp        0      0 127.0.0.1:6379          127.0.0.1:41870         ESTABLISHED
+tcp        0      0 127.0.0.1:41870         127.0.0.1:6379          ESTABLISHED
 tcp6       0      0 :::50071                :::*                    LISTEN     
-tcp6       0      0 :::6379                 :::*                    LISTEN     
 tcp6       0      0 :::5555                 :::*                    LISTEN     
+tcp6       0      0 :::6379                 :::*                    LISTEN     
 Active UNIX domain sockets (servers and established)
 Proto RefCnt Flags       Type       State         I-Node   Path
-unix  2      [ ACC ]     STREAM     LISTENING     5490879  /tmp/.nsmserv
-unix  3      [ ]         STREAM     CONNECTED     5491915  
-unix  3      [ ]         STREAM     CONNECTED     5491926  /tmp/.nsmserv
+unix  2      [ ACC ]     STREAM     LISTENING     278987   /tmp/.nsmserv
+unix  3      [ ]         STREAM     CONNECTED     278356   
+unix  3      [ ]         STREAM     CONNECTED     279006   /tmp/.nsmserv

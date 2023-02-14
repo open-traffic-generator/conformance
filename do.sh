@@ -908,8 +908,43 @@ collect_paths()
     done
 }
 
+collect_paths_docker() #doc_con bname con_id conf path (pwd)
+{
+    doc_con=$1
+    bname=$2
+    con_id=$3
+    conf=$4
+    path=$5
+    hostp=$6
+
+    file=$(basename $path)
+    dir=$(echo $path | sed "s/$file//")
+    # echo $file
+
+    firstc=$(echo -n $file | cut -c 1)
+    lastc=$(echo -n $file | tail -c 1)
+    # echo "${firstc}" "${lastc}"
+
+    if [ "$firstc" = \* ]
+    then
+        file=$(echo $file | cut -c 2-)
+    fi
+
+    if [ "$lastc" = \* ]
+    then
+        file=$(echo $file | rev | cut -c 2- | rev)
+    fi 
+
+    # echo $dir $file
+    for i in $(docker exec $con_id ls $dir | grep $file) 
+    do
+        docker cp ${con_id}:$dir$i ${hostp}/${NEWDIR}/$conf/${conf}_${con_id} > /dev/null
+    done
+}
+
 call_func() #"$conf" "$con" "$pod"
 {
+    echo Getting logs for $1...
     # echo end
     # collect_paths
     path=$(i=$1 yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
@@ -991,6 +1026,52 @@ find_match() #"$s1" "$s2" "$conf" "$con" "$pod"
 
 }
 
+find_match_docker() #doc_con bname con_id
+{
+    for conf in $(yq '.containers[] | .name' ${YFILE})
+    do
+        if [ "$conf" = "$2" ]
+        then
+            
+            # echo $1
+            # echo $(docker ps -a | grep $1 | awk '{print $1}')
+            mkdir $(pwd)/${NEWDIR}/$conf/${conf}_${3}
+            echo Getting logs for container $1...
+
+            # collect paths
+            for path in $(i=$conf yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
+            do
+                if [ "$path" = - ]
+                then   
+                    continue
+                else
+                    collect_paths_docker "$1" "$2" "$3" "$conf" "$path" "$(pwd)"
+                fi
+            done
+
+            # collect execs
+            for cmd_name in $(i=$conf yq '.containers[] | select(.name == env(i)) | .collect_execs[] | .name' ${YFILE})
+            do
+                cmd=$(i=$conf p=$cmd_name yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .cmd' ${YFILE})
+                pcmd=$(i=$conf p=$cmd_name yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .precmd' ${YFILE})
+                if [ ! "$pcmd" = null ]
+                then
+                    docker exec $3 -c $pcmd "$cmd" > $(pwd)/${NEWDIR}/$conf/${conf}_${3}/$cmd_name
+                else
+                    docker exec $3 -c $cmd > $(pwd)/${NEWDIR}/$conf/${conf}_${3}/$cmd_name
+                fi
+            done
+
+            # collect stdout
+            chk_std=$(i=$conf yq '.containers[] | select(.name == env(i)) | .collect_stdout' ${YFILE})
+            if [ "$chk_std" = true ]
+            then
+                docker logs $3 > $(pwd)/${NEWDIR}/$conf/${conf}_${3}/stdout.txt
+            fi
+        fi
+    done
+}
+
 get_logs() {
     get_yq && \
     if [ -d "$(pwd)/$NEWDIR" ]
@@ -999,6 +1080,7 @@ get_logs() {
     fi
     mkdir $(pwd)/$NEWDIR
 
+    echo Getting logs for kube cluster...
     for conf in $(yq '.containers[] | .name' ${YFILE})
     do
         for pod in $(kubectl get pods -A | grep ${NAMESPACE} | awk '{print $2}')
@@ -1011,6 +1093,14 @@ get_logs() {
                 find_match "$s1" "$s2" "$conf" "$con" "$pod"
             done
         done
+    done
+
+    echo Getting logs for docker containers
+    for con_id in $(docker ps -q)
+    do
+        doc_con=$(docker ps | grep $con_id | awk '{print $2}')
+        bname=$(basename $doc_con | tr ":" " " | awk '{print $1}')
+        find_match_docker "$doc_con" "$bname" "$con_id"
     done
 
     arch_fol

@@ -1,19 +1,19 @@
-2023-01-18 05:48:38.899528 [info]: [Init] Enabling IPv6 support on the environment
-2023-01-18 05:48:38.907669 [info]: [Init] Skipped checking for DPDK drivers...
-2023-01-18 05:48:38.919013 [info]: [Init] Skipped checking for hugepages...
-2023-01-18 05:48:38.935709 [info]: [Init] Setting the listen address to *
-2023-01-18 05:48:38.968890 [info]: [Init] Setting the listen port to 5555
-2023-01-18 05:48:38.988539 [info]: [Init] Enumerating the interfaces:
-2023-01-18 05:48:39.034304 [info]: [Init] Interface 1 virtual : af_packet
-2023-01-18 05:48:39.044496 [info]: [Init] No PCI interfaces present. PCI probing will be disabled
-2023-01-18 05:48:39.062205 [info]: [Init] Core pinning enabled
-2023-01-18 05:48:39.067178 [info]: [Init] Will use the following CPU cores: 2 3 4
-2023-01-18 05:48:39.078959 [info]: [Init] Starting the Ixia Traffic Engine
-2023-01-18 05:48:39.100662 [info]: [Init] Chosen DPDK runtime: /opt/Ixia/dpdk/dpdk-21.11.0-11-haswell/lib
+2023-02-13 07:46:49.385251 [info]: [Init] Enabling IPv6 support on the environment
+2023-02-13 07:46:49.394508 [info]: [Init] Skipped checking for DPDK drivers...
+2023-02-13 07:46:49.399305 [info]: [Init] Skipped checking for hugepages...
+2023-02-13 07:46:49.420820 [info]: [Init] Setting the listen address to *
+2023-02-13 07:46:49.426138 [info]: [Init] Setting the listen port to 5555
+2023-02-13 07:46:49.435365 [info]: [Init] Enumerating the interfaces:
+2023-02-13 07:46:49.458598 [info]: [Init] Interface 1 virtual : af_packet
+2023-02-13 07:46:49.462018 [info]: [Init] No PCI interfaces present. PCI probing will be disabled
+2023-02-13 07:46:49.471999 [info]: [Init] Core pinning enabled
+2023-02-13 07:46:49.476177 [info]: [Init] Will use the following CPU cores: 2 3 4
+2023-02-13 07:46:49.482579 [info]: [Init] Starting the Ixia Traffic Engine
+2023-02-13 07:46:49.498159 [info]: [Init] Chosen DPDK runtime: /opt/Ixia/dpdk/dpdk-21.11.0-11-haswell/lib
 EAL: Detected CPU lcores: 4
 EAL: Detected NUMA nodes: 1
 EAL: Detected shared linkage of DPDK
 EAL: Selected IOVA mode 'VA'
 EAL: VFIO support initialized
 KNI: Can not open /dev/kni
-2023-01-18 05:48:49.140343 [info]: [Init] Creating symlink to usstream_2023-01-18_05-48-39.0.log under /var/log/usstream
+2023-02-13 07:46:59.511939 [info]: [Init] Creating symlink to usstream_2023-02-13_07-46-49.0.log under /var/log/usstream
