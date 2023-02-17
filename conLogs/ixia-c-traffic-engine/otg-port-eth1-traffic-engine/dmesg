@@ -3523,3 +3523,8 @@
 [ 6408.081783] IPv6: ADDRCONF(NETDEV_CHANGE): veth-a: link becomes ready
 [ 6409.525957] device veth-a entered promiscuous mode
 [ 6409.994280] device veth-z entered promiscuous mode
+[20933.578528] hv_utils: Heartbeat IC version 3.0
+[20933.578636] hv_utils: Shutdown IC version 3.2
+[20933.578649] hv_utils: TimeSync IC version 4.0
+[20933.578659] hv_utils: VSS IC version 5.0
+[20934.795479] hv_balloon: Max. dynamic memory size: 1048576 MB

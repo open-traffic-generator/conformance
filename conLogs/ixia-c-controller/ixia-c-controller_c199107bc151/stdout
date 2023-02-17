@@ -1,0 +1,15 @@
+{"level":"info","ctx":"config","version":"0.0.1","revision":"3724","commit":"3ee6cb9e","ts":"2023-02-14T06:24:00.776409708Z","msg":"Build Meta"}
+{"level":"info","ctx":"rscmgr","ts":"2023-02-14T06:24:00.835904187Z","msg":"Successfully created session."}
+{"level":"info","ctx":"controller","ts":"2023-02-14T06:24:00.839629179Z","msg":"Location info processed successfully !"}
+{"level":"info","ctx":"profile","api":"ValidateConfig","choice":"","scope":"validator","nanoseconds":51598,"ts":"2023-02-14T06:24:00.839797974Z"}
+{"level":"info","ctx":"controller","ts":"2023-02-14T06:24:00.839812773Z","msg":"Config validated successfully !"}
+{"level":"info","ctx":"profile","api":"SetConfig","choice":"","scope":"protocol","nanoseconds":3200,"ts":"2023-02-14T06:24:00.839958769Z"}
+{"level":"info","ctx":"traffic","ts":"2023-02-14T06:24:00.84061005Z","msg":"SetConfig [Traffic Part] Successful !"}
+{"level":"info","ctx":"profile","api":"SetConfig","choice":"","scope":"traffic","nanoseconds":674980,"ts":"2023-02-14T06:24:00.840660849Z"}
+{"level":"info","ctx":"controller","ts":"2023-02-14T06:24:00.840673149Z","msg":"Config is set on the ports Successfully !"}
+{"level":"info","ctx":"profile","api":"SetConfig","choice":"","scope":"controller","nanoseconds":5095652,"ts":"2023-02-14T06:24:00.840817244Z"}
+{"level":"info","ctx":"main","config":{"HTTPPort":8443,"GRPCPort":40051,"RootDir":"/home/ixia-c/controller","WebDir":"/home/ixia-c/controller/web","CertsDir":"/home/ixia-c/controller/certs","LogDir":"/home/ixia-c/controller/logs","AppConfigPath":"/home/ixia-c/controller/config/config.yaml","Debug":true,"Trace":false,"Cleanup":false,"DisableUsageReport":true,"DisableStdOutLogging":false,"UsageReportHost":"https://localhost:5600","MaxLogSizeMB":25,"MaxLogBackups":25,"TEDialTimeoutSeconds":10,"PSDialTimeoutSeconds":10,"PSCallTimeoutSeconds":60,"TerminationTimeoutSeconds":3,"AcceptEULA":true,"LowCpuUtilMode":false,"IxiaCIxHWServer":"localhost:5001"},"ts":"2023-02-14T06:24:00.849381297Z","msg":"Initialized Config"}
+{"level":"info","ts":"2023-02-14T06:24:00.849548592Z","msg":"stdout logger routine initiated"}
+{"level":"info","ctx":"grpc","addr":"[::]:40051","ts":"2023-02-14T06:24:00.859714097Z","msg":"GRPC Server started"}
+{"level":"info","ctx":"service","ts":"2023-02-14T06:24:00.870729279Z","msg":"Waiting for active routines"}
+{"level":"info","ctx":"http","addr":":8443","ts":"2023-02-14T06:24:00.871267863Z","msg":"HTTPS Server started"}

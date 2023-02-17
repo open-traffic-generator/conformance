@@ -918,8 +918,8 @@ collect_paths_docker() #doc_con bname con_id conf path (pwd)
     hostp=$6
 
     file=$(basename $path)
-    dir=$(echo $path | sed "s/$file//")
-    # echo $file
+    dir=$(echo $path | sed "s/$file//" | sed "s/\/keysight\//\//" | sed "s/\/..data\//\//")
+    # echo $dir
 
     firstc=$(echo -n $file | cut -c 1)
     lastc=$(echo -n $file | tail -c 1)
@@ -947,6 +947,7 @@ call_func() #"$conf" "$con" "$pod"
     echo Getting logs for $1...
     # echo end
     # collect_paths
+    echo Collecting paths...
     path=$(i=$1 yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
     for p in $path
     do
@@ -959,6 +960,7 @@ call_func() #"$conf" "$con" "$pod"
     done
 
     # collect_execs
+    echo Collecting execs...
     for cmd_name in $(i=$1 yq '.containers[] | select(.name == env(i)) | .collect_execs[] | .name' ${YFILE})
     do
         cmd=$(i=$1 p=$cmd_name yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .cmd' ${YFILE})
@@ -972,6 +974,7 @@ call_func() #"$conf" "$con" "$pod"
     done
     
     # collect_stdout
+    echo Collecting stdout...
     chk_std=$(i=$1 yq '.containers[] | select(.name == env(i)) | .collect_stdout' ${YFILE})
     if [ ! "$3" = null ] && [ "$chk_std" = true ]
     then
@@ -1039,6 +1042,7 @@ find_match_docker() #doc_con bname con_id
             echo Getting logs for container $1...
 
             # collect paths
+            echo Collecting paths...
             for path in $(i=$conf yq '.containers[] | select(.name == env(i)) | .collect_paths' ${YFILE})
             do
                 if [ "$path" = - ]
@@ -1050,6 +1054,7 @@ find_match_docker() #doc_con bname con_id
             done
 
             # collect execs
+            echo Collecting execs...
             for cmd_name in $(i=$conf yq '.containers[] | select(.name == env(i)) | .collect_execs[] | .name' ${YFILE})
             do
                 cmd=$(i=$conf p=$cmd_name yq '.containers[] | select(.name == env(i)) | .collect_execs[] | select(.name == env(p)) | .cmd' ${YFILE})
@@ -1063,10 +1068,11 @@ find_match_docker() #doc_con bname con_id
             done
 
             # collect stdout
+            echo Collecting stdout...
             chk_std=$(i=$conf yq '.containers[] | select(.name == env(i)) | .collect_stdout' ${YFILE})
             if [ "$chk_std" = true ]
             then
-                docker logs $3 > $(pwd)/${NEWDIR}/$conf/${conf}_${3}/stdout.txt
+                docker logs $3 2>&1 | tee $(pwd)/${NEWDIR}/$conf/${conf}_${3}/stdout > /dev/null
             fi
         fi
     done
@@ -1095,7 +1101,7 @@ get_logs() {
         done
     done
 
-    echo Getting logs for docker containers
+    echo Getting logs for docker containers...
     for con_id in $(docker ps -q)
     do
         doc_con=$(docker ps | grep $con_id | awk '{print $2}')

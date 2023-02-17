@@ -1,6 +1,6 @@
 Filesystem                         Size  Used Avail Use% Mounted on
-overlay                             41G   18G   21G  48% /
+overlay                             41G   19G   21G  48% /
 tmpfs                               68M     0   68M   0% /dev
-/dev/mapper/ubuntu--vg-ubuntu--lv   41G   18G   21G  48% /etc/hosts
+/dev/mapper/ubuntu--vg-ubuntu--lv   41G   19G   21G  48% /etc/hosts
 shm                                 68M     0   68M   0% /dev/shm
 tmpfs                              4.5G   13k  4.5G   1% /run/secrets/kubernetes.io/serviceaccount

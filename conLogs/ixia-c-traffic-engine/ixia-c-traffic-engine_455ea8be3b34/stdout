@@ -6,9 +6,16 @@
 2023-02-14 06:24:01.346879 [info]: [Init] Enumerating the interfaces:
 2023-02-14 06:24:01.457286 [info]: [Init] Interface 1 virtual : af_packet
 2023-02-14 06:24:01.461892 [info]: [Init] No PCI interfaces present. PCI probing will be disabled
+./entrypoint.sh: line 337: /sys/fs/cgroup/cpuset/cpuset.cpus: No such file or directory
 2023-02-14 06:24:01.494549 [info]: [Init] Core pinning disabled
 2023-02-14 06:24:01.499375 [info]: [Init] Will use the following CPU cores: 
  
 2023-02-14 06:24:01.509628 [info]: [Init] Starting the Ixia Traffic Engine
 2023-02-14 06:24:01.569158 [info]: [Init] Chosen DPDK runtime: /opt/Ixia/dpdk/dpdk-21.11.0-11-haswell/lib
+EAL: Detected CPU lcores: 4
+EAL: Detected NUMA nodes: 1
+EAL: Detected shared linkage of DPDK
+EAL: Selected IOVA mode 'VA'
+EAL: VFIO support initialized
+KNI: Can not open /dev/kni
 2023-02-14 06:24:11.639902 [info]: [Init] Creating symlink to usstream_2023-02-14_06-24-01.0.log under /var/log/usstream

@@ -1,0 +1,5 @@
+location_map:
+  - location: veth-a
+    endpoint: localhost:5555
+  - location: veth-z
+    endpoint: localhost:5556

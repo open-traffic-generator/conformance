@@ -249,28 +249,28 @@ Thread 8 (Thread 0x7f9768d8a700 (LWP 36)):
 
 Thread 7 (Thread 0x7f976958b700 (LWP 32)):
 #0  0x00007f976c2f346e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
-#1  0x00007f976d0b180d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x663138, timeout=timeout@entry=25) at src/libim/ixeRN.cpp:162
+#1  0x00007f976d0b180d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x663138, timeout=timeout@entry=24) at src/libim/ixeRN.cpp:162
 #2  0x00007f976d0b1af6 in ixeScheduler::Run (data=0x6630f8) at src/libim/ixeScheduler.cpp:323
 #3  0x00007f976cdfe609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
 #4  0x00007f976c2f3133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
 
 Thread 6 (Thread 0x7f9769d8c700 (LWP 31)):
 #0  0x00007f976c2f346e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
-#1  0x00007f976d0b180d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x663078, timeout=timeout@entry=25) at src/libim/ixeRN.cpp:162
+#1  0x00007f976d0b180d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x663078, timeout=timeout@entry=24) at src/libim/ixeRN.cpp:162
 #2  0x00007f976d0b1af6 in ixeScheduler::Run (data=0x663038) at src/libim/ixeScheduler.cpp:323
 #3  0x00007f976cdfe609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
 #4  0x00007f976c2f3133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
 
 Thread 5 (Thread 0x7f976a58d700 (LWP 30)):
 #0  0x00007f976c2f346e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
-#1  0x00007f976d0b180d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x662fb8, timeout=timeout@entry=25) at src/libim/ixeRN.cpp:162
+#1  0x00007f976d0b180d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x662fb8, timeout=timeout@entry=24) at src/libim/ixeRN.cpp:162
 #2  0x00007f976d0b1af6 in ixeScheduler::Run (data=0x662f78) at src/libim/ixeScheduler.cpp:323
 #3  0x00007f976cdfe609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
 #4  0x00007f976c2f3133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
 
 Thread 4 (Thread 0x7f976ad8e700 (LWP 29)):
 #0  0x00007f976c2f346e in epoll_wait () from /lib/x86_64-linux-gnu/libc.so.6
-#1  0x00007f976d0b180d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x662ef8, timeout=timeout@entry=25) at src/libim/ixeRN.cpp:162
+#1  0x00007f976d0b180d in ixeRN::WaitAndDispatchEvents (this=this@entry=0x662ef8, timeout=timeout@entry=24) at src/libim/ixeRN.cpp:162
 #2  0x00007f976d0b1af6 in ixeScheduler::Run (data=0x662eb8) at src/libim/ixeScheduler.cpp:323
 #3  0x00007f976cdfe609 in start_thread () from /lib/x86_64-linux-gnu/libpthread.so.0
 #4  0x00007f976c2f3133 in clone () from /lib/x86_64-linux-gnu/libc.so.6
