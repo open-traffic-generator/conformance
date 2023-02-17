@@ -3,8 +3,8 @@ package otg
 import (
 	"time"
 
+	"github.com/open-traffic-generator/conformance/helpers/plot"
 	"github.com/open-traffic-generator/snappi/gosnappi"
-	"github.com/open-traffic-generator/tests/helpers/plot"
 )
 
 type WaitForOpts struct {

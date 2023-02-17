@@ -4,7 +4,7 @@ import snappi
 import pytest
 
 
-@pytest.mark.example
+@pytest.mark.all
 def test_quickstart():
     # Create a new API handle to make API calls against OTG
     # with HTTP as default transport protocol

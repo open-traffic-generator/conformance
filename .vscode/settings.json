@@ -42,6 +42,11 @@
     "python.formatting.provider": "black",
     "python.defaultInterpreterPath": ".env/bin/python",
     "files.insertFinalNewline": true,
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/helpers/dut/gnmi/**": true
+    },
     "files.eol": "\n",
     "diffEditor.ignoreTrimWhitespace": false,
 }

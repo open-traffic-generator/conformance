@@ -24,7 +24,10 @@ ARISTA_CEOS_OPERATOR_VERSION="2.0.1"
 ARISTA_CEOS_OPERATOR_YAML="https://github.com/aristanetworks/arista-ceoslab-operator/config/default?ref=v${ARISTA_CEOS_OPERATOR_VERSION}"
 ARISTA_CEOS_VERSION="4.29.1F-29233963"
 ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
-KNE_COMMIT=a20cc6f
+KNE_COMMIT=bb9432a
+
+OPENCONFIG_MODELS_REPO=https://github.com/openconfig/public.git
+OPENCONFIG_MODELS_COMMIT=5ca6a36
 
 TIMEOUT_SECONDS=300
 APT_GET_UPDATE=true
@@ -376,7 +379,6 @@ gen_config_kne() {
     done
     if [ ! -z "${2}" ]
     then
-        out=$(kne_cli show ${topo} 2>&1)
         yml="${yml}        dut_configs:\n"
 
         DUT_ADDR=$(kubectl get service -n ixia-c service-dut -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -393,9 +395,9 @@ gen_config_kne() {
         yml="${yml}            gnmi_password: admin\n"
         yml="${yml}            gnmi_port: ${GNMI_PORT}\n"
         yml="${yml}            interfaces:\n"
-        for i in $(echo -e $out | grep interfaces -A 8 | grep 'peer_name: \\"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
+        for i in $(kne topology service ${topo} | grep interfaces -A 8 | grep 'peer_name:  \"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
         do
-            ifc=$(echo -e $i | sed s/\\\\\"/_/g | cut -d_ -f2)
+            ifc=$(echo $i | cut -d\" -f2)
             yml="${yml}              - ${ifc}\n"
         done
 
@@ -452,6 +454,91 @@ gen_config_k8s_test_const() {
     fi
 }
 
+gen_openconfig_models_sdk() {
+    echo "Fetching openconfig models ..."
+    rm -rf etc/public \
+    && rm -rf helpers/dut/gnmi \
+    && mkdir -p etc \
+    && cd etc \
+    && git clone ${OPENCONFIG_MODELS_REPO} \
+    && cd public \
+    && git checkout ${OPENCONFIG_MODELS_COMMIT} \
+    && cd ..
+
+    EXCLUDE_MODULES=ietf-interfaces,openconfig-bfd,openconfig-messages
+
+    YANG_FILES="
+        public/release/models/acl/openconfig-acl.yang
+        public/release/models/acl/openconfig-packet-match.yang
+        public/release/models/aft/openconfig-aft.yang
+        public/release/models/aft/openconfig-aft-network-instance.yang
+        public/release/models/ate/openconfig-ate-flow.yang
+        public/release/models/ate/openconfig-ate-intf.yang
+        public/release/models/bfd/openconfig-bfd.yang
+        public/release/models/bgp/openconfig-bgp-policy.yang
+        public/release/models/bgp/openconfig-bgp-types.yang
+        public/release/models/interfaces/openconfig-if-aggregate.yang
+        public/release/models/interfaces/openconfig-if-ethernet.yang
+        public/release/models/interfaces/openconfig-if-ethernet-ext.yang
+        public/release/models/interfaces/openconfig-if-ip-ext.yang
+        public/release/models/interfaces/openconfig-if-ip.yang
+        public/release/models/interfaces/openconfig-if-sdn-ext.yang
+        public/release/models/interfaces/openconfig-interfaces.yang
+        public/release/models/isis/openconfig-isis.yang
+        public/release/models/lacp/openconfig-lacp.yang
+        public/release/models/lldp/openconfig-lldp-types.yang
+        public/release/models/lldp/openconfig-lldp.yang
+        public/release/models/local-routing/openconfig-local-routing.yang
+        public/release/models/mpls/openconfig-mpls-types.yang
+        public/release/models/multicast/openconfig-pim.yang
+        public/release/models/network-instance/openconfig-network-instance.yang
+        public/release/models/openconfig-extensions.yang
+        public/release/models/optical-transport/openconfig-terminal-device.yang
+        public/release/models/optical-transport/openconfig-transport-types.yang
+        public/release/models/ospf/openconfig-ospfv2.yang
+        public/release/models/p4rt/openconfig-p4rt.yang
+        public/release/models/platform/openconfig-platform-cpu.yang
+        public/release/models/platform/openconfig-platform-ext.yang
+        public/release/models/platform/openconfig-platform-fan.yang
+        public/release/models/platform/openconfig-platform-integrated-circuit.yang
+        public/release/models/platform/openconfig-platform-software.yang
+        public/release/models/platform/openconfig-platform-transceiver.yang
+        public/release/models/platform/openconfig-platform.yang
+        public/release/models/policy-forwarding/openconfig-policy-forwarding.yang
+        public/release/models/policy/openconfig-policy-types.yang
+        public/release/models/qos/openconfig-qos-elements.yang
+        public/release/models/qos/openconfig-qos-interfaces.yang
+        public/release/models/qos/openconfig-qos-types.yang
+        public/release/models/qos/openconfig-qos.yang
+        public/release/models/rib/openconfig-rib-bgp.yang
+        public/release/models/sampling/openconfig-sampling-sflow.yang
+        public/release/models/segment-routing/openconfig-segment-routing-types.yang
+        public/release/models/system/openconfig-system.yang
+        public/release/models/types/openconfig-inet-types.yang
+        public/release/models/types/openconfig-types.yang
+        public/release/models/types/openconfig-yang-types.yang
+        public/release/models/vlan/openconfig-vlan.yang
+        public/third_party/ietf/iana-if-type.yang
+        public/third_party/ietf/ietf-inet-types.yang
+        public/third_party/ietf/ietf-interfaces.yang
+        public/third_party/ietf/ietf-yang-types.yang
+    "
+
+    go install github.com/openconfig/ygnmi/app/ygnmi@v0.7.6 \
+    && go install golang.org/x/tools/cmd/goimports@v0.5.0 \
+    && ygnmi generator \
+        --trim_module_prefix=openconfig \
+        --exclude_modules="${EXCLUDE_MODULES}" \
+        --base_package_path=github.com/open-traffic-generator/conformance/helpers/dut/gnmi \
+        --output_dir=../helpers/dut/gnmi \
+        --paths=public/release/models/...,public/third_party/ietf/... \
+        --ignore_deviate_notsupported \
+        ${YANG_FILES} \
+    && cd .. \
+    && find helpers/dut/gnmi -name "*.go" -exec goimports -w {} + \
+    && find helpers/dut/gnmi -name "*.go" -exec gofmt -w -s {} +
+}
+
 wait_for_sock() {
     start=$SECONDS
     TIMEOUT_SECONDS=30
@@ -482,7 +569,7 @@ create_ixia_c_b2b_dp() {
         --name=ixia-c-controller                            \
         $(ixia_c_controller_img dp)                         \
         --accept-eula                                       \
-        --debug                                             \
+        --trace                                             \
         --disable-app-usage-reporter                        \
     && docker run --net=host --privileged -d                \
         --name=ixia-c-traffic-engine-${VETH_A}              \
@@ -524,11 +611,11 @@ create_ixia_c_b2b_cpdp() {
     login_ghcr                                              \
     && docker run -d                                        \
         --name=ixia-c-controller                            \
-        --publish 0.0.0.0:8443:8443                           \
+        --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
-        --debug                                             \
+        --trace                                             \
         --disable-app-usage-reporter                        \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
@@ -588,11 +675,11 @@ create_ixia_c_b2b_lag() {
     login_ghcr                                              \
     && docker run -d                                        \
         --name=ixia-c-controller                            \
-        --publish 0.0.0.0:8443:8443                           \
+        --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
-        --debug                                             \
+        --trace                                             \
         --disable-app-usage-reporter                        \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
@@ -770,9 +857,10 @@ rm_arista_ceos_operator() {
 }
 
 get_kne() {
-    which kne_cli > /dev/null 2>&1 && return
+    which kne > /dev/null 2>&1 && return
     echo "Installing KNE ${KNE_COMMIT} ..."
-    CGO_ENBLED=0 go install github.com/openconfig/kne/kne_cli@${KNE_COMMIT}
+    CGO_ENBLED=0 go install github.com/openconfig/kne/kne_cli@${KNE_COMMIT} \
+    && mv $(which kne_cli) $(dirname $(which kne_cli))/kne
 }
 
 get_kubemod() {
@@ -952,7 +1040,7 @@ create_ixia_c_kne() {
     ns=$(kne_namespace ${1} ${2})
     topo=$(kne_topo_file ${1} ${2})
     kubectl apply -f deployments/ixia-c-config.yaml \
-    && kne_cli create ${topo} \
+    && kne create ${topo} \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
@@ -964,7 +1052,7 @@ rm_ixia_c_kne() {
     echo "Removing KNE ${1} topology ..."
     ns=$(kne_namespace ${1} ${2})
     topo=$(kne_topo_file ${1} ${2})
-    kne_cli delete ${topo} \
+    kne delete ${topo} \
     && wait_for_no_namespace ${ns}
 }
 
@@ -1000,7 +1088,7 @@ topo() {
                 cpdp)
                     create_ixia_c_b2b_cpdp $3
                 ;;
-                lag )
+                b2blag )
                     create_ixia_c_b2b_lag
                 ;;
                 kneb2b )
@@ -1026,7 +1114,7 @@ topo() {
                 cpdp)
                     rm_ixia_c_b2b_cpdp
                 ;;
-                lag )
+                b2blag )
                     rm_ixia_c_b2b_cpdp
                 ;;
                 kneb2b )
@@ -1070,12 +1158,6 @@ topo() {
     esac
 }
 
-pregotest() {
-    go mod tidy \
-    && go mod download \
-    && echo "Successfully setup gotest !"
-}
-
 prepytest() {
     rm -rf .env
     python -m pip install virtualenv \
@@ -1088,7 +1170,7 @@ gotest() {
     mkdir -p logs
     log=logs/gotest.log
 
-    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} ./... | tee ${log}
+    CGO_ENABLED=0 go test -v -count=1 -p=1 -timeout 3600s ${@} | tee ${log}
 
     echo "Summary:"
     grep ": Test" ${log}
@@ -1135,16 +1217,18 @@ pylint() {
 golint() {
 
     GO111MODULE=on CGO_ENABLED=0 go install -v github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.2
-    
+    # TODO: skip-dirs does not actually skip analysis, it just supresses warnings
     if [ -z "${CI}" ]
     then
-        lintdir=$([ -z "${1}" ] && echo "." || echo ${1})
-        echo ${lintdir}
-        gofmt -s -w ${lintdir}
-        echo "files reformatted"
+        fmtdir=$([ -z "${1}" ] && echo "." || echo ${1})
+        gofmt -s -w ${fmtdir} \
+        && echo "files reformatted"
+
+        lintdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
+        golangci-lint run --timeout 30m -v ${lintdir} --skip-dirs helpers/dut/gnmi
     else
         lintdir=$([ -z "${1}" ] && echo "./..." || echo ${1})
-        $HOME/go/bin/golangci-lint run --disable gosimple --timeout 5m -v ${lintdir}
+        golangci-lint run --timeout 30m -v ${lintdir} --skip-dirs helpers/dut/gnmi
     fi 
 
 }
