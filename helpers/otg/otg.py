@@ -21,6 +21,7 @@ class OtgApi(object):
             self.test_config.otg_host,
             verify=False,
             transport="grpc" if self.test_config.otg_grpc_transport else "http",
+            version_check=True,
         )
         self.plot = plot.Plot()
 

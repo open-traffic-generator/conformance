@@ -48,12 +48,6 @@ func lldpNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 		SetPortNames([]string{ptx.Name(), prx.Name()}).
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
 
-	// TODO: remove device configuration in next release of ixia-c
-	dtx := c.Devices().Add().SetName("dtx")
-	dtx.Ethernets().Add().SetPortName(ptx.Name()).SetName("dtxEth").SetMac(tc["txMac"].(string))
-	drx := c.Devices().Add().SetName("drx")
-	drx.Ethernets().Add().SetPortName(prx.Name()).SetName("drxEth").SetMac(tc["rxMac"].(string))
-
 	lldpTx := c.Lldp().Add().SetName("lldpTx")
 	lldpRx := c.Lldp().Add().SetName("lldpRx")
 

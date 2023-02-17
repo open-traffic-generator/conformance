@@ -56,12 +56,6 @@ func lagLacpPartnerConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 		SetPortNames([]string{ptx.Name(), prx.Name()}).
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
 
-	// TODO: remove device configuration in next release of ixia-c
-	dtx := c.Devices().Add().SetName("dtx")
-	dtx.Ethernets().Add().SetPortName(ptx.Name()).SetName("dtxEth").SetMac(tc["txMac"].(string))
-	drx := c.Devices().Add().SetName("drx")
-	drx.Ethernets().Add().SetPortName(prx.Name()).SetName("drxEth").SetMac(tc["rxMac"].(string))
-
 	lagTx := c.Lags().Add().SetName("lagTx")
 	lagRx := c.Lags().Add().SetName("lagRx")
 
