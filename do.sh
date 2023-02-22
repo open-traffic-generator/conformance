@@ -395,7 +395,7 @@ gen_config_kne() {
         yml="${yml}            gnmi_password: admin\n"
         yml="${yml}            gnmi_port: ${GNMI_PORT}\n"
         yml="${yml}            interfaces:\n"
-        for i in $(kne topology service ${topo} | grep interfaces -A 8 | grep 'peer_name:  \"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
+        for i in $(kne topology service ${topo} | grep interfaces -A 8 | grep -E 'peer_name:\s+\"otg' -A 3 -B 5 | grep ' name:'| tr -d ' ')
         do
             ifc=$(echo $i | cut -d\" -f2)
             yml="${yml}              - ${ifc}\n"
