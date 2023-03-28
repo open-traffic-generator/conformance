@@ -75,7 +75,7 @@ def isis_lsp_p2p_l12_config(api, tc):
     drx = c.devices.add(name="drx")
 
     dtx_eth = dtx.ethernets.add(name="dtx_eth")
-    dtx_eth.port_name = ptx.name
+    dtx_eth.connection.port_name = ptx.name
     dtx_eth.mac = tc["txMac"]
     dtx_eth.mtu = 1500
 
@@ -125,7 +125,7 @@ def isis_lsp_p2p_l12_config(api, tc):
 
     # receiver
     drx_eth = drx.ethernets.add(name="drx_eth")
-    drx_eth.port_name = prx.name
+    drx_eth.connection.port_name = prx.name
     drx_eth.mac = tc["rxMac"]
     drx_eth.mtu = 1500
 

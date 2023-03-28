@@ -445,7 +445,7 @@ jobs:
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new knepdp arista
       - name: Run Go tests
         run: |
-          ./do.sh gotest -tags=cpdp ./feature/pdp/...
+          ./do.sh gotest -tags=all ./feature/pdp/...
       - name: Archive logs
         if: always()
         uses: actions/upload-artifact@v3

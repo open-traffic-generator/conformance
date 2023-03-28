@@ -101,9 +101,10 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 	dtxEth := dtx.Ethernets().
 		Add().
 		SetName("dtxEth").
-		SetPortName(ptx.Name()).
 		SetMac(tc["txMac"].(string)).
 		SetMtu(1500)
+
+	dtxEth.Connection().SetPortName(ptx.Name())
 
 	dtxIp := dtxEth.
 		Ipv4Addresses().
@@ -116,9 +117,10 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 	drxEth := drx.Ethernets().
 		Add().
 		SetName("drxEth").
-		SetPortName(prx.Name()).
 		SetMac(tc["rxMac"].(string)).
 		SetMtu(1500)
+
+	drxEth.Connection().SetPortName(prx.Name())
 
 	drxIp := drxEth.
 		Ipv4Addresses().

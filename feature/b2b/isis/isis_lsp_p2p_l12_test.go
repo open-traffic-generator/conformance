@@ -88,9 +88,10 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	dtxEth := dtx.Ethernets().
 		Add().
 		SetName("dtxEth").
-		SetPortName(ptx.Name()).
 		SetMac(tc["txMac"].(string)).
 		SetMtu(1500)
+
+	dtxEth.Connection().SetPortName(ptx.Name())
 
 	dtxEth.
 		Ipv4Addresses().
@@ -157,9 +158,10 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	drxEth := drx.Ethernets().
 		Add().
 		SetName("drxEth").
-		SetPortName(prx.Name()).
 		SetMac(tc["rxMac"].(string)).
 		SetMtu(1500)
+
+	drxEth.Connection().SetPortName(prx.Name())
 
 	drxEth.
 		Ipv4Addresses().
