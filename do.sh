@@ -22,7 +22,7 @@ NOKIA_SRL_OPERATOR_VERSION="0.4.6"
 NOKIA_SRL_OPERATOR_YAML="https://github.com/srl-labs/srl-controller/config/default?ref=v${NOKIA_SRL_OPERATOR_VERSION}"
 ARISTA_CEOS_OPERATOR_VERSION="2.0.1"
 ARISTA_CEOS_OPERATOR_YAML="https://github.com/aristanetworks/arista-ceoslab-operator/config/default?ref=v${ARISTA_CEOS_OPERATOR_VERSION}"
-ARISTA_CEOS_VERSION="4.30.0f-30911100"
+ARISTA_CEOS_VERSION="4.29.1F-29233963"
 ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
 KNE_VERSION=v0.1.9
 
