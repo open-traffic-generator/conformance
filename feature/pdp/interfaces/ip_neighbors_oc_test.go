@@ -1,4 +1,4 @@
-//go:build all || cpdp
+//go:build all
 
 package interfaces
 
