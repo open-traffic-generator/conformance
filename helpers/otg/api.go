@@ -82,8 +82,9 @@ func (o *OtgApi) StartProtocols() {
 	o.Testing().Log("Starting protocol ...")
 	defer o.Timer(time.Now(), "StartProtocols")
 
-	ps := o.Api().NewProtocolState().SetState(gosnappi.ProtocolStateState.START)
-	res, err := o.Api().SetProtocolState(ps)
+	cs := o.Api().NewControlState()
+	cs.Protocol().All().SetState(gosnappi.StateProtocolAllState.START)
+	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
 }
 
@@ -91,8 +92,9 @@ func (o *OtgApi) StopProtocols() {
 	o.Testing().Log("Stopping protocols ...")
 	defer o.Timer(time.Now(), "StopProtocols")
 
-	ps := o.Api().NewProtocolState().SetState(gosnappi.ProtocolStateState.STOP)
-	res, err := o.Api().SetProtocolState(ps)
+	cs := o.Api().NewControlState()
+	cs.Protocol().All().SetState(gosnappi.StateProtocolAllState.STOP)
+	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
 }
 
@@ -100,8 +102,9 @@ func (o *OtgApi) StartTransmit() {
 	o.Testing().Log("Starting transmit ...")
 	defer o.Timer(time.Now(), "StartTransmit")
 
-	ts := o.Api().NewTransmitState().SetState(gosnappi.TransmitStateState.START)
-	res, err := o.Api().SetTransmitState(ts)
+	cs := o.Api().NewControlState()
+	cs.Traffic().FlowTransmit().SetState(gosnappi.StateTrafficFlowTransmitState.START)
+	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
 }
 
@@ -109,8 +112,9 @@ func (o *OtgApi) StopTransmit() {
 	o.Testing().Log("Stopping transmit ...")
 	defer o.Timer(time.Now(), "StopTransmit")
 
-	ts := o.Api().NewTransmitState().SetState(gosnappi.TransmitStateState.STOP)
-	res, err := o.Api().SetTransmitState(ts)
+	cs := o.Api().NewControlState()
+	cs.Traffic().FlowTransmit().SetState(gosnappi.StateTrafficFlowTransmitState.STOP)
+	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
 }
 
@@ -122,8 +126,9 @@ func (o *OtgApi) StartCapture() {
 	o.Testing().Log("Starting capture ...")
 	defer o.Timer(time.Now(), "StartCapture")
 
-	cs := o.Api().NewCaptureState().SetState(gosnappi.CaptureStateState.START)
-	res, err := o.Api().SetCaptureState(cs)
+	cs := o.Api().NewControlState()
+	cs.Port().Capture().SetState(gosnappi.StatePortCaptureState.START)
+	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
 }
 
@@ -135,8 +140,9 @@ func (o *OtgApi) StopCapture() {
 	o.Testing().Log("Stopping capture ...")
 	defer o.Timer(time.Now(), "StopCapture")
 
-	cs := o.Api().NewCaptureState().SetState(gosnappi.CaptureStateState.STOP)
-	res, err := o.Api().SetCaptureState(cs)
+	cs := o.Api().NewControlState()
+	cs.Port().Capture().SetState(gosnappi.StatePortCaptureState.STOP)
+	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
 }
 
