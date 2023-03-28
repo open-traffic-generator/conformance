@@ -127,9 +127,9 @@ class OtgApi(object):
         start = datetime.datetime.now()
         try:
             log.info("Starting protocols ...")
-            ps = self.api.protocol_state()
-            ps.state = ps.START
-            self.log_warn(self.api.set_protocol_state(ps))
+            cs = self.api.control_state()
+            cs.protocol.all.state = cs.protocol.all.START
+            self.log_warn(self.api.set_control_state(cs))
         finally:
             self.timer("start_protocols", start)
 
@@ -137,9 +137,9 @@ class OtgApi(object):
         start = datetime.datetime.now()
         try:
             log.info("Stopping protocols ...")
-            ps = self.api.protocol_state()
-            ps.state = ps.STOP
-            self.log_warn(self.api.set_protocol_state(ps))
+            cs = self.api.control_state()
+            cs.protocol.all.state = cs.protocol.all.STOP
+            self.log_warn(self.api.set_control_state(cs))
         finally:
             self.timer("stop_protocols", start)
 
@@ -147,9 +147,9 @@ class OtgApi(object):
         start = datetime.datetime.now()
         try:
             log.info("Starting transmit ...")
-            ts = self.api.transmit_state()
-            ts.state = ts.START
-            self.log_warn(self.api.set_transmit_state(ts))
+            cs = self.api.control_state()
+            cs.traffic.flow_transmit.state = cs.traffic.flow_transmit.START
+            self.log_warn(self.api.set_control_state(cs))
         finally:
             self.timer("start_transmit", start)
 
@@ -157,9 +157,9 @@ class OtgApi(object):
         start = datetime.datetime.now()
         try:
             log.info("Stopping transmit ...")
-            ts = self.api.transmit_state()
-            ts.state = ts.STOP
-            self.log_warn(self.api.set_transmit_state(ts))
+            cs = self.api.control_state()
+            cs.traffic.flow_transmit.state = cs.traffic.flow_transmit.STOP
+            self.log_warn(self.api.set_control_state(cs))
         finally:
             self.timer("stop_transmit", start)
 
@@ -170,9 +170,9 @@ class OtgApi(object):
         start = datetime.datetime.now()
         try:
             log.info("Starting capture ...")
-            cs = self.api.capture_state()
-            cs.state = cs.START
-            self.log_warn(self.api.set_capture_state(cs))
+            cs = self.api.control_state()
+            cs.port.capture.state = cs.port.capture.START
+            self.log_warn(self.api.set_control_state(cs))
         finally:
             self.timer("start_capture", start)
 
@@ -183,9 +183,9 @@ class OtgApi(object):
         start = datetime.datetime.now()
         try:
             log.info("Stopping capture ...")
-            cs = self.api.capture_state()
-            cs.state = cs.STOP
-            self.log_warn(self.api.set_capture_state(cs))
+            cs = self.api.control_state()
+            cs.port.capture.state = cs.port.capture.STOP
+            self.log_warn(self.api.set_control_state(cs))
         finally:
             self.timer("stop_capture", start)
 
