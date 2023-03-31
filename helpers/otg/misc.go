@@ -57,7 +57,7 @@ func (o *OtgApi) WaitFor(fn func() bool, opts *WaitForOpts) {
 	}
 }
 
-func (o *OtgApi) LogWrnErr(wrn gosnappi.ResponseWarning, err error, exitOnErr bool) {
+func (o *OtgApi) LogWrnErr(wrn gosnappi.Warning, err error, exitOnErr bool) {
 	t := o.Testing()
 	if wrn != nil {
 		for _, w := range wrn.Warnings() {
