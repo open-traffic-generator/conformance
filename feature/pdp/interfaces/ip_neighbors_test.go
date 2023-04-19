@@ -145,8 +145,17 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 	ftxV4Eth.Src().SetValue(dtxEth.Mac())
 
 	ftxV4Ip := flow.Packet().Add().Ipv4()
-	ftxV4Ip.Src().SetValue(tc["txIp"].(string))
+	ftxV4Ip.Src().SetValues([]string{tc["txIp"].(string), "1.1.1.4", "1.1.1.5"})
 	ftxV4Ip.Dst().SetValue(tc["rxIp"].(string))
+
+	flow.EgressPacket().Add().Ethernet().
+		Dst().
+		MetricTags().
+		Add().SetName("egDstMac").SetOffset(46).SetLength(2)
+	flow.EgressPacket().Add().Ipv4().
+		Src().
+		MetricTags().
+		Add().SetName("egSrcIp").SetOffset(29).SetLength(3)
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c

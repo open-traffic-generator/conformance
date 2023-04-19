@@ -1,6 +1,8 @@
 package otg
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/open-traffic-generator/conformance/helpers/table"
@@ -15,7 +17,7 @@ func (o *OtgApi) GetFlowMetrics() []gosnappi.FlowMetric {
 	defer o.Timer(time.Now(), "GetFlowMetrics")
 
 	mr := api.NewMetricsRequest()
-	mr.Flow()
+	mr.Flow().TaggedMetrics()
 	res, err := api.GetMetrics(mr)
 	o.LogWrnErr(nil, err, true)
 
@@ -33,6 +35,17 @@ func (o *OtgApi) GetFlowMetrics() []gosnappi.FlowMetric {
 		},
 		15,
 	)
+	ttb := table.NewTable(
+		"Flow Tagged Metrics",
+		[]string{
+			"Flow",
+			"Tags",
+			"Frames Rx",
+			"FPS Rx",
+			"Bytes Rx",
+		},
+		40,
+	)
 	for _, v := range res.FlowMetrics().Items() {
 		if v != nil {
 			tb.AppendRow([]interface{}{
@@ -45,10 +58,28 @@ func (o *OtgApi) GetFlowMetrics() []gosnappi.FlowMetric {
 				v.BytesTx(),
 				v.BytesRx(),
 			})
+
+			for _, tv := range v.TaggedMetrics().Items() {
+				var tagStr string
+
+				for _, tag := range tv.Tags().Items() {
+					tagStr += fmt.Sprintf("%s: %s, ", tag.Name(), tag.Value().Hex())
+				}
+				tagStr = strings.TrimRight(tagStr, ", ")
+
+				ttb.AppendRow([]interface{}{
+					v.Name(),
+					tagStr,
+					tv.FramesRx(),
+					tv.FramesRxRate(),
+					tv.BytesRx(),
+				})
+			}
 		}
 	}
 
 	t.Log(tb.String())
+	t.Log(ttb.String())
 	return res.FlowMetrics().Items()
 }
 

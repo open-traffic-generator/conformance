@@ -10,10 +10,11 @@ data:
         "images": [
                 {
                     "name": "controller",
-                    "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-controller",
-                    "tag": "0.0.1-3889",
+                    "path": "ixia-c-controller",
+                    "tag": "0.0.1-3892",
                     "env": {
-                        "TRACE": "true"
+                        "TRACE": "true",
+                        "DISABLE_VERSION_CHECK": "true"
                     }
                 },
                 {
