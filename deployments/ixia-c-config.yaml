@@ -19,7 +19,7 @@ data:
                 {
                     "name": "gnmi-server",
                     "path": "ghcr.io/open-traffic-generator/ixia-c-gnmi-server",
-                    "tag": "1.11.5"
+                    "tag": "1.11.8"
                 },
                 {
                     "name": "traffic-engine",
@@ -29,7 +29,7 @@ data:
                 {
                     "name": "protocol-engine",
                     "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine",
-                    "tag": "1.00.0.290"
+                    "tag": "1.00.0.296"
                 },
                 {
                     "name": "controller-community",
