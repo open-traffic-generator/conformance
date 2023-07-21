@@ -16,7 +16,7 @@ KIND_VERSION=v0.16.0
 METALLB_VERSION=v0.13.6
 MESHNET_COMMIT=f26c193
 MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
-IXIA_C_OPERATOR_VERSION="0.3.1"
+IXIA_C_OPERATOR_VERSION="0.3.3"
 IXIA_C_OPERATOR_YAML="https://github.com/open-traffic-generator/ixia-c-operator/releases/download/v${IXIA_C_OPERATOR_VERSION}/ixiatg-operator.yaml"
 NOKIA_SRL_OPERATOR_VERSION="0.4.6"
 NOKIA_SRL_OPERATOR_YAML="https://github.com/srl-labs/srl-controller/config/default?ref=v${NOKIA_SRL_OPERATOR_VERSION}"

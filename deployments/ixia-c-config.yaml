@@ -11,7 +11,7 @@ data:
                 {
                     "name": "controller",
                     "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-controller",
-                    "tag": "0.0.1-4164",
+                    "tag": "0.0.1-4167",
                     "env": {
                         "TRACE": "true"
                     }
@@ -34,12 +34,12 @@ data:
                 {
                     "name": "controller-community",
                     "path": "ghcr.io/open-traffic-generator/ixia-c-controller",
-                    "tag": "0.0.1-4164"
+                    "tag": "0.0.1-4167"
                 },
                 {
                     "name": "ixia-c-one",
                     "path": "ghcr.io/open-traffic-generator/ixia-c-one",
-                    "tag": "0.0.1-4164"
+                    "tag": "0.0.1-4167"
                 }
             ]
         }
