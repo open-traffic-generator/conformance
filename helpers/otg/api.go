@@ -22,7 +22,7 @@ func NewOtgApi(t *testing.T) *OtgApi {
 	t.Logf("OTG Port: %v\n", tc.OtgPorts)
 
 	api := gosnappi.NewApi()
-	api.SetVersionCompatibilityCheck(true)
+	api.SetVersionCompatibilityCheck(false)
 	if tc.OtgGrpcTransport {
 		api.NewGrpcTransport().SetLocation(tc.OtgHost).SetRequestTimeout(3600 * time.Second)
 	} else {
