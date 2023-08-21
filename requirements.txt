@@ -2,4 +2,4 @@ pytest
 black; python_version > '3.6'
 flake8
 pypcapfile==0.12.0
-snappi==0.12.1
+snappi==0.11.17
