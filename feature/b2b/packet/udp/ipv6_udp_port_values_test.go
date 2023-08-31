@@ -11,15 +11,15 @@ import (
 
 func TestIpv6UdpPortValues(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":         int64(50),
-		"pktCount":        int32(100),
-		"pktSize":         int32(128),
+		"pktRate":         uint64(50),
+		"pktCount":        uint32(100),
+		"pktSize":         uint32(128),
 		"txMac":           "00:00:01:01:01:01",
 		"rxMac":           "00:00:01:01:01:02",
 		"txIp":            "2000::1",
 		"rxIp":            "2000::2",
-		"txUdpPortValues": []int32{5000, 5010, 5020, 5030},
-		"rxUdpPortValues": []int32{6000, 6010, 6020, 6030},
+		"txUdpPortValues": []uint32{5000, 5010, 5020, 5030},
+		"rxUdpPortValues": []uint32{6000, 6010, 6020, 6030},
 	}
 
 	api := otg.NewOtgApi(t)

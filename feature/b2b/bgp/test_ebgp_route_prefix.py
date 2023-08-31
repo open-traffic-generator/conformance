@@ -144,7 +144,7 @@ def ebgp_route_prefix_config(api, tc):
         as_numbers=[1112, 1113], type=dtx_bgpv4_peer_rrv6_seg.AS_SEQ
     )
 
-    drx_eth = dtx.ethernets.add(name="drx_eth")
+    drx_eth = drx.ethernets.add(name="drx_eth")
     drx_eth.connection.port_name = prx.name
     drx_eth.mac = tc["rxMac"]
     drx_eth.mtu = 1500

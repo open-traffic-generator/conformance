@@ -11,19 +11,19 @@ import (
 
 func TestUdpPortIncrDecr(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":        int64(50),
-		"pktCount":       int32(100),
-		"pktSize":        int32(128),
+		"pktRate":        uint64(50),
+		"pktCount":       uint32(100),
+		"pktSize":        uint32(128),
 		"txMac":          "00:00:01:01:01:01",
 		"rxMac":          "00:00:01:01:01:02",
 		"txIp":           "1.1.1.1",
 		"rxIp":           "1.1.1.2",
-		"txUdpPortStart": int32(5000),
-		"txUdpPortStep":  int32(2),
-		"txUdpPortCount": int32(10),
-		"rxUdpPortStart": int32(6000),
-		"rxUdpPortStep":  int32(2),
-		"rxUdpPortCount": int32(10),
+		"txUdpPortStart": uint32(5000),
+		"txUdpPortStep":  uint32(2),
+		"txUdpPortCount": uint32(10),
+		"rxUdpPortStart": uint32(6000),
+		"rxUdpPortStep":  uint32(2),
+		"rxUdpPortCount": uint32(10),
 	}
 
 	api := otg.NewOtgApi(t)

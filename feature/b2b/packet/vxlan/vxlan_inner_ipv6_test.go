@@ -11,9 +11,9 @@ import (
 
 func TestVxlanInnerIpv6(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":        int64(50),
-		"pktCount":       int32(100),
-		"pktSize":        int32(256),
+		"pktRate":        uint64(50),
+		"pktCount":       uint32(100),
+		"pktSize":        uint32(256),
 		"txMac":          "00:00:01:01:01:01",
 		"rxMac":          "00:00:01:01:01:02",
 		"innerTxMac":     "00:00:01:01:01:03",
@@ -22,11 +22,11 @@ func TestVxlanInnerIpv6(t *testing.T) {
 		"rxIp":           "1.1.1.2",
 		"txIpv6":         "::3",
 		"rxIpv6":         "::5",
-		"txUdpPortValue": int32(4789),
-		"rxUdpPortValue": int32(4789),
-		"vxLanVniValues": []int32{1000, 1001, 1002, 1003, 1004},
-		"txTcpPortValue": int32(80),
-		"rxTcpPortValue": int32(80),
+		"txUdpPortValue": uint32(4789),
+		"rxUdpPortValue": uint32(4789),
+		"vxLanVniValues": []uint32{1000, 1001, 1002, 1003, 1004},
+		"txTcpPortValue": uint32(80),
+		"rxTcpPortValue": uint32(80),
 	}
 
 	api := otg.NewOtgApi(t)
