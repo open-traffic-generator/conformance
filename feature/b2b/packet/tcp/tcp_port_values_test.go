@@ -96,8 +96,8 @@ func tcpPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]in
 		return
 	}
 	ignoredCount := 0
-	txTcpPortValues := tc["txTcpPortValues"].([]int32)
-	rxTcpPortValues := tc["rxTcpPortValues"].([]int32)
+	txTcpPortValues := tc["txTcpPortValues"].([]uint32)
+	rxTcpPortValues := tc["rxTcpPortValues"].([]uint32)
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 	for i := 0; i < len(cPackets.Packets); i++ {

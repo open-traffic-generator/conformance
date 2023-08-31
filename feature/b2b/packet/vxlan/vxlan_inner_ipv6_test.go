@@ -118,7 +118,7 @@ func vxlanInnerIpv6CaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]i
 		return
 	}
 	ignoredCount := 0
-	vxLanVniValues := tc["vxLanVniValues"].([]int32)
+	vxLanVniValues := tc["vxLanVniValues"].([]uint32)
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 

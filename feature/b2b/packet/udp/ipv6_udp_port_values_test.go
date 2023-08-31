@@ -96,8 +96,8 @@ func ipv6UdpPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[strin
 		return
 	}
 	ignoredCount := 0
-	txUdpPortValues := tc["txUdpPortValues"].([]int32)
-	rxUdpPortValues := tc["rxUdpPortValues"].([]int32)
+	txUdpPortValues := tc["txUdpPortValues"].([]uint32)
+	rxUdpPortValues := tc["rxUdpPortValues"].([]uint32)
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 
