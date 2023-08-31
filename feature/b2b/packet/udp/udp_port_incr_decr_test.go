@@ -94,7 +94,7 @@ func udpPortIncrDecrConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 func udpPortIncrDecrFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := uint64(tc["pktCount"].(uint16))
+	expCount := uint64(tc["pktCount"].(uint32))
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&
 		m.FramesRx() == expCount
