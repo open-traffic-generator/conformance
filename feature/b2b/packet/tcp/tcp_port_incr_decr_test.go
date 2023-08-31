@@ -65,9 +65,9 @@ func tcpPortIncrDecrConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 	f1.TxRx().Port().
 		SetTxName(p1.Name()).
 		SetRxName(p2.Name())
-	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	f1.Rate().SetPps(tc["pktRate"].(int64))
-	f1.Size().SetFixed(tc["pktSize"].(int32))
+	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	f1.Rate().SetPps(tc["pktRate"].(uint64))
+	f1.Size().SetFixed(tc["pktSize"].(uint32))
 	f1.Metrics().SetEnable(true)
 
 	eth := f1.Packet().Add().Ethernet()
@@ -80,13 +80,13 @@ func tcpPortIncrDecrConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 	tcp := f1.Packet().Add().Tcp()
 	tcp.SrcPort().Decrement().
-		SetStart(tc["txTcpPortStart"].(int32)).
-		SetStep(tc["txTcpPortStep"].(int32)).
-		SetCount(tc["txTcpPortCount"].(int32))
+		SetStart(tc["txTcpPortStart"].(uint32)).
+		SetStep(tc["txTcpPortStep"].(uint32)).
+		SetCount(tc["txTcpPortCount"].(uint32))
 	tcp.DstPort().Increment().
-		SetStart(tc["rxTcpPortStart"].(int32)).
-		SetStep(tc["rxTcpPortStep"].(int32)).
-		SetCount(tc["rxTcpPortCount"].(int32))
+		SetStart(tc["rxTcpPortStart"].(uint32)).
+		SetStep(tc["rxTcpPortStep"].(uint32)).
+		SetCount(tc["rxTcpPortCount"].(uint32))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
@@ -94,7 +94,7 @@ func tcpPortIncrDecrConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 func tcpPortIncrDecrFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := int64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(int32))
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&
 		m.FramesRx() == expCount

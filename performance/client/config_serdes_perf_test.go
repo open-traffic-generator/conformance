@@ -87,9 +87,9 @@ func configSerdesPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 		f.TxRx().Port().
 			SetTxName(p1.Name()).
 			SetRxName(p2.Name())
-		f.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-		f.Rate().SetPps(tc["pktRate"].(int64))
-		f.Size().SetFixed(tc["pktSize"].(int32))
+		f.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+		f.Rate().SetPps(tc["pktRate"].(uint64))
+		f.Size().SetFixed(tc["pktSize"].(uint32))
 		f.Metrics().SetEnable(true)
 
 		eth := f.Packet().Add().Ethernet()
@@ -101,8 +101,8 @@ func configSerdesPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 		ip.Dst().SetValue(tc["rxIp"].(string))
 
 		udp := f.Packet().Add().Udp()
-		udp.SrcPort().SetValue(tc["txUdpPort"].(int32))
-		udp.DstPort().SetValue(tc["rxUdpPort"].(int32))
+		udp.SrcPort().SetValue(tc["txUdpPort"].(uint32))
+		udp.DstPort().SetValue(tc["rxUdpPort"].(uint32))
 	}
 
 	for i := 1; i <= tc["flowCount"].(int); i++ {
@@ -110,9 +110,9 @@ func configSerdesPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 		f.TxRx().Port().
 			SetTxName(p2.Name()).
 			SetRxName(p1.Name())
-		f.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-		f.Rate().SetPps(tc["pktRate"].(int64))
-		f.Size().SetFixed(tc["pktSize"].(int32))
+		f.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+		f.Rate().SetPps(tc["pktRate"].(uint64))
+		f.Size().SetFixed(tc["pktSize"].(uint32))
 		f.Metrics().SetEnable(true)
 
 		eth := f.Packet().Add().Ethernet()
@@ -124,8 +124,8 @@ func configSerdesPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 		ip.Dst().SetValue(tc["txIp"].(string))
 
 		udp := f.Packet().Add().Udp()
-		udp.SrcPort().SetValue(tc["rxUdpPort"].(int32))
-		udp.DstPort().SetValue(tc["txUdpPort"].(int32))
+		udp.SrcPort().SetValue(tc["rxUdpPort"].(uint32))
+		udp.DstPort().SetValue(tc["txUdpPort"].(uint32))
 	}
 
 	api.Testing().Logf("Config:\n%v\n", c)

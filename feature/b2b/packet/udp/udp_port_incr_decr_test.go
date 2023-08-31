@@ -65,9 +65,9 @@ func udpPortIncrDecrConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 	f1.TxRx().Port().
 		SetTxName(p1.Name()).
 		SetRxName(p2.Name())
-	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	f1.Rate().SetPps(tc["pktRate"].(int64))
-	f1.Size().SetFixed(tc["pktSize"].(int32))
+	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	f1.Rate().SetPps(tc["pktRate"].(uint64))
+	f1.Size().SetFixed(tc["pktSize"].(uint32))
 	f1.Metrics().SetEnable(true)
 
 	eth := f1.Packet().Add().Ethernet()
@@ -80,13 +80,13 @@ func udpPortIncrDecrConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 	udp := f1.Packet().Add().Udp()
 	udp.SrcPort().Increment().
-		SetStart(tc["txUdpPortStart"].(int32)).
-		SetStep(tc["txUdpPortStep"].(int32)).
-		SetCount(tc["txUdpPortCount"].(int32))
+		SetStart(tc["txUdpPortStart"].(uint32)).
+		SetStep(tc["txUdpPortStep"].(uint32)).
+		SetCount(tc["txUdpPortCount"].(uint32))
 	udp.DstPort().Decrement().
-		SetStart(tc["rxUdpPortStart"].(int32)).
-		SetStep(tc["rxUdpPortStep"].(int32)).
-		SetCount(tc["rxUdpPortCount"].(int32))
+		SetStart(tc["rxUdpPortStart"].(uint32)).
+		SetStep(tc["rxUdpPortStep"].(uint32)).
+		SetCount(tc["rxUdpPortCount"].(uint32))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
@@ -94,7 +94,7 @@ func udpPortIncrDecrConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 func udpPortIncrDecrFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := int64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(int32))
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&
 		m.FramesRx() == expCount

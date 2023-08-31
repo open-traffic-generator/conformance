@@ -70,7 +70,9 @@ def ebgp_route_prefix_config(api, tc):
     drx = c.devices.add(name="drx")
 
     dtx_eth = dtx.ethernets.add(name="dtx_eth")
-    dtx_eth.set(port_name=ptx.name, mac=tc["txMac"], mtu=1500)
+    dtx_eth.connection.port_name = ptx.name
+    dtx_eth.mac = tc["txMac"]
+    dtx_eth.mtu = 1500
 
     dtx_ip = dtx_eth.ipv4_addresses.add(name="dtx_ip")
     dtx_ip.set(address=tc["txIp"], gateway=tc["txGateway"], prefix=tc["txPrefix"])
@@ -142,8 +144,10 @@ def ebgp_route_prefix_config(api, tc):
         as_numbers=[1112, 1113], type=dtx_bgpv4_peer_rrv6_seg.AS_SEQ
     )
 
-    drx_eth = drx.ethernets.add(name="drx_eth")
-    drx_eth.set(port_name=prx.name, mac=tc["rxMac"], mtu=1500)
+    drx_eth = dtx.ethernets.add(name="drx_eth")
+    drx_eth.connection.port_name = prx.name
+    drx_eth.mac = tc["rxMac"]
+    drx_eth.mtu = 1500
 
     drx_ip = drx_eth.ipv4_addresses.add(name="drx_ip")
     drx_ip.set(address=tc["rxIp"], gateway=tc["rxGateway"], prefix=tc["rxPrefix"])

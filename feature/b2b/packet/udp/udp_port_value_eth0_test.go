@@ -63,9 +63,9 @@ func udpPortValueEth0Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 	f1.TxRx().Port().
 		SetTxName(p1.Name()).
 		SetRxName(p2.Name())
-	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	f1.Rate().SetPps(tc["pktRate"].(int64))
-	f1.Size().SetFixed(tc["pktSize"].(int32))
+	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	f1.Rate().SetPps(tc["pktRate"].(uint64))
+	f1.Size().SetFixed(tc["pktSize"].(uint32))
 	f1.Metrics().SetEnable(true)
 
 	eth := f1.Packet().Add().Ethernet()
@@ -77,8 +77,8 @@ func udpPortValueEth0Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 	ip.Dst().SetValue(tc["rxIp"].(string))
 
 	udp := f1.Packet().Add().Udp()
-	udp.SrcPort().SetValue(int32(tc["txUdpPort"].(int)))
-	udp.DstPort().SetValue(int32(tc["rxUdpPort"].(int)))
+	udp.SrcPort().SetValue(uint32(tc["txUdpPort"].(int)))
+	udp.DstPort().SetValue(uint32(tc["rxUdpPort"].(int)))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
@@ -86,7 +86,7 @@ func udpPortValueEth0Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 
 func udpPortValueEth0FlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := int64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(int32))
 	// TODO: check why Tx/Rx ends up having more than expected frame count
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() >= expCount &&

@@ -107,7 +107,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 		SetName("dtxIp").
 		SetAddress(tc["txIp"].(string)).
 		SetGateway(tc["txGateway"].(string)).
-		SetPrefix(tc["txPrefix"].(int32))
+		SetPrefix(tc["txPrefix"].(uint32))
 
 	dtxBgp := dtx.Bgp().
 		SetRouterId(tc["txIp"].(string))
@@ -119,7 +119,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 	dtxBgpv4Peer := dtxBgpv4.
 		Peers().
 		Add().
-		SetAsNumber(tc["txAs"].(int32)).
+		SetAsNumber(tc["txAs"].(uint32)).
 		SetAsType(gosnappi.BgpV4PeerAsType.EBGP).
 		SetPeerAddress(tc["txGateway"].(string)).
 		SetName("dtxBgpv4Peer")
@@ -135,7 +135,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 	dtxBgpv4PeerRrV4.Addresses().Add().
 		SetAddress(tc["txAdvRouteV4"].(string)).
 		SetPrefix(32).
-		SetCount(tc["txRouteCount"].(int32)).
+		SetCount(tc["txRouteCount"].(uint32)).
 		SetStep(1)
 
 	dtxBgpv4PeerRrV4.Advanced().
@@ -151,7 +151,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 		SetAsSetMode(gosnappi.BgpAsPathAsSetMode.INCLUDE_AS_SET)
 
 	dtxBgpv4PeerRrV4AsPath.Segments().Add().
-		SetAsNumbers([]int64{1112, 1113}).
+		SetAsNumbers([]uint32{1112, 1113}).
 		SetType(gosnappi.BgpAsPathSegmentType.AS_SEQ)
 
 	dtxBgpv4PeerRrV6 := dtxBgpv4Peer.
@@ -165,7 +165,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 	dtxBgpv4PeerRrV6.Addresses().Add().
 		SetAddress(tc["txAdvRouteV6"].(string)).
 		SetPrefix(32).
-		SetCount(tc["txRouteCount"].(int32)).
+		SetCount(tc["txRouteCount"].(uint32)).
 		SetStep(1)
 
 	dtxBgpv4PeerRrV6.Advanced().
@@ -181,7 +181,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 		SetAsSetMode(gosnappi.BgpAsPathAsSetMode.INCLUDE_AS_SET)
 
 	dtxBgpv4PeerRrV6AsPath.Segments().Add().
-		SetAsNumbers([]int64{1112, 1113}).
+		SetAsNumbers([]uint32{1112, 1113}).
 		SetType(gosnappi.BgpAsPathSegmentType.AS_SEQ)
 
 	drxEth := drx.Ethernets().
@@ -198,7 +198,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 		SetName("drxIp").
 		SetAddress(tc["rxIp"].(string)).
 		SetGateway(tc["rxGateway"].(string)).
-		SetPrefix(tc["rxPrefix"].(int32))
+		SetPrefix(tc["rxPrefix"].(uint32))
 
 	drxBgp := drx.Bgp().
 		SetRouterId(tc["rxIp"].(string))
@@ -210,7 +210,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 	drxBgpv4Peer := drxBgpv4.
 		Peers().
 		Add().
-		SetAsNumber(tc["rxAs"].(int32)).
+		SetAsNumber(tc["rxAs"].(uint32)).
 		SetAsType(gosnappi.BgpV4PeerAsType.EBGP).
 		SetPeerAddress(tc["rxGateway"].(string)).
 		SetName("drxBgpv4Peer")
@@ -226,7 +226,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 	drxBgpv4PeerRrV4.Addresses().Add().
 		SetAddress(tc["rxAdvRouteV4"].(string)).
 		SetPrefix(32).
-		SetCount(tc["rxRouteCount"].(int32)).
+		SetCount(tc["rxRouteCount"].(uint32)).
 		SetStep(1)
 
 	drxBgpv4PeerRrV4.Advanced().
@@ -242,7 +242,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 		SetAsSetMode(gosnappi.BgpAsPathAsSetMode.INCLUDE_AS_SET)
 
 	drxBgpv4PeerRrV4AsPath.Segments().Add().
-		SetAsNumbers([]int64{4444}).
+		SetAsNumbers([]uint32{4444}).
 		SetType(gosnappi.BgpAsPathSegmentType.AS_SEQ)
 
 	drxBgpv4PeerRrV6 := drxBgpv4Peer.
@@ -256,7 +256,7 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 	drxBgpv4PeerRrV6.Addresses().Add().
 		SetAddress(tc["rxAdvRouteV6"].(string)).
 		SetPrefix(32).
-		SetCount(tc["rxRouteCount"].(int32)).
+		SetCount(tc["rxRouteCount"].(uint32)).
 		SetStep(1)
 
 	drxBgpv4PeerRrV6.Advanced().
@@ -272,14 +272,14 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 		SetAsSetMode(gosnappi.BgpAsPathAsSetMode.INCLUDE_AS_SET)
 
 	drxBgpv4PeerRrV6AsPath.Segments().Add().
-		SetAsNumbers([]int64{4444}).
+		SetAsNumbers([]uint32{4444}).
 		SetType(gosnappi.BgpAsPathSegmentType.AS_SEQ)
 
 	for i := 1; i <= 4; i++ {
 		flow := c.Flows().Add()
-		flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-		flow.Rate().SetPps(tc["pktRate"].(int64))
-		flow.Size().SetFixed(tc["pktSize"].(int32))
+		flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+		flow.Rate().SetPps(tc["pktRate"].(uint64))
+		flow.Size().SetFixed(tc["pktSize"].(uint32))
 		flow.Metrics().SetEnable(true)
 	}
 
@@ -358,8 +358,8 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 func ebgpRoutePrefixPerfBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	for _, m := range api.GetBgpv4Metrics() {
 		if m.SessionState() == gosnappi.Bgpv4MetricSessionState.DOWN ||
-			m.RoutesAdvertised() != 2*tc["txRouteCount"].(int32) ||
-			m.RoutesReceived() != 2*tc["rxRouteCount"].(int32) {
+			m.RoutesAdvertised() != 2*tc["txRouteCount"].(uint64) ||
+			m.RoutesReceived() != 2*tc["rxRouteCount"].(uint64) {
 			return false
 		}
 	}
@@ -367,7 +367,7 @@ func ebgpRoutePrefixPerfBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{})
 }
 
 func ebgpRoutePrefixPerfFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := int64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(int32))
 
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||

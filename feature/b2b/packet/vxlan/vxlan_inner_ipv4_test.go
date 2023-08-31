@@ -68,9 +68,9 @@ func vxlanInnerIpv4Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 	f1.TxRx().Port().
 		SetTxName(p1.Name()).
 		SetRxName(p2.Name())
-	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	f1.Rate().SetPps(tc["pktRate"].(int64))
-	f1.Size().SetFixed(tc["pktSize"].(int32))
+	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	f1.Rate().SetPps(tc["pktRate"].(uint64))
+	f1.Size().SetFixed(tc["pktSize"].(uint32))
 	f1.Metrics().SetEnable(true)
 
 	eth := f1.Packet().Add().Ethernet()
@@ -82,11 +82,11 @@ func vxlanInnerIpv4Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 	ip6.Dst().SetValue(tc["rxIpv6"].(string))
 
 	udp := f1.Packet().Add().Udp()
-	udp.SrcPort().SetValue(tc["txUdpPortValue"].(int32))
-	udp.DstPort().SetValue(tc["rxUdpPortValue"].(int32))
+	udp.SrcPort().SetValue(tc["txUdpPortValue"].(uint32))
+	udp.DstPort().SetValue(tc["rxUdpPortValue"].(uint32))
 
 	vxlan := f1.Packet().Add().Vxlan()
-	vxlan.Vni().SetValues(tc["vxLanVniValues"].([]int32))
+	vxlan.Vni().SetValues(tc["vxLanVniValues"].([]uint32))
 
 	eth2 := f1.Packet().Add().Ethernet()
 	eth2.Src().SetValue(tc["innerTxMac"].(string))
@@ -97,8 +97,8 @@ func vxlanInnerIpv4Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 	ip.Dst().SetValue(tc["rxIp"].(string))
 
 	tcp := f1.Packet().Add().Tcp()
-	tcp.SrcPort().SetValue(tc["txTcpPortValue"].(int32))
-	tcp.DstPort().SetValue(tc["rxTcpPortValue"].(int32))
+	tcp.SrcPort().SetValue(tc["txTcpPortValue"].(uint32))
+	tcp.DstPort().SetValue(tc["rxTcpPortValue"].(uint32))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
@@ -106,7 +106,7 @@ func vxlanInnerIpv4Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 
 func vxlanInnerIpv4FlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := int64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(int32))
 
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&

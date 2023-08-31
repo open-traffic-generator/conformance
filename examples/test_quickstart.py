@@ -52,9 +52,11 @@ def test_quickstart():
     api.set_config(config)
 
     # Start transmitting the packets from configured flow
-    ts = api.transmit_state()
-    ts.state = ts.START
-    api.set_transmit_state(ts)
+    control_state = api.control_state()
+    control_state.choice = control_state.TRAFFIC
+    control_state.traffic.choice = control_state.traffic.FLOW_TRANSMIT
+    control_state.traffic.flow_transmit.state = control_state.traffic.flow_transmit.START  # noqa
+    res = api.set_control_state(control_state)
 
     # Fetch metrics for configured flow
     req = api.metrics_request()

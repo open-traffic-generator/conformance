@@ -99,7 +99,7 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 		SetName("dtxIp").
 		SetAddress(tc["txIp"].(string)).
 		SetGateway(tc["txGateway"].(string)).
-		SetPrefix(tc["txPrefix"].(int32))
+		SetPrefix(tc["txPrefix"].(uint32))
 
 	dtxEth.
 		Ipv6Addresses().
@@ -107,7 +107,7 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 		SetName("dtxIpv6").
 		SetAddress(tc["txIpv6"].(string)).
 		SetGateway(tc["txv6Gateway"].(string)).
-		SetPrefix(tc["txv6Prefix"].(int32))
+		SetPrefix(tc["txv6Prefix"].(uint32))
 
 	dtxIsis := dtx.Isis().
 		SetSystemId(tc["txIsisSystemId"].(string)).
@@ -141,7 +141,7 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	dtxIsisRrV4.Addresses().Add().
 		SetAddress(tc["txAdvRouteV4"].(string)).
 		SetPrefix(32).
-		SetCount(tc["txRouteCount"].(int32)).
+		SetCount(tc["txRouteCount"].(uint32)).
 		SetStep(1)
 
 	dtxIsisRrV6 := dtxIsis.
@@ -151,7 +151,7 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	dtxIsisRrV6.Addresses().Add().
 		SetAddress(tc["txAdvRouteV6"].(string)).
 		SetPrefix(32).
-		SetCount(tc["txRouteCount"].(int32)).
+		SetCount(tc["txRouteCount"].(uint32)).
 		SetStep(1)
 
 	// recieve
@@ -169,7 +169,7 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 		SetName("drxIp").
 		SetAddress(tc["rxIp"].(string)).
 		SetGateway(tc["rxGateway"].(string)).
-		SetPrefix(tc["rxPrefix"].(int32))
+		SetPrefix(tc["rxPrefix"].(uint32))
 
 	drxEth.
 		Ipv6Addresses().
@@ -177,7 +177,7 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 		SetName("drxIpv6").
 		SetAddress(tc["rxIpv6"].(string)).
 		SetGateway(tc["rxv6Gateway"].(string)).
-		SetPrefix(tc["rxv6Prefix"].(int32))
+		SetPrefix(tc["rxv6Prefix"].(uint32))
 
 	drxIsis := drx.Isis().
 		SetSystemId(tc["rxIsisSystemId"].(string)).
@@ -211,7 +211,7 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	drxIsisRrV4.Addresses().Add().
 		SetAddress(tc["rxAdvRouteV4"].(string)).
 		SetPrefix(32).
-		SetCount(tc["rxRouteCount"].(int32)).
+		SetCount(tc["rxRouteCount"].(uint32)).
 		SetStep(1)
 
 	drxIsisRrV6 := drxIsis.
@@ -221,14 +221,14 @@ func isisLspP2pL12Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	drxIsisRrV6.Addresses().Add().
 		SetAddress(tc["rxAdvRouteV6"].(string)).
 		SetPrefix(32).
-		SetCount(tc["rxRouteCount"].(int32)).
+		SetCount(tc["rxRouteCount"].(uint32)).
 		SetStep(1)
 
 	for i := 1; i <= 4; i++ {
 		flow := c.Flows().Add()
-		flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-		flow.Rate().SetPps(tc["pktRate"].(int64))
-		flow.Size().SetFixed(tc["pktSize"].(int32))
+		flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+		flow.Rate().SetPps(tc["pktRate"].(uint64))
+		flow.Size().SetFixed(tc["pktSize"].(uint32))
 		flow.Metrics().SetEnable(true)
 	}
 
@@ -334,7 +334,7 @@ func isisLspP2pL12MetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 }
 
 func isisLspP2pL12FlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := int64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(int32))
 
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||

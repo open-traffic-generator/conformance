@@ -112,7 +112,7 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		SetName("dtxIp").
 		SetAddress(tc["txIp"].(string)).
 		SetGateway(tc["txGateway"].(string)).
-		SetPrefix(tc["txPrefix"].(int32))
+		SetPrefix(tc["txPrefix"].(uint32))
 
 	drxEth := drx.Ethernets().
 		Add().
@@ -128,13 +128,13 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		SetName("drxIp").
 		SetAddress(tc["rxIp"].(string)).
 		SetGateway(tc["rxGateway"].(string)).
-		SetPrefix(tc["rxPrefix"].(int32))
+		SetPrefix(tc["rxPrefix"].(uint32))
 
 	flow := c.Flows().Add()
 	flow.SetName("ftxV4")
-	flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	flow.Rate().SetPps(tc["pktRate"].(int64))
-	flow.Size().SetFixed(tc["pktSize"].(int32))
+	flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	flow.Rate().SetPps(tc["pktRate"].(uint64))
+	flow.Size().SetFixed(tc["pktSize"].(uint32))
 	flow.Metrics().SetEnable(true)
 
 	flow.TxRx().Device().
@@ -153,7 +153,7 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 }
 
 func ipNeighborsFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := int64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(int32))
 
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||

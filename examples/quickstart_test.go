@@ -48,7 +48,7 @@ func TestQuickstart(t *testing.T) {
 	ipv4.Dst().SetValue("20.1.1.1")
 
 	// Configure repeating patterns for source and destination UDP ports
-	udp.SrcPort().SetValues([]int32{5010, 5015, 5020, 5025, 5030})
+	udp.SrcPort().SetValues([]uint32{5010, 5015, 5020, 5025, 5030})
 	udp.DstPort().Increment().SetStart(6010).SetStep(5).SetCount(5)
 
 	// Configure custom bytes (hex string) in payload
@@ -67,9 +67,15 @@ func TestQuickstart(t *testing.T) {
 	}
 
 	// Start transmitting the packets from configured flow
-	ts := api.NewTransmitState()
-	ts.SetState(gosnappi.TransmitStateState.START)
-	if _, err := api.SetTransmitState(ts); err != nil {
+	ts := api.NewControlState().
+		SetChoice(gosnappi.ControlStateChoice.TRAFFIC)
+	ts.Traffic().
+		SetChoice(gosnappi.StateTrafficChoice.FLOW_TRANSMIT).
+		FlowTransmit().
+		SetState(gosnappi.StateTrafficFlowTransmitState.START)
+
+	_, err := api.SetControlState(ts)
+	if err != nil {
 		t.Fatal(err)
 	}
 

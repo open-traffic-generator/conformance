@@ -82,9 +82,9 @@ func udpTputPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 	f := c.Flows().Add().SetName(fmt.Sprintf("f%s", p1.Name()))
 	f.TxRx().Port().
 		SetTxName(p1.Name())
-	f.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
+	f.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
 	f.Rate().SetPercentage(tc["lineRate"].(float32))
-	f.Size().SetFixed(tc["pktSize"].(int32))
+	f.Size().SetFixed(tc["pktSize"].(uint32))
 	f.Metrics().SetEnable(true)
 
 	eth := f.Packet().Add().Ethernet()
@@ -96,15 +96,15 @@ func udpTputPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 	ip.Dst().SetValue(tc["rxIp"].(string))
 
 	udp := f.Packet().Add().Udp()
-	udp.SrcPort().SetValue(tc["txUdpPort"].(int32))
-	udp.DstPort().SetValue(tc["rxUdpPort"].(int32))
+	udp.SrcPort().SetValue(tc["txUdpPort"].(uint32))
+	udp.DstPort().SetValue(tc["rxUdpPort"].(uint32))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
 }
 
 func udpTputPerfMetricsOk(api *otg.OtgApi, tc map[string]interface{}, tm *otg.ThroughputMetric) bool {
-	pktCount := int64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(int32))
 	for _, m := range api.GetFlowMetrics() {
 		tm.AddPpsSnapshot(uint64(m.FramesTx()), int(m.FramesTxRate()))
 
