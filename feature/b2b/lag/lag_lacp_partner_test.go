@@ -16,13 +16,13 @@ func TestLagLacpPartner(t *testing.T) {
 		"rxMac":      "00:00:01:01:01:02",
 		"txSystemId": "01:01:01:01:01:01",
 		"rxSystemId": "02:02:02:02:02:02",
-		"pktRate":    int64(50),
-		"pktCount":   int32(100),
-		"pktSize":    int32(128),
+		"pktRate":    uint64(50),
+		"pktCount":   uint32(100),
+		"pktSize":    uint32(128),
 		"txIp":       "1.1.1.1",
 		"rxIp":       "1.1.1.2",
-		"txUdpPort":  int32(5000),
-		"rxUdpPort":  int32(6000),
+		"txUdpPort":  uint32(5000),
+		"rxUdpPort":  uint32(6000),
 	}
 
 	api := otg.NewOtgApi(t)
@@ -101,9 +101,9 @@ func lagLacpPartnerConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 	f1.TxRx().Port().
 		SetTxName(lagTx.Name()).
 		SetRxName(lagRx.Name())
-	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	f1.Rate().SetPps(tc["pktRate"].(int64))
-	f1.Size().SetFixed(tc["pktSize"].(int32))
+	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	f1.Rate().SetPps(tc["pktRate"].(uint64))
+	f1.Size().SetFixed(tc["pktSize"].(uint32))
 	f1.Metrics().SetEnable(true)
 
 	eth := f1.Packet().Add().Ethernet()
@@ -115,8 +115,8 @@ func lagLacpPartnerConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 	ip.Dst().SetValue(tc["rxIp"].(string))
 
 	udp := f1.Packet().Add().Udp()
-	udp.SrcPort().SetValue(tc["txUdpPort"].(int32))
-	udp.DstPort().SetValue(tc["rxUdpPort"].(int32))
+	udp.SrcPort().SetValue(tc["txUdpPort"].(uint32))
+	udp.DstPort().SetValue(tc["rxUdpPort"].(uint32))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
@@ -137,7 +137,7 @@ func lagLacpPartnerLacpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) boo
 }
 
 func lagLacpPartnerLagMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	minCount := int64(tc["pktCount"].(int32))
+	minCount := uint64(tc["pktCount"].(uint32))
 	for _, m := range api.GetLagMetrics() {
 		if m.OperStatus() != gosnappi.LagMetricOperStatus.UP {
 			return false

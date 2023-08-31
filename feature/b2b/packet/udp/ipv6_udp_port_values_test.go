@@ -11,15 +11,15 @@ import (
 
 func TestIpv6UdpPortValues(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":         int64(50),
-		"pktCount":        int32(100),
-		"pktSize":         int32(128),
+		"pktRate":         uint64(50),
+		"pktCount":        uint32(100),
+		"pktSize":         uint32(128),
 		"txMac":           "00:00:01:01:01:01",
 		"rxMac":           "00:00:01:01:01:02",
 		"txIp":            "2000::1",
 		"rxIp":            "2000::2",
-		"txUdpPortValues": []int32{5000, 5010, 5020, 5030},
-		"rxUdpPortValues": []int32{6000, 6010, 6020, 6030},
+		"txUdpPortValues": []uint32{5000, 5010, 5020, 5030},
+		"rxUdpPortValues": []uint32{6000, 6010, 6020, 6030},
 	}
 
 	api := otg.NewOtgApi(t)
@@ -61,9 +61,9 @@ func ipv6UdpPortValuesConfig(api *otg.OtgApi, tc map[string]interface{}) gosnapp
 	f1.TxRx().Port().
 		SetTxName(p1.Name()).
 		SetRxName(p2.Name())
-	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	f1.Rate().SetPps(tc["pktRate"].(int64))
-	f1.Size().SetFixed(tc["pktSize"].(int32))
+	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	f1.Rate().SetPps(tc["pktRate"].(uint64))
+	f1.Size().SetFixed(tc["pktSize"].(uint32))
 	f1.Metrics().SetEnable(true)
 
 	eth := f1.Packet().Add().Ethernet()
@@ -75,8 +75,8 @@ func ipv6UdpPortValuesConfig(api *otg.OtgApi, tc map[string]interface{}) gosnapp
 	ip.Dst().SetValue(tc["rxIp"].(string))
 
 	udp := f1.Packet().Add().Udp()
-	udp.SrcPort().SetValues(tc["txUdpPortValues"].([]int32))
-	udp.DstPort().SetValues(tc["rxUdpPortValues"].([]int32))
+	udp.SrcPort().SetValues(tc["txUdpPortValues"].([]uint32))
+	udp.DstPort().SetValues(tc["rxUdpPortValues"].([]uint32))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
@@ -84,7 +84,7 @@ func ipv6UdpPortValuesConfig(api *otg.OtgApi, tc map[string]interface{}) gosnapp
 
 func ipv6UdpPortValuesFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := int64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(uint32))
 
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&
@@ -96,8 +96,8 @@ func ipv6UdpPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[strin
 		return
 	}
 	ignoredCount := 0
-	txUdpPortValues := tc["txUdpPortValues"].([]int32)
-	rxUdpPortValues := tc["rxUdpPortValues"].([]int32)
+	txUdpPortValues := tc["txUdpPortValues"].([]uint32)
+	rxUdpPortValues := tc["rxUdpPortValues"].([]uint32)
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 
@@ -108,7 +108,7 @@ func ipv6UdpPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[strin
 			continue
 		}
 		// packet size
-		cPackets.ValidateSize(t, i, int(tc["pktSize"].(int32)))
+		cPackets.ValidateSize(t, i, int(tc["pktSize"].(uint32)))
 		// ethernet header
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet type", i, 12, api.Uint64ToBytes(34525, 2))
@@ -120,10 +120,10 @@ func ipv6UdpPortValuesCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[strin
 		j := i - ignoredCount
 		cPackets.ValidateField(t, "udp src", i, 54, api.Uint64ToBytes(uint64(txUdpPortValues[j%len(txUdpPortValues)]), 2))
 		cPackets.ValidateField(t, "udp dst", i, 56, api.Uint64ToBytes(uint64(rxUdpPortValues[j%len(rxUdpPortValues)]), 2))
-		cPackets.ValidateField(t, "udp length", i, 58, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-40), 2))
+		cPackets.ValidateField(t, "udp length", i, 58, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-4-40), 2))
 	}
 
-	expCount := int(tc["pktCount"].(int32))
+	expCount := int(tc["pktCount"].(uint32))
 	actCount := len(cPackets.Packets) - ignoredCount
 	if expCount != actCount {
 		t.Fatalf("ERROR: expCount %d != actCount %d\n", expCount, actCount)

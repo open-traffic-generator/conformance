@@ -14,9 +14,9 @@ func TestLldpNeighbors(t *testing.T) {
 	testConst := map[string]interface{}{
 		"txMac":       "00:00:01:01:01:01",
 		"rxMac":       "00:00:01:01:01:02",
-		"holdTime":    int32(120),
-		"advInterval": int32(5),
-		"pduCount":    int64(2),
+		"holdTime":    uint32(120),
+		"advInterval": uint32(5),
+		"pduCount":    uint64(2),
 	}
 
 	api := otg.NewOtgApi(t)
@@ -51,14 +51,14 @@ func lldpNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	lldpTx := c.Lldp().Add().SetName("lldpTx")
 	lldpRx := c.Lldp().Add().SetName("lldpRx")
 
-	lldpTx.SetHoldTime(tc["holdTime"].(int32))
-	lldpTx.SetAdvertisementInterval(tc["advInterval"].(int32))
+	lldpTx.SetHoldTime(tc["holdTime"].(uint32))
+	lldpTx.SetAdvertisementInterval(tc["advInterval"].(uint32))
 	lldpTx.Connection().SetPortName(ptx.Name())
 	lldpTx.ChassisId().MacAddressSubtype().
 		SetValue(tc["txMac"].(string))
 
-	lldpRx.SetHoldTime(tc["holdTime"].(int32))
-	lldpRx.SetAdvertisementInterval(tc["advInterval"].(int32))
+	lldpRx.SetHoldTime(tc["holdTime"].(uint32))
+	lldpRx.SetAdvertisementInterval(tc["advInterval"].(uint32))
 	lldpRx.Connection().SetPortName(prx.Name())
 	lldpRx.ChassisId().MacAddressSubtype().
 		SetValue(tc["rxMac"].(string))
@@ -71,7 +71,7 @@ func lldpNeighborsLldpMetricssOk(api *otg.OtgApi, tc map[string]interface{}) boo
 
 	for _, m := range api.GetLldpMetrics() {
 		// TODO: should be an equality check
-		if m.FramesTx() < tc["pduCount"].(int64) || m.FramesRx() < tc["pduCount"].(int64) {
+		if m.FramesTx() < tc["pduCount"].(uint64) || m.FramesRx() < tc["pduCount"].(uint64) {
 			return false
 		}
 
