@@ -13,21 +13,21 @@ import (
 func TestEbgpRoutePrefixPerf(t *testing.T) {
 
 	testConst := map[string]interface{}{
-		"pktRate":      int64(50),
-		"pktCount":     int32(100),
-		"pktSize":      int32(128),
+		"pktRate":      uint64(50),
+		"pktCount":     uint32(100),
+		"pktSize":      uint32(128),
 		"txMac":        "00:00:01:01:01:01",
 		"txIp":         "1.1.1.1",
 		"txGateway":    "1.1.1.2",
-		"txPrefix":     int32(24),
-		"txAs":         int32(1111),
+		"txPrefix":     uint32(24),
+		"txAs":         uint32(1111),
 		"rxMac":        "00:00:01:01:01:02",
 		"rxIp":         "1.1.1.2",
 		"rxGateway":    "1.1.1.1",
-		"rxPrefix":     int32(24),
-		"rxAs":         int32(1112),
-		"txRouteCount": int32(1),
-		"rxRouteCount": int32(1),
+		"rxPrefix":     uint32(24),
+		"rxAs":         uint32(1112),
+		"txRouteCount": uint32(1),
+		"rxRouteCount": uint32(1),
 		"txNextHopV4":  "1.1.1.3",
 		"txNextHopV6":  "::01:01:01:03",
 		"rxNextHopV4":  "1.1.1.4",
@@ -367,7 +367,7 @@ func ebgpRoutePrefixPerfBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{})
 }
 
 func ebgpRoutePrefixPerfFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := uint64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(uint32))
 
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||

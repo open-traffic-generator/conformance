@@ -106,7 +106,7 @@ func vxlanInnerIpv4Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi.C
 
 func vxlanInnerIpv4FlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := uint64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(uint32))
 
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&

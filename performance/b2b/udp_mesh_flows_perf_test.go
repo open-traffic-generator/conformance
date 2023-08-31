@@ -15,15 +15,15 @@ func TestUdpMeshFlowsPerf(t *testing.T) {
 	testConst := map[string]interface{}{
 		"flowCounts": []int{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048},
 		"flowCount":  1,
-		"pktRate":    int64(10),
-		"pktCount":   int32(10),
-		"pktSize":    int32(128),
+		"pktRate":    uint64(10),
+		"pktCount":   uint32(10),
+		"pktSize":    uint32(128),
 		"txMac":      "00:00:01:01:01:01",
 		"rxMac":      "00:00:01:01:01:02",
 		"txIp":       "1.1.1.1",
 		"rxIp":       "1.1.1.2",
-		"txUdpPort":  int32(5000),
-		"rxUdpPort":  int32(6000),
+		"txUdpPort":  uint32(5000),
+		"rxUdpPort":  uint32(6000),
 	}
 
 	distTables := []string{}
@@ -126,7 +126,7 @@ func udpMeshFlowsPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 }
 
 func udpHeaderPerfMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := uint64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(uint32))
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||
 			m.FramesTx() != pktCount ||

@@ -14,17 +14,17 @@ import (
 
 func TestUdpTputPerf(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktSizes":  []int32{64, 128, 256, 512, 1024, 1518},
+		"pktSizes":  []uint32{64, 128, 256, 512, 1024, 1518},
 		"lineRates": []float32{50, 100},
 		"lineRate":  float32(10),
-		"pktCount":  int32(1000000),
-		"pktSize":   int32(1518),
+		"pktCount":  uint32(1000000),
+		"pktSize":   uint32(1518),
 		"txMac":     "00:00:01:01:01:01",
 		"rxMac":     "00:00:01:01:01:02",
 		"txIp":      "1.1.1.1",
 		"rxIp":      "1.1.1.2",
-		"txUdpPort": int32(5000),
-		"rxUdpPort": int32(6000),
+		"txUdpPort": uint32(5000),
+		"rxUdpPort": uint32(6000),
 	}
 
 	metrics := otg.ThroughputMetrics{
@@ -104,7 +104,7 @@ func udpTputPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 }
 
 func udpTputPerfMetricsOk(api *otg.OtgApi, tc map[string]interface{}, tm *otg.ThroughputMetric) bool {
-	pktCount := uint64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(uint32))
 	for _, m := range api.GetFlowMetrics() {
 		tm.AddPpsSnapshot(uint64(m.FramesTx()), int(m.FramesTxRate()))
 
