@@ -16,13 +16,13 @@ func TestLagLacpPartner(t *testing.T) {
 		"rxMac":      "00:00:01:01:01:02",
 		"txSystemId": "01:01:01:01:01:01",
 		"rxSystemId": "02:02:02:02:02:02",
-		"pktRate":    int64(50),
-		"pktCount":   int32(100),
-		"pktSize":    int32(128),
+		"pktRate":    uint64(50),
+		"pktCount":   uint32(100),
+		"pktSize":    uint32(128),
 		"txIp":       "1.1.1.1",
 		"rxIp":       "1.1.1.2",
-		"txUdpPort":  int32(5000),
-		"rxUdpPort":  int32(6000),
+		"txUdpPort":  uint32(5000),
+		"rxUdpPort":  uint32(6000),
 	}
 
 	api := otg.NewOtgApi(t)
@@ -137,7 +137,7 @@ func lagLacpPartnerLacpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) boo
 }
 
 func lagLacpPartnerLagMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	minCount := uint64(tc["pktCount"].(int32))
+	minCount := uint64(tc["pktCount"].(uint32))
 	for _, m := range api.GetLagMetrics() {
 		if m.OperStatus() != gosnappi.LagMetricOperStatus.UP {
 			return false

@@ -94,7 +94,7 @@ func udpPortIncrDecrConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 func udpPortIncrDecrFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := uint64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(uint16))
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&
 		m.FramesRx() == expCount
@@ -105,12 +105,12 @@ func udpPortIncrDecrCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]
 		return
 	}
 	ignoredCount := 0
-	txStart := tc["txUdpPortStart"].(int32)
-	txStep := tc["txUdpPortStep"].(int32)
-	txCount := tc["txUdpPortCount"].(int32)
-	rxStart := tc["rxUdpPortStart"].(int32)
-	rxStep := tc["rxUdpPortStep"].(int32)
-	rxCount := tc["rxUdpPortCount"].(int32)
+	txStart := tc["txUdpPortStart"].(uint32)
+	txStep := tc["txUdpPortStep"].(uint32)
+	txCount := tc["txUdpPortCount"].(uint32)
+	rxStart := tc["rxUdpPortStart"].(uint32)
+	rxStep := tc["rxUdpPortStep"].(uint32)
+	rxCount := tc["rxUdpPortCount"].(uint32)
 	cPackets := api.GetCapture(c.Ports().Items()[1].Name())
 	t := api.Testing()
 
@@ -121,23 +121,23 @@ func udpPortIncrDecrCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]
 			continue
 		}
 		// packet size
-		cPackets.ValidateSize(t, i, int(tc["pktSize"].(int32)))
+		cPackets.ValidateSize(t, i, int(tc["pktSize"].(uint32)))
 		// ethernet header
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet type", i, 12, api.Uint64ToBytes(2048, 2))
 		// ipv4 header
-		cPackets.ValidateField(t, "ipv4 total length", i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4), 2))
+		cPackets.ValidateField(t, "ipv4 total length", i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-4), 2))
 		cPackets.ValidateField(t, "ipv4 protocol", i, 23, api.Uint64ToBytes(17, 1))
 		cPackets.ValidateField(t, "ipv4 src", i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv4 dst", i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// udp header
-		j := int32(i - ignoredCount)
+		j := uint32(i - ignoredCount)
 		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(txStart+(j%txCount)*txStep), 2))
 		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(rxStart-(j%rxCount)*rxStep), 2))
-		cPackets.ValidateField(t, "udp length", i, 38, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-20), 2))
+		cPackets.ValidateField(t, "udp length", i, 38, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-4-20), 2))
 	}
 
-	expCount := int(tc["pktCount"].(int32))
+	expCount := int(tc["pktCount"].(uint32))
 	actCount := len(cPackets.Packets) - ignoredCount
 	if expCount != actCount {
 		t.Fatalf("ERROR: expCount %d != actCount %d\n", expCount, actCount)

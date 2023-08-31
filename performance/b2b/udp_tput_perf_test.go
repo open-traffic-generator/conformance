@@ -40,7 +40,7 @@ func TestUdpTputPerf(t *testing.T) {
 			t.Logf("Test: %d pktSize, %f lineRate\n", size, rate)
 
 			tm := otg.NewThroughputMetric(
-				api.Layer1SpeedToMpbs(api.TestConfig().OtgSpeed), rate, uint64(testConst["pktCount"].(int32)), int(size),
+				api.Layer1SpeedToMpbs(api.TestConfig().OtgSpeed), rate, uint64(testConst["pktCount"].(uint32)), int(size),
 			)
 			c := udpTputPerfConfig(api, testConst)
 

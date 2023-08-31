@@ -14,9 +14,9 @@ func TestLldpNeighbors(t *testing.T) {
 	testConst := map[string]interface{}{
 		"txMac":       "00:00:01:01:01:01",
 		"rxMac":       "00:00:01:01:01:02",
-		"holdTime":    int32(120),
-		"advInterval": int32(5),
-		"pduCount":    int64(2),
+		"holdTime":    uint32(120),
+		"advInterval": uint32(5),
+		"pduCount":    uint64(2),
 	}
 
 	api := otg.NewOtgApi(t)

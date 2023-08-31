@@ -129,19 +129,19 @@ func vxlanInnerIpv4CaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]i
 			continue
 		}
 		// packet size
-		cPackets.ValidateSize(t, i, int(tc["pktSize"].(int32)))
+		cPackets.ValidateSize(t, i, int(tc["pktSize"].(uint32)))
 		// ethernet header
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet type", i, 12, api.Uint64ToBytes(34525, 2))
 		// ipv6 header
-		cPackets.ValidateField(t, "ipv6 payload length", i, 18, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-40-4), 2))
+		cPackets.ValidateField(t, "ipv6 payload length", i, 18, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-40-4), 2))
 		cPackets.ValidateField(t, "ipv6 next header", i, 20, api.Uint64ToBytes(17, 1))
 		cPackets.ValidateField(t, "ipv6 src", i, 22, api.Ipv6AddrToBytes(tc["txIpv6"].(string)))
 		cPackets.ValidateField(t, "ipv6 dst", i, 38, api.Ipv6AddrToBytes(tc["rxIpv6"].(string)))
 		// udp header
-		cPackets.ValidateField(t, "udp src", i, 54, api.Uint64ToBytes(uint64(tc["txUdpPortValue"].(int32)), 2))
-		cPackets.ValidateField(t, "udp dst", i, 56, api.Uint64ToBytes(uint64(tc["rxUdpPortValue"].(int32)), 2))
-		cPackets.ValidateField(t, "udp length", i, 58, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-40), 2))
+		cPackets.ValidateField(t, "udp src", i, 54, api.Uint64ToBytes(uint64(tc["txUdpPortValue"].(uint32)), 2))
+		cPackets.ValidateField(t, "udp dst", i, 56, api.Uint64ToBytes(uint64(tc["rxUdpPortValue"].(uint32)), 2))
+		cPackets.ValidateField(t, "udp length", i, 58, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-4-40), 2))
 		// vxlan header
 		j := i - ignoredCount
 		cPackets.ValidateField(t, "vxlan Network Identifier", i, 66, api.Uint64ToBytes(uint64(vxLanVniValues[j%len(vxLanVniValues)]), 3))
@@ -149,17 +149,17 @@ func vxlanInnerIpv4CaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]i
 		cPackets.ValidateField(t, "ethernet dst", i, 70, api.MacAddrToBytes(tc["innerRxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet type", i, 82, api.Uint64ToBytes(2048, 2))
 		// inner ipv4 header
-		cPackets.ValidateField(t, "ipv4 total length", i, 86, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-40-8-8-14-4), 2))
+		cPackets.ValidateField(t, "ipv4 total length", i, 86, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-4-40-8-8-14-4), 2))
 		cPackets.ValidateField(t, "ipv4 protocol", i, 93, api.Uint64ToBytes(6, 1))
 		cPackets.ValidateField(t, "ipv6 src", i, 96, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv6 dst", i, 100, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// inner tcp header
-		cPackets.ValidateField(t, "tcp src", i, 104, api.Uint64ToBytes(uint64(tc["txTcpPortValue"].(int32)), 2))
-		cPackets.ValidateField(t, "tcp dst", i, 106, api.Uint64ToBytes(uint64(tc["rxTcpPortValue"].(int32)), 2))
+		cPackets.ValidateField(t, "tcp src", i, 104, api.Uint64ToBytes(uint64(tc["txTcpPortValue"].(uint32)), 2))
+		cPackets.ValidateField(t, "tcp dst", i, 106, api.Uint64ToBytes(uint64(tc["rxTcpPortValue"].(uint32)), 2))
 
 	}
 
-	expCount := int(tc["pktCount"].(int32))
+	expCount := int(tc["pktCount"].(uint32))
 	actCount := len(cPackets.Packets) - ignoredCount
 	if expCount != actCount {
 		t.Fatalf("ERROR: expCount %d != actCount %d\n", expCount, actCount)

@@ -16,17 +16,17 @@ import (
 func TestIpNeighborsOc(t *testing.T) {
 
 	testConst := map[string]interface{}{
-		"pktRate":   int64(50),
-		"pktCount":  int32(100),
-		"pktSize":   int32(128),
+		"pktRate":   uint64(50),
+		"pktCount":  uint32(100),
+		"pktSize":   uint32(128),
 		"txMac":     "00:00:01:01:01:01",
 		"txIp":      "1.1.1.1",
 		"txGateway": "1.1.1.2",
-		"txPrefix":  int32(24),
+		"txPrefix":  uint32(24),
 		"rxMac":     "00:00:01:01:01:02",
 		"rxIp":      "2.2.2.1",
 		"rxGateway": "2.2.2.2",
-		"rxPrefix":  int32(24),
+		"rxPrefix":  uint32(24),
 	}
 
 	api := otg.NewOtgApi(t)
@@ -64,7 +64,7 @@ func ipNeighborsOcDutConfig(api *otg.OtgApi, tc map[string]interface{}) func() {
 			dc.Interfaces[0],
 			"DUT ifc connected to OTG tx",
 			tc["txGateway"].(string),
-			uint8(tc["txPrefix"].(int32)),
+			uint8(tc["txPrefix"].(uint32)),
 		)
 
 		wg.Done()
@@ -78,7 +78,7 @@ func ipNeighborsOcDutConfig(api *otg.OtgApi, tc map[string]interface{}) func() {
 			dc.Interfaces[1],
 			"DUT ifc connected to OTG rx",
 			tc["rxGateway"].(string),
-			uint8(tc["rxPrefix"].(int32)),
+			uint8(tc["rxPrefix"].(uint32)),
 		)
 
 		wg.Done()
@@ -208,7 +208,7 @@ func ipNeighborsOcConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 }
 
 func ipNeighborsOcFlowMetricsOcOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := uint64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(uint32))
 
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||

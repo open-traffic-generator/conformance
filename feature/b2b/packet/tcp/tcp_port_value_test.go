@@ -84,7 +84,7 @@ func tcpPortValueConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 
 func tcpPortValueFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := uint64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(uint32))
 
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&
@@ -106,22 +106,22 @@ func tcpPortValueCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]int
 			continue
 		}
 		// packet size
-		cPackets.ValidateSize(t, i, int(tc["pktSize"].(int32)))
+		cPackets.ValidateSize(t, i, int(tc["pktSize"].(uint32)))
 		// ethernet header
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet type", i, 12, api.Uint64ToBytes(2048, 2))
 		// ipv4 header
-		cPackets.ValidateField(t, "ipv4 total length", i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4), 2))
+		cPackets.ValidateField(t, "ipv4 total length", i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-4), 2))
 		cPackets.ValidateField(t, "ipv4 protocol", i, 23, api.Uint64ToBytes(6, 1))
 		cPackets.ValidateField(t, "ipv4 src", i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv4 dst", i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// tcp header
-		cPackets.ValidateField(t, "tcp src", i, 34, api.Uint64ToBytes(uint64(tc["txTcpPort"].(int32)), 2))
-		cPackets.ValidateField(t, "tcp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxTcpPort"].(int32)), 2))
+		cPackets.ValidateField(t, "tcp src", i, 34, api.Uint64ToBytes(uint64(tc["txTcpPort"].(uint32)), 2))
+		cPackets.ValidateField(t, "tcp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxTcpPort"].(uint32)), 2))
 		cPackets.ValidateField(t, "tcp data offset", i, 46, api.Uint64ToBytes(uint64(80), 1))
 	}
 
-	expCount := int(tc["pktCount"].(int32))
+	expCount := int(tc["pktCount"].(uint32))
 	actCount := len(cPackets.Packets) - ignoredCount
 	if expCount != actCount {
 		t.Fatalf("ERROR: expCount %d != actCount %d\n", expCount, actCount)

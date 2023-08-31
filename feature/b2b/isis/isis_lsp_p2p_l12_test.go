@@ -14,29 +14,29 @@ import (
 func TestIsisLspP2pL12(t *testing.T) {
 
 	testConst := map[string]interface{}{
-		"pktRate":           int64(50),
-		"pktCount":          int32(100),
-		"pktSize":           int32(128),
+		"pktRate":           uint64(50),
+		"pktCount":          uint32(100),
+		"pktSize":           uint32(128),
 		"txMac":             "00:00:01:01:01:01",
 		"txIp":              "1.1.1.1",
 		"txGateway":         "1.1.1.2",
-		"txPrefix":          int32(24),
+		"txPrefix":          uint32(24),
 		"txIpv6":            "1100::1",
 		"txv6Gateway":       "1100::2",
-		"txv6Prefix":        int32(64),
+		"txv6Prefix":        uint32(64),
 		"txIsisSystemId":    "640000000001",
 		"txIsisAreaAddress": []string{"490001"},
 		"rxMac":             "00:00:01:01:01:02",
 		"rxIp":              "1.1.1.2",
 		"rxGateway":         "1.1.1.1",
-		"rxPrefix":          int32(24),
+		"rxPrefix":          uint32(24),
 		"rxIpv6":            "1100::2",
 		"rxv6Gateway":       "1100::1",
-		"rxv6Prefix":        int32(64),
+		"rxv6Prefix":        uint32(64),
 		"rxIsisSystemId":    "650000000001",
 		"rxIsisAreaAddress": []string{"490001"},
-		"txRouteCount":      int32(1),
-		"rxRouteCount":      int32(1),
+		"txRouteCount":      uint32(1),
+		"rxRouteCount":      uint32(1),
 		"txAdvRouteV4":      "10.10.10.1",
 		"rxAdvRouteV4":      "20.20.20.1",
 		"txAdvRouteV6":      "::10:10:10:01",
@@ -334,7 +334,7 @@ func isisLspP2pL12MetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 }
 
 func isisLspP2pL12FlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := uint64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(uint32))
 
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||
