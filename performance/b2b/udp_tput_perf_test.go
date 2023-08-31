@@ -34,7 +34,7 @@ func TestUdpTputPerf(t *testing.T) {
 	api := otg.NewOtgApi(t)
 
 	for _, rate := range testConst["lineRates"].([]float32) {
-		for _, size := range testConst["pktSizes"].([]int32) {
+		for _, size := range testConst["pktSizes"].([]uint32) {
 			testConst["pktSize"] = size
 			testConst["lineRate"] = rate
 			t.Logf("Test: %d pktSize, %f lineRate\n", size, rate)

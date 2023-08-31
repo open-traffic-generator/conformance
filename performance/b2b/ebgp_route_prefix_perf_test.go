@@ -358,8 +358,8 @@ func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosna
 func ebgpRoutePrefixPerfBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	for _, m := range api.GetBgpv4Metrics() {
 		if m.SessionState() == gosnappi.Bgpv4MetricSessionState.DOWN ||
-			m.RoutesAdvertised() != 2*tc["txRouteCount"].(uint64) ||
-			m.RoutesReceived() != 2*tc["rxRouteCount"].(uint64) {
+			m.RoutesAdvertised() != 2*uint64(tc["txRouteCount"].(uint32)) ||
+			m.RoutesReceived() != 2*uint64(tc["rxRouteCount"].(uint32)) {
 			return false
 		}
 	}
