@@ -14,17 +14,17 @@ import (
 func TestIpNeighbors(t *testing.T) {
 
 	testConst := map[string]interface{}{
-		"pktRate":   int64(50),
-		"pktCount":  int32(100),
-		"pktSize":   int32(128),
+		"pktRate":   uint64(50),
+		"pktCount":  uint32(100),
+		"pktSize":   uint32(128),
 		"txMac":     "00:00:01:01:01:01",
 		"txIp":      "1.1.1.1",
 		"txGateway": "1.1.1.2",
-		"txPrefix":  int32(24),
+		"txPrefix":  uint32(24),
 		"rxMac":     "00:00:01:01:01:02",
 		"rxIp":      "2.2.2.1",
 		"rxGateway": "2.2.2.2",
-		"rxPrefix":  int32(24),
+		"rxPrefix":  uint32(24),
 	}
 
 	api := otg.NewOtgApi(t)
@@ -63,10 +63,10 @@ func ipNeighborsDutConfig(api *otg.OtgApi, tc map[string]interface{}) func() {
 	`,
 		dc.Interfaces[0],
 		tc["txGateway"].(string),
-		tc["txPrefix"].(int32),
+		tc["txPrefix"].(uint32),
 		dc.Interfaces[1],
 		tc["rxGateway"].(string),
-		tc["rxPrefix"].(int32),
+		tc["rxPrefix"].(uint32),
 	)
 
 	unsetCfg := fmt.Sprintf(`
@@ -112,7 +112,7 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		SetName("dtxIp").
 		SetAddress(tc["txIp"].(string)).
 		SetGateway(tc["txGateway"].(string)).
-		SetPrefix(tc["txPrefix"].(int32))
+		SetPrefix(tc["txPrefix"].(uint32))
 
 	drxEth := drx.Ethernets().
 		Add().
@@ -128,13 +128,13 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		SetName("drxIp").
 		SetAddress(tc["rxIp"].(string)).
 		SetGateway(tc["rxGateway"].(string)).
-		SetPrefix(tc["rxPrefix"].(int32))
+		SetPrefix(tc["rxPrefix"].(uint32))
 
 	flow := c.Flows().Add()
 	flow.SetName("ftxV4")
-	flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	flow.Rate().SetPps(tc["pktRate"].(int64))
-	flow.Size().SetFixed(tc["pktSize"].(int32))
+	flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	flow.Rate().SetPps(tc["pktRate"].(uint64))
+	flow.Size().SetFixed(tc["pktSize"].(uint32))
 	flow.Metrics().SetEnable(true)
 
 	flow.TxRx().Device().
@@ -153,7 +153,7 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 }
 
 func ipNeighborsFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := int64(tc["pktCount"].(int32))
+	pktCount := uint64(tc["pktCount"].(uint32))
 
 	for _, m := range api.GetFlowMetrics() {
 		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||

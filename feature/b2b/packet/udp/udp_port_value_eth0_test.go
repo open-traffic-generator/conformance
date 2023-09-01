@@ -11,9 +11,9 @@ import (
 
 func TestUdpPortValueEth0(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":    int64(50),
-		"pktCount":   int32(100),
-		"pktSize":    int32(128),
+		"pktRate":    uint64(50),
+		"pktCount":   uint32(100),
+		"pktSize":    uint32(128),
 		"txMac":      "00:00:01:01:01:01",
 		"rxMac":      "00:00:01:01:01:02",
 		"gatewayMac": "00:00:01:01:01:02",
@@ -63,9 +63,9 @@ func udpPortValueEth0Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 	f1.TxRx().Port().
 		SetTxName(p1.Name()).
 		SetRxName(p2.Name())
-	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(int32))
-	f1.Rate().SetPps(tc["pktRate"].(int64))
-	f1.Size().SetFixed(tc["pktSize"].(int32))
+	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+	f1.Rate().SetPps(tc["pktRate"].(uint64))
+	f1.Size().SetFixed(tc["pktSize"].(uint32))
 	f1.Metrics().SetEnable(true)
 
 	eth := f1.Packet().Add().Ethernet()
@@ -77,8 +77,8 @@ func udpPortValueEth0Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 	ip.Dst().SetValue(tc["rxIp"].(string))
 
 	udp := f1.Packet().Add().Udp()
-	udp.SrcPort().SetValue(int32(tc["txUdpPort"].(int)))
-	udp.DstPort().SetValue(int32(tc["rxUdpPort"].(int)))
+	udp.SrcPort().SetValue(uint32(tc["txUdpPort"].(int)))
+	udp.DstPort().SetValue(uint32(tc["rxUdpPort"].(int)))
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
@@ -86,7 +86,7 @@ func udpPortValueEth0Config(api *otg.OtgApi, tc map[string]interface{}) gosnappi
 
 func udpPortValueEth0FlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	m := api.GetFlowMetrics()[0]
-	expCount := int64(tc["pktCount"].(int32))
+	expCount := uint64(tc["pktCount"].(uint32))
 	// TODO: check why Tx/Rx ends up having more than expected frame count
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() >= expCount &&
@@ -108,22 +108,22 @@ func udpPortValueEth0CaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string
 			continue
 		}
 		// packet size
-		cPackets.ValidateSize(t, i, int(tc["pktSize"].(int32)))
+		cPackets.ValidateSize(t, i, int(tc["pktSize"].(uint32)))
 		// ethernet header (ignore source mac since we don't know the value for multiple hops)
 		cPackets.ValidateField(t, "ethernet dst", i, 0, api.MacAddrToBytes(tc["rxMac"].(string)))
 		cPackets.ValidateField(t, "ethernet type", i, 12, api.Uint64ToBytes(2048, 2))
 		// ipv4 header
-		cPackets.ValidateField(t, "ipv4 total length", i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4), 2))
+		cPackets.ValidateField(t, "ipv4 total length", i, 16, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-4), 2))
 		cPackets.ValidateField(t, "ipv4 protocol", i, 23, api.Uint64ToBytes(17, 1))
 		cPackets.ValidateField(t, "ipv4 src", i, 26, api.Ipv4AddrToBytes(tc["txIp"].(string)))
 		cPackets.ValidateField(t, "ipv4 dst", i, 30, api.Ipv4AddrToBytes(tc["rxIp"].(string)))
 		// udp header
 		cPackets.ValidateField(t, "udp src", i, 34, api.Uint64ToBytes(uint64(tc["txUdpPort"].(int)), 2))
 		cPackets.ValidateField(t, "udp dst", i, 36, api.Uint64ToBytes(uint64(tc["rxUdpPort"].(int)), 2))
-		cPackets.ValidateField(t, "udp length", i, 38, api.Uint64ToBytes(uint64(tc["pktSize"].(int32)-14-4-20), 2))
+		cPackets.ValidateField(t, "udp length", i, 38, api.Uint64ToBytes(uint64(tc["pktSize"].(uint32)-14-4-20), 2))
 	}
 
-	expCount := int(tc["pktCount"].(int32))
+	expCount := int(tc["pktCount"].(uint32))
 	actCount := len(cPackets.Packets) - ignoredCount
 	if expCount != actCount {
 		t.Fatalf("ERROR: expCount %d != actCount %d\n", expCount, actCount)
