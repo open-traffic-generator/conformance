@@ -3,6 +3,7 @@ package otg
 import (
 	"fmt"
 	"time"
+	"log"
 
 	"github.com/open-traffic-generator/conformance/helpers/table"
 	"github.com/open-traffic-generator/snappi/gosnappi"
@@ -58,6 +59,7 @@ func (o *OtgApi) GetBgpPrefixes() []gosnappi.BgpPrefixesState {
 	sr := api.NewStatesRequest()
 	sr.BgpPrefixes()
 	res, err := api.GetStates(sr)
+	log.Println(res)
 	o.LogWrnErr(nil, err, true)
 
 	tb := table.NewTable(
@@ -68,6 +70,8 @@ func (o *OtgApi) GetBgpPrefixes() []gosnappi.BgpPrefixesState {
 			"IPv4 Next Hop",
 			"IPv6 Address",
 			"IPv6 Next Hop",
+			"MED",
+			"Local Preference",
 		},
 		20,
 	)
@@ -84,6 +88,19 @@ func (o *OtgApi) GetBgpPrefixes() []gosnappi.BgpPrefixesState {
 			} else {
 				row = append(row, "")
 			}
+
+			if w.HasMultiExitDiscriminator() {
+				row = append(row, w.MultiExitDiscriminator())
+			} else {
+				row = append(row, "")
+			}
+
+			if w.HasLocalPreference() {
+				row = append(row, w.LocalPreference())
+			} else {
+				row = append(row, "")
+			}
+
 			tb.AppendRow(row)
 		}
 		for _, w := range v.Ipv6UnicastPrefixes().Items() {
@@ -94,8 +111,19 @@ func (o *OtgApi) GetBgpPrefixes() []gosnappi.BgpPrefixesState {
 			} else {
 				row = append(row, "")
 			}
-
 			row = append(row, fmt.Sprintf("%s/%d", w.Ipv6Address(), w.PrefixLength()), w.Ipv6NextHop())
+
+			if w.HasMultiExitDiscriminator() {
+				row = append(row, w.MultiExitDiscriminator())
+			} else {
+				row = append(row, "")
+			}
+
+			if w.HasLocalPreference() {
+				row = append(row, w.LocalPreference())
+			} else {
+				row = append(row, "")
+			}
 			tb.AppendRow(row)
 		}
 	}

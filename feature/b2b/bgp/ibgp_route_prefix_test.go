@@ -9,17 +9,19 @@ import (
 	"github.com/open-traffic-generator/snappi/gosnappi"
 )
 
-/* Demonstrates advertisement , storage and retrieval of BGP 
-   routes with attributes such as AS Path, Ext. Community, MED.
-   eBGP sessions do not advertise Local Preference so iBGP test should be 
-   used to verify Local Preference behaviour */
+/* Demonstrates advertisement , storage and retrieval of BGP
+   routes with attributes such as AS Path, Ext. Community, MED and Local Preference .
+   Note that iBGP requires
+   a)AS numbers to be identical on both sides,
+   b) AS Path should NOT be included in Routes containing own AS Path ( to avoid AS Loop),
+   c) Local Preference is supported attribute for iBGP sessions
+   Flows are excluded in this example to simplify the test.
+   For configuration and access of flow stats refer to ebgp_route_prefix_test.go and flow
+   configuration and verification is identical for iBGP and eBGP tests.
+*/
 
-func TestEbgpRoutePrefix(t *testing.T) {
-	// TODO: add support for BGP for IPv6 as well
+func TestIbgpRoutePrefix(t *testing.T) {
 	testConst := map[string]interface{}{
-		"pktRate":      uint64(50),
-		"pktCount":     uint32(100),
-		"pktSize":      uint32(128),
 		"txMac":        "00:00:01:01:01:01",
 		"txIp":         "1.1.1.1",
 		"txGateway":    "1.1.1.2",
@@ -29,7 +31,7 @@ func TestEbgpRoutePrefix(t *testing.T) {
 		"rxIp":         "1.1.1.2",
 		"rxGateway":    "1.1.1.1",
 		"rxPrefix":     uint32(24),
-		"rxAs":         uint32(1112),
+		"rxAs":         uint32(1111),
 		"txRouteCount": uint32(1),
 		"rxRouteCount": uint32(1),
 		"txNextHopV4":  "1.1.1.3",
@@ -43,7 +45,7 @@ func TestEbgpRoutePrefix(t *testing.T) {
 	}
 
 	api := otg.NewOtgApi(t)
-	c := ebgpRoutePrefixConfig(api, testConst)
+	c := ibgpRoutePrefixConfig(api, testConst)
 
 	api.SetConfig(c)
 
@@ -51,26 +53,18 @@ func TestEbgpRoutePrefix(t *testing.T) {
 
 	/* Check if BGP sessions are up and expected routes are Txed and Rxed */
 	api.WaitFor(
-		func() bool { return ebgpRoutePrefixBgpMetricsOk(api, testConst) },
+		func() bool { return ibgpRoutePrefixBgpMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForBgpv4Metrics"},
 	)
 
 	/* Check if each BGP session recieved routes with expected attributes */
 	api.WaitFor(
-		func() bool { return ebgpRoutePrefixBgpPrefixesOk(api, testConst) },
+		func() bool { return ibgpRoutePrefixBgpPrefixesOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForBgpRoutePrefixes"},
-	)
-
-	api.StartTransmit()
-
-	/* Check if traffic Rx and Tx stats are as expected (fixed pkt count) */
-	api.WaitFor(
-		func() bool { return ebgpRoutePrefixFlowMetricsOk(api, testConst) },
-		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
 }
 
-func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
+func ibgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := api.Api().NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
@@ -111,7 +105,7 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 		Peers().
 		Add().
 		SetAsNumber(tc["txAs"].(uint32)).
-		SetAsType(gosnappi.BgpV4PeerAsType.EBGP).
+		SetAsType(gosnappi.BgpV4PeerAsType.IBGP).
 		SetPeerAddress(tc["txGateway"].(string)).
 		SetName("dtxBgpv4Peer")
 
@@ -120,8 +114,8 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 	dtxBgpv4PeerRrV4 := dtxBgpv4Peer.
 		V4Routes().
 		Add().
-		SetNextHopIpv4Address(tc["txNextHopV4"].(string)).
 		SetName("dtxBgpv4PeerRrV4").
+		SetNextHopIpv4Address(tc["txNextHopV4"].(string)).
 		SetNextHopAddressType(gosnappi.BgpV4RouteRangeNextHopAddressType.IPV4).
 		SetNextHopMode(gosnappi.BgpV4RouteRangeNextHopMode.MANUAL)
 
@@ -133,6 +127,7 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 	dtxBgpv4PeerRrV4.Advanced().
 		SetMultiExitDiscriminator(50).
+		SetLocalPreference(100).
 		SetOrigin(gosnappi.BgpRouteAdvancedOrigin.EGP)
 
 	dtxBgpv4PeerRrV4.Communities().Add().
@@ -140,18 +135,11 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 		SetAsCustom(2).
 		SetType(gosnappi.BgpCommunityType.MANUAL_AS_NUMBER)
 
-	dtxBgpv4PeerRrV4AsPath := dtxBgpv4PeerRrV4.AsPath().
-		SetAsSetMode(gosnappi.BgpAsPathAsSetMode.INCLUDE_AS_SET)
-
-	dtxBgpv4PeerRrV4AsPath.Segments().Add().
-		SetAsNumbers([]uint32{1112, 1113}).
-		SetType(gosnappi.BgpAsPathSegmentType.AS_SEQ)
-
 	dtxBgpv4PeerRrV6 := dtxBgpv4Peer.
 		V6Routes().
 		Add().
-		SetNextHopIpv6Address(tc["txNextHopV6"].(string)).
 		SetName("dtxBgpv4PeerRrV6").
+		SetNextHopIpv6Address(tc["txNextHopV6"].(string)).
 		SetNextHopAddressType(gosnappi.BgpV6RouteRangeNextHopAddressType.IPV6).
 		SetNextHopMode(gosnappi.BgpV6RouteRangeNextHopMode.MANUAL)
 
@@ -163,19 +151,13 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 	dtxBgpv4PeerRrV6.Advanced().
 		SetMultiExitDiscriminator(50).
+		SetLocalPreference(100).
 		SetOrigin(gosnappi.BgpRouteAdvancedOrigin.EGP)
 
 	dtxBgpv4PeerRrV6.Communities().Add().
 		SetAsNumber(1).
 		SetAsCustom(2).
 		SetType(gosnappi.BgpCommunityType.MANUAL_AS_NUMBER)
-
-	dtxBgpv4PeerRrV6AsPath := dtxBgpv4PeerRrV6.AsPath().
-		SetAsSetMode(gosnappi.BgpAsPathAsSetMode.INCLUDE_AS_SET)
-
-	dtxBgpv4PeerRrV6AsPath.Segments().Add().
-		SetAsNumbers([]uint32{1112, 1113}).
-		SetType(gosnappi.BgpAsPathSegmentType.AS_SEQ)
 
 	drxEth := drx.Ethernets().
 		Add().
@@ -204,7 +186,7 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 		Peers().
 		Add().
 		SetAsNumber(tc["rxAs"].(uint32)).
-		SetAsType(gosnappi.BgpV4PeerAsType.EBGP).
+		SetAsType(gosnappi.BgpV4PeerAsType.IBGP).
 		SetPeerAddress(tc["rxGateway"].(string)).
 		SetName("drxBgpv4Peer")
 
@@ -213,8 +195,8 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 	drxBgpv4PeerRrV4 := drxBgpv4Peer.
 		V4Routes().
 		Add().
-		SetNextHopIpv4Address(tc["rxNextHopV4"].(string)).
 		SetName("drxBgpv4PeerRrV4").
+		SetNextHopIpv4Address(tc["rxNextHopV4"].(string)).
 		SetNextHopAddressType(gosnappi.BgpV4RouteRangeNextHopAddressType.IPV4).
 		SetNextHopMode(gosnappi.BgpV4RouteRangeNextHopMode.MANUAL)
 
@@ -233,18 +215,11 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 		SetAsCustom(2).
 		SetType(gosnappi.BgpCommunityType.MANUAL_AS_NUMBER)
 
-	drxBgpv4PeerRrV4AsPath := drxBgpv4PeerRrV4.AsPath().
-		SetAsSetMode(gosnappi.BgpAsPathAsSetMode.INCLUDE_AS_SET)
-
-	drxBgpv4PeerRrV4AsPath.Segments().Add().
-		SetAsNumbers([]uint32{4444}).
-		SetType(gosnappi.BgpAsPathSegmentType.AS_SEQ)
-
 	drxBgpv4PeerRrV6 := drxBgpv4Peer.
 		V6Routes().
 		Add().
-		SetNextHopIpv6Address(tc["rxNextHopV6"].(string)).
 		SetName("drxBgpv4PeerRrV6").
+		SetNextHopIpv6Address(tc["rxNextHopV6"].(string)).
 		SetNextHopAddressType(gosnappi.BgpV6RouteRangeNextHopAddressType.IPV6).
 		SetNextHopMode(gosnappi.BgpV6RouteRangeNextHopMode.MANUAL)
 
@@ -256,6 +231,7 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 
 	drxBgpv4PeerRrV6.Advanced().
 		SetMultiExitDiscriminator(50).
+		SetLocalPreference(100).
 		SetOrigin(gosnappi.BgpRouteAdvancedOrigin.EGP)
 
 	drxBgpv4PeerRrV6.Communities().Add().
@@ -263,94 +239,11 @@ func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.
 		SetAsCustom(2).
 		SetType(gosnappi.BgpCommunityType.MANUAL_AS_NUMBER)
 
-	drxBgpv4PeerRrV6AsPath := drxBgpv4PeerRrV6.AsPath().
-		SetAsSetMode(gosnappi.BgpAsPathAsSetMode.INCLUDE_AS_SET)
-
-	drxBgpv4PeerRrV6AsPath.Segments().Add().
-		SetAsNumbers([]uint32{4444}).
-		SetType(gosnappi.BgpAsPathSegmentType.AS_SEQ)
-
-	for i := 1; i <= 4; i++ {
-		flow := c.Flows().Add()
-		flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
-		flow.Rate().SetPps(tc["pktRate"].(uint64))
-		flow.Size().SetFixed(tc["pktSize"].(uint32))
-		flow.Metrics().SetEnable(true)
-	}
-
-	ftxV4 := c.Flows().Items()[0]
-	ftxV4.SetName("ftxV4")
-	ftxV4.TxRx().Device().
-		SetTxNames([]string{dtxBgpv4PeerRrV4.Name()}).
-		SetRxNames([]string{drxBgpv4PeerRrV4.Name()})
-
-	ftxV4Eth := ftxV4.Packet().Add().Ethernet()
-	ftxV4Eth.Src().SetValue(dtxEth.Mac())
-
-	ftxV4Ip := ftxV4.Packet().Add().Ipv4()
-	ftxV4Ip.Src().SetValue(tc["txAdvRouteV4"].(string))
-	ftxV4Ip.Dst().SetValue(tc["rxAdvRouteV4"].(string))
-
-	ftxV4Tcp := ftxV4.Packet().Add().Tcp()
-	ftxV4Tcp.SrcPort().SetValue(5000)
-	ftxV4Tcp.DstPort().SetValue(6000)
-
-	ftxV6 := c.Flows().Items()[1]
-	ftxV6.SetName("ftxV6")
-	ftxV6.TxRx().Device().
-		SetTxNames([]string{dtxBgpv4PeerRrV6.Name()}).
-		SetRxNames([]string{drxBgpv4PeerRrV6.Name()})
-
-	ftxV6Eth := ftxV6.Packet().Add().Ethernet()
-	ftxV6Eth.Src().SetValue(dtxEth.Mac())
-
-	ftxV6Ip := ftxV6.Packet().Add().Ipv6()
-	ftxV6Ip.Src().SetValue(tc["txAdvRouteV6"].(string))
-	ftxV6Ip.Dst().SetValue(tc["rxAdvRouteV6"].(string))
-
-	ftxV6Tcp := ftxV6.Packet().Add().Tcp()
-	ftxV6Tcp.SrcPort().SetValue(5000)
-	ftxV6Tcp.DstPort().SetValue(6000)
-
-	frxV4 := c.Flows().Items()[2]
-	frxV4.SetName("frxV4")
-	frxV4.TxRx().Device().
-		SetTxNames([]string{drxBgpv4PeerRrV4.Name()}).
-		SetRxNames([]string{dtxBgpv4PeerRrV4.Name()})
-
-	frxV4Eth := frxV4.Packet().Add().Ethernet()
-	frxV4Eth.Src().SetValue(drxEth.Mac())
-
-	frxV4Ip := frxV4.Packet().Add().Ipv4()
-	frxV4Ip.Src().SetValue(tc["rxAdvRouteV4"].(string))
-	frxV4Ip.Dst().SetValue(tc["txAdvRouteV4"].(string))
-
-	frxV4Tcp := frxV4.Packet().Add().Tcp()
-	frxV4Tcp.SrcPort().SetValue(6000)
-	frxV4Tcp.DstPort().SetValue(5000)
-
-	frxV6 := c.Flows().Items()[3]
-	frxV6.SetName("frxV6")
-	frxV6.TxRx().Device().
-		SetTxNames([]string{drxBgpv4PeerRrV6.Name()}).
-		SetRxNames([]string{dtxBgpv4PeerRrV6.Name()})
-
-	frxV6Eth := frxV6.Packet().Add().Ethernet()
-	frxV6Eth.Src().SetValue(drxEth.Mac())
-
-	frxV6Ip := frxV6.Packet().Add().Ipv6()
-	frxV6Ip.Src().SetValue(tc["rxAdvRouteV6"].(string))
-	frxV6Ip.Dst().SetValue(tc["txAdvRouteV6"].(string))
-
-	frxV6Tcp := frxV6.Packet().Add().Tcp()
-	frxV6Tcp.SrcPort().SetValue(6000)
-	frxV6Tcp.DstPort().SetValue(5000)
-
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
 }
 
-func ebgpRoutePrefixBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func ibgpRoutePrefixBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	for _, m := range api.GetBgpv4Metrics() {
 		if m.SessionState() == gosnappi.Bgpv4MetricSessionState.DOWN ||
 			m.RoutesAdvertised() != 2*uint64(tc["txRouteCount"].(uint32)) ||
@@ -361,7 +254,7 @@ func ebgpRoutePrefixBgpMetricsOk(api *otg.OtgApi, tc map[string]interface{}) boo
 	return true
 }
 
-func ebgpRoutePrefixBgpPrefixesOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func ibgpRoutePrefixBgpPrefixesOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	prefixCount := 0
 	for _, m := range api.GetBgpPrefixes() {
 		for _, p := range m.Ipv4UnicastPrefixes().Items() {
@@ -369,6 +262,14 @@ func ebgpRoutePrefixBgpPrefixesOk(api *otg.OtgApi, tc map[string]interface{}) bo
 				if p.Ipv4Address() == tc[key+"AdvRouteV4"].(string) && p.Ipv4NextHop() == tc[key+"NextHopV4"].(string) {
 					prefixCount += 1
 				}
+			}
+			if p.LocalPreference() != 100 {
+				api.Testing().Logf("Unexpected LocalPref %v \n", p.LocalPreference())
+				return false
+			}
+			if p.MultiExitDiscriminator() != 50 {
+				api.Testing().Logf("Unexpected LocalPref %v \n", p.MultiExitDiscriminator())
+				return false
 			}
 		}
 		for _, p := range m.Ipv6UnicastPrefixes().Items() {
@@ -382,7 +283,7 @@ func ebgpRoutePrefixBgpPrefixesOk(api *otg.OtgApi, tc map[string]interface{}) bo
 	return prefixCount == 4
 }
 
-func ebgpRoutePrefixFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+func ibgpRoutePrefixFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 	pktCount := uint64(tc["pktCount"].(uint32))
 
 	for _, m := range api.GetFlowMetrics() {
