@@ -4,13 +4,13 @@ go 1.18
 
 require (
 	github.com/dreadl0ck/gopcap v0.0.0-20190327214342-be2a4d78505f
-	github.com/open-traffic-generator/snappi/gosnappi v0.12.2
+	github.com/open-traffic-generator/snappi/gosnappi v0.12.3
 	github.com/openconfig/gnmi v0.9.1
 	github.com/openconfig/goyang v1.2.0
 	github.com/openconfig/ygnmi v0.7.7
 	github.com/openconfig/ygot v0.25.6
-	golang.org/x/crypto v0.6.0
-	google.golang.org/grpc v1.57.0
+	golang.org/x/crypto v0.11.0
+	google.golang.org/grpc v1.58.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -28,9 +28,9 @@ require (
 	github.com/openconfig/gocloser v0.0.0-20220310182203-c6c950ed3b0b // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	go.universe.tf/netboot v0.0.0-20210617221821-fc2840fa7b05 // indirect
-	golang.org/x/net v0.9.0 // indirect
-	golang.org/x/sys v0.7.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230525234030-28d5490b6b19 // indirect
+	golang.org/x/net v0.12.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/text v0.11.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
