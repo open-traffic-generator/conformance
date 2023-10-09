@@ -34,9 +34,9 @@ items:
         - args:
             - --accept-eula
             - --debug
-          image: ghcr.io/open-traffic-generator/licensed/ixia-c-controller:local
+          image: ghcr.io/open-traffic-generator/licensed/keng-controller:local
           imagePullPolicy: IfNotPresent
-          name: ixia-c-controller
+          name: keng-controller
           volumeMounts:
             - mountPath: /home/ixia-c/controller/config
               name: config
@@ -45,9 +45,9 @@ items:
             - -http-server
             - https://localhost:8443
             - --debug
-          image: ghcr.io/open-traffic-generator/ixia-c-gnmi-server:local
+          image: ghcr.io/open-traffic-generator/otg-gnmi-server:local
           imagePullPolicy: IfNotPresent
-          name: ixia-c-gnmi-server
+          name: otg-gnmi-server
           ports:
             - containerPort: 50051
               name: gnmi-port

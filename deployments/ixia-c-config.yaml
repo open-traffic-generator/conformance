@@ -10,16 +10,17 @@ data:
         "images": [
                 {
                     "name": "controller",
-                    "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-controller",
-                    "tag": "0.0.1-4554",
+                    "path": "ghcr.io/open-traffic-generator/licensed/keng-controller",
+                    "tag": "0.0.1-5316",
                     "env": {
-                        "TRACE": "true"
+                        "TRACE": "true",
+                        "LICENSE_SERVERS": "localhost"
                     }
                 },
                 {
                     "name": "gnmi-server",
-                    "path": "ghcr.io/open-traffic-generator/ixia-c-gnmi-server",
-                    "tag": "1.12.7"
+                    "path": "ghcr.io/open-traffic-generator/otg-gnmi-server",
+                    "tag": "1.12.8"
                 },
                 {
                     "name": "traffic-engine",
@@ -29,17 +30,22 @@ data:
                 {
                     "name": "protocol-engine",
                     "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine",
-                    "tag": "1.00.0.331"
+                    "tag": "1.00.0.332"
                 },
                 {
                     "name": "controller-community",
-                    "path": "ghcr.io/open-traffic-generator/ixia-c-controller",
-                    "tag": "0.0.1-4554"
+                    "path": "ghcr.io/open-traffic-generator/keng-controller",
+                    "tag": "0.0.1-5316"
                 },
                 {
                     "name": "ixia-c-one",
                     "path": "ghcr.io/open-traffic-generator/ixia-c-one",
-                    "tag": "0.0.1-4554"
+                    "tag": "0.0.1-5316"
+                },
+                {
+                    "name": "license-server",
+                    "path": "ghcr.io/open-traffic-generator/licensed/keng-license-server:0.0.1-24",
+                    "tag": "0.0.1-24"
                 }
             ]
         }
