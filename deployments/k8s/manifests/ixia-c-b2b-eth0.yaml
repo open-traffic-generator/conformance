@@ -34,7 +34,7 @@ items:
         - args:
             - --accept-eula
             - --debug
-          image: ghcr.io/open-traffic-generator/licensed/keng-controller:local
+          image: ghcr.io/open-traffic-generator/keng-controller:local
           imagePullPolicy: IfNotPresent
           name: keng-controller
           volumeMounts:
@@ -85,7 +85,7 @@ items:
         - env:
             - name: INTF_LIST
               value: eth0
-          image: ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine:local
+          image: ghcr.io/open-traffic-generator/ixia-c-protocol-engine:local
           imagePullPolicy: IfNotPresent
           name: otg-port-eth1-protocol-engine
           securityContext:
@@ -118,7 +118,7 @@ items:
         - env:
             - name: INTF_LIST
               value: eth0
-          image: ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine:local
+          image: ghcr.io/open-traffic-generator/ixia-c-protocol-engine:local
           imagePullPolicy: IfNotPresent
           name: otg-port-eth2-protocol-engine
           securityContext:
