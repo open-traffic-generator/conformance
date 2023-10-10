@@ -570,14 +570,14 @@ create_ixia_c_b2b_dp() {
     echo "Setting up back-to-back with DP-only distribution of ixia-c ..."
     login_ghcr                                             \
     && create_veth_pair ${VETH_A} ${VETH_Z}                    \
-    && docker run -d --net=host $(keng_license_server_img) --accept-eula \
+    && docker run -d --name=keng-license-server $(keng_license_server_img) --accept-eula \
     && docker run --net=host  -d                            \
-        --name=keng-controller                            \
+        --name=keng-controller                              \
         $(ixia_c_controller_img dp)                         \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="localhost"                       \
+        --license-servers="keng-license-server"             \
     && docker run --net=host --privileged -d                \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -616,16 +616,16 @@ create_ixia_c_b2b_cpdp() {
     fi
     echo "Setting up back-to-back with CP/DP distribution of ixia-c ..."
     login_ghcr                                              \
-    && docker run -d --net=host $(keng_license_server_img) --accept-eula \
+    && docker run -d --name=keng-license-server $(keng_license_server_img) --accept-eula \
     && docker run -d                                        \
-        --name=keng-controller                            \
+        --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="localhost"                       \
+        --license-servers="keng-license-server"             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -682,16 +682,16 @@ rm_ixia_c_b2b_cpdp() {
 create_ixia_c_b2b_lag() {
     echo "Setting up back-to-back LAG with CP/DP distribution of ixia-c ..."
     login_ghcr                                              \
-    && docker run -d --net=host $(keng_license_server_img) --accept-eula \
+    && docker run -d --name=keng-license-server $(keng_license_server_img) --accept-eula \
     && docker run -d                                        \
-        --name=keng-controller                            \
+        --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
         $(ixia_c_controller_img cpdp)                       \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="localhost"                       \
+        --license-servers="keng-license-server"             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
