@@ -577,7 +577,7 @@ create_ixia_c_b2b_dp() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="keng-license-server"             \
+        --license-servers="0.0.0.0"             \
     && docker run --net=host --privileged -d                \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -625,7 +625,7 @@ create_ixia_c_b2b_cpdp() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="keng-license-server"             \
+        --license-servers="0.0.0.0"             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -691,7 +691,7 @@ create_ixia_c_b2b_lag() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="keng-license-server"             \
+        --license-servers="0.0.0.0"             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
