@@ -577,7 +577,7 @@ create_ixia_c_b2b_dp() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="0.0.0.0"             \
+        --license-servers="$(container_ip keng-license-server)"             \
     && docker run --net=host --privileged -d                \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -616,8 +616,17 @@ create_ixia_c_b2b_cpdp() {
     fi
     echo "Setting up back-to-back with CP/DP distribution of ixia-c ..."
     login_ghcr                                              \
-    && docker run -d --name=keng-license-server $(keng_license_server_img) --accept-eula \
-    && docker run -d                                        \
+    && docker run -d --name=keng-license-server $(keng_license_server_img) --accept-eula 
+
+    license_servers=""
+    if [ "${1}" = "ipv6" ]
+    then 
+        license_servers=$(container_ip6 keng-license-server)
+    else
+        license_servers=$(container_ip keng-license-server)
+    fi
+
+    docker run -d                                        \
         --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
@@ -625,7 +634,7 @@ create_ixia_c_b2b_cpdp() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="0.0.0.0"             \
+        --license-servers="${license_servers}"             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -691,7 +700,7 @@ create_ixia_c_b2b_lag() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers="0.0.0.0"             \
+        --license-servers="$(container_ip keng-license-server)"     \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
