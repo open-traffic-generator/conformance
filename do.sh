@@ -564,7 +564,8 @@ wait_for_sock() {
 
 create_ixia_c_b2b_dp() {
     echo "Setting up back-to-back with DP-only distribution of ixia-c ..."
-    create_veth_pair ${VETH_A} ${VETH_Z}                    \
+    login_ghcr                                             \
+    && create_veth_pair ${VETH_A} ${VETH_Z}                    \
     && docker run --net=host  -d                            \
         --name=keng-controller                            \
         $(ixia_c_controller_img dp)                         \
