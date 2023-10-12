@@ -11,10 +11,9 @@ data:
                 {
                     "name": "controller",
                     "path": "ghcr.io/open-traffic-generator/keng-controller",
-                    "tag": "0.0.1-5316",
+                    "tag": "0.0.1-5318",
                     "env": {
                         "TRACE": "true",
-                        "LICENSE_SERVERS": "localhost"
                     }
                 },
                 {
@@ -35,17 +34,12 @@ data:
                 {
                     "name": "controller-community",
                     "path": "ghcr.io/open-traffic-generator/keng-controller",
-                    "tag": "0.0.1-5316"
+                    "tag": "0.0.1-5318"
                 },
                 {
                     "name": "ixia-c-one",
                     "path": "ghcr.io/open-traffic-generator/ixia-c-one",
-                    "tag": "0.0.1-5316"
-                },
-                {
-                    "name": "license-server",
-                    "path": "ghcr.io/open-traffic-generator/licensed/keng-license-server:0.0.1-24",
-                    "tag": "0.0.1-24"
+                    "tag": "0.0.1-5318"
                 }
             ]
         }

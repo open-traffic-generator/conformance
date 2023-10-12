@@ -1,11 +1,11 @@
-release: 0.0.1-5316
+release: 0.0.1-5318
 images:
   - name: controller-dp
     path: ghcr.io/open-traffic-generator/keng-controller
-    tag: 0.0.1-5316
+    tag: 0.0.1-5318
   - name: controller-cpdp
     path: ghcr.io/open-traffic-generator/keng-controller
-    tag: 0.0.1-5316
+    tag: 0.0.1-5318
   - name: keng-license-server
     path: ghcr.io/open-traffic-generator/licensed/keng-license-server
     tag: 0.0.1-24
