@@ -6,8 +6,8 @@ metadata:
 data:
     versions: |
         {
-        "release": "local",
-        "images": [
+          "release": "0.1.0-3",
+          "images": [
                 {
                     "name": "controller",
                     "path": "ghcr.io/open-traffic-generator/keng-controller",
@@ -32,9 +32,14 @@ data:
                     "tag": "1.00.0.337"
                 },
                 {
+                    "name": "ixhw-server",
+                    "path": "ghcr.io/open-traffic-generator/keng-layer23-hw-server",
+                    "tag": "0.13.0-2"
+                },
+                {
                     "name": "license-server",
                     "path": "ghcr.io/open-traffic-generator/licensed/keng-license-server",
                     "tag": "0.0.1-32"
-                },
+                }
             ]
         }
