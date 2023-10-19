@@ -10,16 +10,16 @@ data:
         "images": [
                 {
                     "name": "controller",
-                    "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-controller",
-                    "tag": "0.0.1-4554",
+                    "path": "ghcr.io/open-traffic-generator/keng-controller",
+                    "tag": "0.1.0-3",
                     "env": {
                         "TRACE": "true"
                     }
                 },
                 {
                     "name": "gnmi-server",
-                    "path": "ghcr.io/open-traffic-generator/ixia-c-gnmi-server",
-                    "tag": "1.12.7"
+                    "path": "ghcr.io/open-traffic-generator/otg-gnmi-server",
+                    "tag": "1.13.0"
                 },
                 {
                     "name": "traffic-engine",
@@ -28,18 +28,8 @@ data:
                 },
                 {
                     "name": "protocol-engine",
-                    "path": "ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine",
-                    "tag": "1.00.0.331"
+                    "path": "ghcr.io/open-traffic-generator/ixia-c-protocol-engine",
+                    "tag": "1.00.0.337"
                 },
-                {
-                    "name": "controller-community",
-                    "path": "ghcr.io/open-traffic-generator/ixia-c-controller",
-                    "tag": "0.0.1-4554"
-                },
-                {
-                    "name": "ixia-c-one",
-                    "path": "ghcr.io/open-traffic-generator/ixia-c-one",
-                    "tag": "0.0.1-4554"
-                }
             ]
         }
