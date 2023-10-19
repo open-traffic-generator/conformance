@@ -199,8 +199,12 @@ ixia_c_protocol_engine_img() {
     ixia_c_img protocol-engine
 }
 
-ixia_c_controller_img() {
+keng_controller_img() {
     ixia_c_img controller
+}
+
+keng_license_server_img() {
+    ixia_c_img license-server
 }
 
 login_ghcr() {
@@ -556,7 +560,7 @@ create_ixia_c_b2b_dp() {
     create_veth_pair ${VETH_A} ${VETH_Z}                    \
     && docker run --net=host  -d                            \
         --name=keng-controller                              \
-        $(ixia_c_controller_img)                            \
+        $(keng_controller_img)                              \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
@@ -602,10 +606,17 @@ create_ixia_c_b2b_cpdp() {
         --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
-        $(ixia_c_controller_img)                            \
+        $(keng_controller_img)                              \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
+        --license-servers localhost                         \
+    && docker run -d                                        \
+        --net=container:keng-controller                     \
+        --name=keng-license-server                          \
+        $(keng_license_server_img)                          \
+        --accept-eula                                       \
+        --debug                                             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -666,10 +677,17 @@ create_ixia_c_b2b_lag() {
         --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
-        $(ixia_c_controller_img)                            \
+        $(keng_controller_img)                              \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
+        --license-servers localhost                         \
+    && docker run -d                                        \
+        --net=container:keng-controller                     \
+        --name=keng-license-server                          \
+        $(keng_license_server_img)                          \
+        --accept-eula                                       \
+        --debug                                             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -807,15 +825,15 @@ get_meshnet() {
 }
 
 get_ixia_c_operator() {
-    echo "Installing keng-operator ${IXIA_C_OPERATOR_YAML} ..."
+    echo "Installing keng-operator ${KENG_OPERATOR_YAML} ..."
     load_image_to_kind $(ixia_c_operator_image) \
-    && kubectl apply -f ${IXIA_C_OPERATOR_YAML} \
+    && kubectl apply -f ${KENG_OPERATOR_YAML} \
     && wait_for_pods ixiatg-op-system
 }
 
 rm_ixia_c_operator() {
-    echo "Removing keng-operator ${IXIA_C_OPERATOR_YAML} ..."
-    kubectl delete -f ${IXIA_C_OPERATOR_YAML} \
+    echo "Removing keng-operator ${KENG_OPERATOR_YAML} ..."
+    kubectl delete -f ${KENG_OPERATOR_YAML} \
     && wait_for_no_namespace ixiatg-op-system
 }
 
@@ -896,7 +914,7 @@ ixia_c_image_tag() {
 }
 
 ixia_c_operator_image() {
-    curl -kLs ${IXIA_C_OPERATOR_YAML} | grep image | grep operator | tr -s ' ' | cut -d\  -f3
+    curl -kLs ${KENG_OPERATOR_YAML} | grep image | grep operator | tr -s ' ' | cut -d\  -f3
 }
 
 nokia_srl_operator_image() {

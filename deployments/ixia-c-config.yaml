@@ -31,5 +31,10 @@ data:
                     "path": "ghcr.io/open-traffic-generator/ixia-c-protocol-engine",
                     "tag": "1.00.0.337"
                 },
+                {
+                    "name": "license-server",
+                    "path": "ghcr.io/open-traffic-generator/licensed/keng-license-server",
+                    "tag": "0.0.1-32"
+                },
             ]
         }
