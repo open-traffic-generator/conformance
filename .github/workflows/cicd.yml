@@ -2,11 +2,10 @@ name: CICD
 
 env:
   PYTHON_VERSION: "3.8"
-  GO_VERSION: "1.18"
+  GO_VERSION: "1.19"
 
 on:
   push:
-  pull_request:
 
 jobs:
   lint:

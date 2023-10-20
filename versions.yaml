@@ -1,14 +1,14 @@
-release: 0.0.1-4554
+release: 0.1.0-3
 images:
-  - name: controller-dp
-    path: ghcr.io/open-traffic-generator/ixia-c-controller
-    tag: 0.0.1-4554
-  - name: controller-cpdp
-    path: ghcr.io/open-traffic-generator/licensed/ixia-c-controller
-    tag: 0.0.1-4554
+  - name: controller
+    path: ghcr.io/open-traffic-generator/keng-controller
+    tag: 0.1.0-3
   - name: traffic-engine
     path: ghcr.io/open-traffic-generator/ixia-c-traffic-engine
     tag: 1.6.0.85
   - name: protocol-engine
-    path: ghcr.io/open-traffic-generator/licensed/ixia-c-protocol-engine
-    tag: 1.00.0.331
+    path: ghcr.io/open-traffic-generator/ixia-c-protocol-engine
+    tag: 1.00.0.337
+  - name: license-server
+    path: ghcr.io/open-traffic-generator/licensed/keng-license-server
+    tag: 0.0.1-32

@@ -12,19 +12,19 @@ VETH_X="veth-x"
 VETH_Y="veth-y"
 
 GO_VERSION=1.19
-KIND_VERSION=v0.16.0
-METALLB_VERSION=v0.13.6
-MESHNET_COMMIT=f26c193
+KIND_VERSION=v0.20.0
+METALLB_VERSION=v0.13.11
+MESHNET_COMMIT=d7c306c
 MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
-IXIA_C_OPERATOR_VERSION="0.3.6"
-IXIA_C_OPERATOR_YAML="https://github.com/open-traffic-generator/ixia-c-operator/releases/download/v${IXIA_C_OPERATOR_VERSION}/ixiatg-operator.yaml"
+KENG_OPERATOR_VERSION="0.3.13"
+KENG_OPERATOR_YAML="https://github.com/open-traffic-generator/keng-operator/releases/download/v${KENG_OPERATOR_VERSION}/ixiatg-operator.yaml"
 NOKIA_SRL_OPERATOR_VERSION="0.4.6"
 NOKIA_SRL_OPERATOR_YAML="https://github.com/srl-labs/srl-controller/config/default?ref=v${NOKIA_SRL_OPERATOR_VERSION}"
 ARISTA_CEOS_OPERATOR_VERSION="2.0.1"
 ARISTA_CEOS_OPERATOR_YAML="https://github.com/aristanetworks/arista-ceoslab-operator/config/default?ref=v${ARISTA_CEOS_OPERATOR_VERSION}"
 ARISTA_CEOS_VERSION="4.29.1F-29233963"
 ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
-KNE_VERSION=v0.1.9
+KNE_VERSION=v0.1.15
 
 OPENCONFIG_MODELS_REPO=https://github.com/openconfig/public.git
 OPENCONFIG_MODELS_COMMIT=5ca6a36
@@ -199,19 +199,12 @@ ixia_c_protocol_engine_img() {
     ixia_c_img protocol-engine
 }
 
-ixia_c_controller_img() {
-    case $1 in
-        dp  )
-            ixia_c_img controller-dp
-        ;;
-        cpdp)
-            ixia_c_img controller-cpdp
-        ;;
-        *   )
-            echo "unsupported image type: ${1}"
-            exit 1
-        ;;
-    esac
+keng_controller_img() {
+    ixia_c_img controller
+}
+
+keng_license_server_img() {
+    ixia_c_img license-server
 }
 
 login_ghcr() {
@@ -247,8 +240,8 @@ gen_controller_config_b2b_dp() {
             endpoint: localhost:5556
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
-    && docker exec ixia-c-controller mkdir -p ${configdir} \
-    && docker cp ./config.yaml ixia-c-controller:${configdir}/ \
+    && docker exec keng-controller mkdir -p ${configdir} \
+    && docker cp ./config.yaml keng-controller:${configdir}/ \
     && rm -rf ./config.yaml
 }
 
@@ -281,8 +274,8 @@ gen_controller_config_b2b_cpdp() {
             endpoint: \"${OTG_PORTZ}:5555+${OTG_PORTZ}:50071\"
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
-    && docker exec ixia-c-controller mkdir -p ${configdir} \
-    && docker cp ./config.yaml ixia-c-controller:${configdir}/ \
+    && docker exec keng-controller mkdir -p ${configdir} \
+    && docker cp ./config.yaml keng-controller:${configdir}/ \
     && rm -rf ./config.yaml
 }
 
@@ -311,8 +304,8 @@ gen_controller_config_b2b_lag() {
             endpoint: ${OTG_PORTZ}:5555;3+${OTG_PORTZ}:50071
         "
     echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
-    && docker exec ixia-c-controller mkdir -p ${configdir} \
-    && docker cp ./config.yaml ixia-c-controller:${configdir}/ \
+    && docker exec keng-controller mkdir -p ${configdir} \
+    && docker cp ./config.yaml keng-controller:${configdir}/ \
     && rm -rf ./config.yaml
 }
 
@@ -320,7 +313,7 @@ gen_config_common() {
     location=localhost
     if [ "${1}" = "ipv6" ]
     then 
-        location="[$(container_ip6 ixia-c-controller)]"
+        location="[$(container_ip6 keng-controller)]"
     fi
 
     yml="otg_speed: speed_1_gbps
@@ -566,8 +559,8 @@ create_ixia_c_b2b_dp() {
     echo "Setting up back-to-back with DP-only distribution of ixia-c ..."
     create_veth_pair ${VETH_A} ${VETH_Z}                    \
     && docker run --net=host  -d                            \
-        --name=ixia-c-controller                            \
-        $(ixia_c_controller_img dp)                         \
+        --name=keng-controller                              \
+        $(keng_controller_img)                              \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
@@ -593,7 +586,7 @@ create_ixia_c_b2b_dp() {
 
 rm_ixia_c_b2b_dp() {
     echo "Tearing down back-to-back with DP-only distribution of ixia-c ..."
-    docker stop ixia-c-controller && docker rm ixia-c-controller
+    docker stop keng-controller && docker rm keng-controller
     docker stop ixia-c-traffic-engine-${VETH_A}
     docker rm ixia-c-traffic-engine-${VETH_A}
     docker stop ixia-c-traffic-engine-${VETH_Z}
@@ -610,13 +603,20 @@ create_ixia_c_b2b_cpdp() {
     echo "Setting up back-to-back with CP/DP distribution of ixia-c ..."
     login_ghcr                                              \
     && docker run -d                                        \
-        --name=ixia-c-controller                            \
+        --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
-        $(ixia_c_controller_img cpdp)                       \
+        $(keng_controller_img)                              \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
+        --license-servers localhost                         \
+    && docker run -d                                        \
+        --net=container:keng-controller                     \
+        --name=keng-license-server                          \
+        $(keng_license_server_img)                          \
+        --accept-eula                                       \
+        --debug                                             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -655,7 +655,7 @@ create_ixia_c_b2b_cpdp() {
 
 rm_ixia_c_b2b_cpdp() {
     echo "Tearing down back-to-back with CP/DP distribution of ixia-c ..."
-    docker stop ixia-c-controller && docker rm ixia-c-controller
+    docker stop keng-controller && docker rm keng-controller
 
     docker stop ixia-c-traffic-engine-${VETH_A}
     docker stop ixia-c-protocol-engine-${VETH_A}
@@ -674,13 +674,20 @@ create_ixia_c_b2b_lag() {
     echo "Setting up back-to-back LAG with CP/DP distribution of ixia-c ..."
     login_ghcr                                              \
     && docker run -d                                        \
-        --name=ixia-c-controller                            \
+        --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
-        $(ixia_c_controller_img cpdp)                       \
+        $(keng_controller_img)                              \
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
+        --license-servers localhost                         \
+    && docker run -d                                        \
+        --net=container:keng-controller                     \
+        --name=keng-license-server                          \
+        $(keng_license_server_img)                          \
+        --accept-eula                                       \
+        --debug                                             \
     && docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
@@ -817,16 +824,16 @@ get_meshnet() {
     && cd ${oldpwd}
 }
 
-get_ixia_c_operator() {
-    echo "Installing ixia-c-operator ${IXIA_C_OPERATOR_YAML} ..."
-    load_image_to_kind $(ixia_c_operator_image) \
-    && kubectl apply -f ${IXIA_C_OPERATOR_YAML} \
+get_keng_operator() {
+    echo "Installing keng-operator ${KENG_OPERATOR_YAML} ..."
+    load_image_to_kind $(keng_operator_image) \
+    && kubectl apply -f ${KENG_OPERATOR_YAML} \
     && wait_for_pods ixiatg-op-system
 }
 
-rm_ixia_c_operator() {
-    echo "Removing ixia-c-operator ${IXIA_C_OPERATOR_YAML} ..."
-    kubectl delete -f ${IXIA_C_OPERATOR_YAML} \
+rm_keng_operator() {
+    echo "Removing keng-operator ${KENG_OPERATOR_YAML} ..."
+    kubectl delete -f ${KENG_OPERATOR_YAML} \
     && wait_for_no_namespace ixiatg-op-system
 }
 
@@ -876,7 +883,7 @@ setup_k8s_plugins() {
         kne  )
             get_metallb \
             && get_meshnet \
-            && get_ixia_c_operator \
+            && get_keng_operator \
             && get_kne
         ;;
         *   )
@@ -906,8 +913,8 @@ ixia_c_image_tag() {
     grep "\"${1}\"" -A 2 deployments/ixia-c-config.yaml | grep tag | cut -d\" -f4
 }
 
-ixia_c_operator_image() {
-    curl -kLs ${IXIA_C_OPERATOR_YAML} | grep image | grep operator | tr -s ' ' | cut -d\  -f3
+keng_operator_image() {
+    curl -kLs ${KENG_OPERATOR_YAML} | grep image | grep operator | tr -s ' ' | cut -d\  -f3
 }
 
 nokia_srl_operator_image() {
@@ -947,7 +954,7 @@ load_arista_ceos_image() {
 load_ixia_c_images() {
     echo "Loading ixia-c images in cluster ..."
     login_ghcr
-    for name in controller gnmi-server traffic-engine protocol-engine
+    for name in controller gnmi-server traffic-engine protocol-engine license-server
     do
         p=$(ixia_c_image_path ${name})
         t=$(ixia_c_image_tag ${name})
@@ -1133,9 +1140,9 @@ topo() {
             esac
         ;;
         logs    )
-            mkdir -p logs/ixia-c-controller
-            docker cp ixia-c-controller:/home/ixia-c/controller/logs/ logs/ixia-c-controller
-            docker cp ixia-c-controller:/home/ixia-c/controller/config/config.yaml logs/ixia-c-controller
+            mkdir -p logs/keng-controller
+            docker cp keng-controller:/home/ixia-c/controller/logs/ logs/keng-controller
+            docker cp keng-controller:/home/ixia-c/controller/config/config.yaml logs/keng-controller
             mkdir -p logs/ixia-c-traffic-engine-${VETH_A}
             mkdir -p logs/ixia-c-traffic-engine-${VETH_Z}
             docker cp ixia-c-traffic-engine-${VETH_A}:/var/log/usstream/ logs/ixia-c-traffic-engine-${VETH_A}
