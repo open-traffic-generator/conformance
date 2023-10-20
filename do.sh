@@ -12,9 +12,9 @@ VETH_X="veth-x"
 VETH_Y="veth-y"
 
 GO_VERSION=1.19
-KIND_VERSION=v0.16.0
-METALLB_VERSION=v0.13.6
-MESHNET_COMMIT=f26c193
+KIND_VERSION=v0.20.0
+METALLB_VERSION=v0.13.11
+MESHNET_COMMIT=d7c306c
 MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
 KENG_OPERATOR_VERSION="0.3.13"
 KENG_OPERATOR_YAML="https://github.com/open-traffic-generator/keng-operator/releases/download/v${KENG_OPERATOR_VERSION}/ixiatg-operator.yaml"
@@ -824,14 +824,14 @@ get_meshnet() {
     && cd ${oldpwd}
 }
 
-get_ixia_c_operator() {
+get_keng_operator() {
     echo "Installing keng-operator ${KENG_OPERATOR_YAML} ..."
-    load_image_to_kind $(ixia_c_operator_image) \
+    load_image_to_kind $(keng_operator_image) \
     && kubectl apply -f ${KENG_OPERATOR_YAML} \
     && wait_for_pods ixiatg-op-system
 }
 
-rm_ixia_c_operator() {
+rm_keng_operator() {
     echo "Removing keng-operator ${KENG_OPERATOR_YAML} ..."
     kubectl delete -f ${KENG_OPERATOR_YAML} \
     && wait_for_no_namespace ixiatg-op-system
@@ -883,7 +883,7 @@ setup_k8s_plugins() {
         kne  )
             get_metallb \
             && get_meshnet \
-            && get_ixia_c_operator \
+            && get_keng_operator \
             && get_kne
         ;;
         *   )
@@ -913,7 +913,7 @@ ixia_c_image_tag() {
     grep "\"${1}\"" -A 2 deployments/ixia-c-config.yaml | grep tag | cut -d\" -f4
 }
 
-ixia_c_operator_image() {
+keng_operator_image() {
     curl -kLs ${KENG_OPERATOR_YAML} | grep image | grep operator | tr -s ' ' | cut -d\  -f3
 }
 
@@ -954,7 +954,7 @@ load_arista_ceos_image() {
 load_ixia_c_images() {
     echo "Loading ixia-c images in cluster ..."
     login_ghcr
-    for name in controller gnmi-server traffic-engine protocol-engine
+    for name in controller gnmi-server traffic-engine protocol-engine license-server
     do
         p=$(ixia_c_image_path ${name})
         t=$(ixia_c_image_tag ${name})
