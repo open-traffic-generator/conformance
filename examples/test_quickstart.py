@@ -1,23 +1,19 @@
-import datetime
 import time
 import snappi
-import pytest
 
-
-@pytest.mark.all
 def test_quickstart():
     # Create a new API handle to make API calls against OTG
     # with HTTP as default transport protocol
     api = snappi.api(location="https://localhost:8443")
 
     # Create a new traffic configuration that will be set on OTG
-    config = api.config()
+    cfg = api.config()
 
     # Add a test port to the configuration
-    ptx = config.ports.add(name="ptx", location="veth-a")
+    ptx = cfg.ports.add(name="ptx", location="veth-a")
 
     # Configure a flow and set previously created test port as one of endpoints
-    flow = config.flows.add(name="flow")
+    flow = cfg.flows.add(name="flow")
     flow.tx_rx.port.tx_name = ptx.name
     # and enable tracking flow metrics
     flow.metrics.enable = True
@@ -46,29 +42,27 @@ def test_quickstart():
     cus.bytes = "".join([hex(c)[2:] for c in b"..QUICKSTART SNAPPI.."])
 
     # Optionally, print JSON representation of config
-    print("Configuration: ", config.serialize(encoding=config.JSON))
+    print("\nCONFIGURATION", cfg.serialize(encoding=cfg.JSON), sep="\n")
 
     # Push traffic configuration constructed so far to OTG
-    api.set_config(config)
+    api.set_config(cfg)
 
     # Start transmitting the packets from configured flow
-    control_state = api.control_state()
-    control_state.choice = control_state.TRAFFIC
-    control_state.traffic.choice = control_state.traffic.FLOW_TRANSMIT
-    control_state.traffic.flow_transmit.state = control_state.traffic.flow_transmit.START  # noqa
-    res = api.set_control_state(control_state)
+    cs = api.control_state()
+    cs.traffic.flow_transmit.state = cs.traffic.flow_transmit.START
+    api.set_control_state(cs)
 
-    # Fetch metrics for configured flow
-    req = api.metrics_request()
-    req.flow.flow_names = [flow.name]
-    # and keep polling until either expectation is met or deadline exceeds
-    start = datetime.datetime.now()
-    while True:
-        metrics = api.get_metrics(req)
-        if (datetime.datetime.now() - start).seconds > 10:
-            raise Exception("deadline exceeded")
-        # print YAML representation of flow metrics
-        print(metrics)
-        if metrics.flow_metrics[0].transmit == metrics.flow_metrics[0].STOPPED:
-            break
+    def metrics_ok():
+        # Fetch metrics for configured flow
+        mr = api.metrics_request()
+        mr.flow.flow_names = [flow.name]
+        m = api.get_metrics(mr).flow_metrics[0]
+        print("FLOW METRICS", m, sep="\n")
+        return m.transmit == m.STOPPED
+
+    # Keep polling until either expectation is met or deadline exceeds
+    deadline = time.time() + 10
+    while not metrics_ok():
+        if time.time() > deadline:
+            raise Exception("Deadline exceeded !")
         time.sleep(0.1)

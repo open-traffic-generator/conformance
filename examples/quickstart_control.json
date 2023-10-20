@@ -1,0 +1,9 @@
+{
+  "choice": "traffic",
+  "traffic": {
+    "choice": "flow_transmit",
+    "flow_transmit": {
+      "state": "start"
+    }
+  }
+}

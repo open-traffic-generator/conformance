@@ -40,6 +40,40 @@ jobs:
         run: |
           ./do.sh golint
 
+  examples_curl:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Setup docker
+        uses: docker-practice/actions-setup-docker@master
+      - name: Deploy back-to-back CP/DP distribution of ixia-c
+        run: |
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+      - name: Push Configuration
+        run: |
+          curl -k https://localhost:8443/config -H "Content-Type: application/json" -d @examples/quickstart_config.json
+      - name: Start Flow Transmit
+        run: |
+          curl -k https://localhost:8443/control/state -H "Content-Type: application/json" -d @examples/quickstart_control.json
+      - name: Get Flow Metrics
+        run: |
+          curl -k https://localhost:8443/monitor/metrics -H "Content-Type: application/json" -d @examples/quickstart_metrics.json
+      - name: Get container logs
+        if: always()
+        run: |
+          ./do.sh topo logs
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: examples_curl
+          path: |
+            logs
+      - name: Teardown back-to-back CP/DP distribution of ixia-c
+        run: |
+          ./do.sh topo rm cpdp
+
   examples_py:
     runs-on: ubuntu-22.04
     steps:

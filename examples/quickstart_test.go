@@ -58,7 +58,7 @@ func TestQuickstart(t *testing.T) {
 	if j, err := config.ToJson(); err != nil {
 		t.Fatal(err)
 	} else {
-		t.Log("Configuration: ", j)
+		t.Logf("\nCONFIGURATION\n%v\n", j)
 	}
 
 	// Push traffic configuration constructed so far to OTG
@@ -67,33 +67,27 @@ func TestQuickstart(t *testing.T) {
 	}
 
 	// Start transmitting the packets from configured flow
-	ts := api.NewControlState().
-		SetChoice(gosnappi.ControlStateChoice.TRAFFIC)
-	ts.Traffic().
-		SetChoice(gosnappi.StateTrafficChoice.FLOW_TRANSMIT).
-		FlowTransmit().
-		SetState(gosnappi.StateTrafficFlowTransmitState.START)
+	cs := api.NewControlState()
+	cs.Traffic().FlowTransmit().SetState(gosnappi.StateTrafficFlowTransmitState.START)
 
-	_, err := api.SetControlState(ts)
-	if err != nil {
+	if _, err := api.SetControlState(cs); err != nil {
 		t.Fatal(err)
 	}
 
 	// Fetch metrics for configured flow
 	req := api.NewMetricsRequest()
 	req.Flow().SetFlowNames([]string{flow.Name()})
-	// and keep polling until either expectation is met or deadline exceeds
-	deadline := time.Now().Add(10 * time.Second)
-	for {
+	// Keep polling until either expectation is met or deadline exceeds
+	for deadline := time.Now().Add(10 * time.Second); ; time.Sleep(time.Millisecond * 100) {
 		metrics, err := api.GetMetrics(req)
 		if err != nil || time.Now().After(deadline) {
 			t.Fatalf("err = %v || deadline exceeded", err)
 		}
 		// print YAML representation of flow metrics
-		t.Log(metrics)
-		if metrics.FlowMetrics().Items()[0].Transmit() == gosnappi.FlowMetricTransmit.STOPPED {
+		m := metrics.FlowMetrics().Items()[0]
+		t.Logf("\nFLOW METRICS\n%v\n", m)
+		if m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED {
 			break
 		}
-		time.Sleep(100 * time.Millisecond)
 	}
 }

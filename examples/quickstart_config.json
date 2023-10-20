@@ -1,0 +1,92 @@
+{
+  "flows": [
+    {
+      "duration": {
+        "choice": "fixed_packets",
+        "fixed_packets": {
+          "gap": 12,
+          "packets": 100
+        }
+      },
+      "metrics": {
+        "enable": true,
+        "loss": false,
+        "timestamps": false
+      },
+      "name": "flow",
+      "packet": [
+        {
+          "choice": "ethernet",
+          "ethernet": {
+            "dst": {
+              "choice": "value",
+              "value": "00:11:22:33:44:66"
+            },
+            "src": {
+              "choice": "value",
+              "value": "00:11:22:33:44:55"
+            }
+          }
+        },
+        {
+          "choice": "ipv4",
+          "ipv4": {
+            "dst": {
+              "choice": "value",
+              "value": "20.1.1.1"
+            },
+            "src": {
+              "choice": "value",
+              "value": "10.1.1.1"
+            }
+          }
+        },
+        {
+          "choice": "udp",
+          "udp": {
+            "dst_port": {
+              "choice": "increment",
+              "increment": {
+                "count": 5,
+                "start": 6010,
+                "step": 5
+              }
+            },
+            "src_port": {
+              "choice": "values",
+              "values": [
+                5010,
+                5015,
+                5020,
+                5025,
+                5030
+              ]
+            }
+          }
+        },
+        {
+          "choice": "custom",
+          "custom": {
+            "bytes": "2e2e515549434b535441525420534e415050492e2e"
+          }
+        }
+      ],
+      "size": {
+        "choice": "fixed",
+        "fixed": 128
+      },
+      "tx_rx": {
+        "choice": "port",
+        "port": {
+          "tx_name": "ptx"
+        }
+      }
+    }
+  ],
+  "ports": [
+    {
+      "location": "veth-a",
+      "name": "ptx"
+    }
+  ]
+}
