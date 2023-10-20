@@ -10,6 +10,7 @@ VETH_B="veth-b"
 VETH_C="veth-c"
 VETH_X="veth-x"
 VETH_Y="veth-y"
+FORCE_CREATE_VETH=true
 
 GO_VERSION=1.19
 KIND_VERSION=v0.20.0
@@ -31,7 +32,6 @@ OPENCONFIG_MODELS_COMMIT=5ca6a36
 
 TIMEOUT_SECONDS=300
 APT_GET_UPDATE=true
-
 
 apt_update() {
     if [ "${APT_UPDATE}" = "true" ]
@@ -125,6 +125,12 @@ create_veth_pair() {
         echo "usage: ${0} create_veth_pair <name1> <name2>"
         exit 1
     fi
+
+    if [ "${FORCE_CREATE_VETH}" = "true" ]
+    then
+        rm_veth_pair ${1} ${2} 2> /dev/null
+    fi
+
     sudo ip link add ${1} type veth peer name ${2} \
     && sudo ip link set ${1} up \
     && sudo ip link set ${2} up
