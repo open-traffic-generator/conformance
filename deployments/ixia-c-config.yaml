@@ -11,7 +11,7 @@ data:
                 {
                     "name": "controller",
                     "path": "ghcr.io/open-traffic-generator/keng-controller",
-                    "tag": "0.1.0-79",
+                    "tag": "0.1.0-81",
                     "env": {
                         "TRACE": "true"
                     }
@@ -34,7 +34,7 @@ data:
                 {
                     "name": "ixhw-server",
                     "path": "ghcr.io/open-traffic-generator/keng-layer23-hw-server",
-                    "tag": "0.13.2-1"
+                    "tag": "0.13.2-2"
                 },
                 {
                     "name": "license-server",
