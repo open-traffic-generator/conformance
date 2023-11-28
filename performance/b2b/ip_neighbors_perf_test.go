@@ -51,6 +51,8 @@ func TestIpNeighborsPerf(t *testing.T) {
 
 			api.SetConfig(c)
 
+			api.StartProtocols()
+
 			api.WaitFor(
 				func() bool { return ipNeighborsIpv4NeighborsOk(api, testConst) },
 				&otg.WaitForOpts{FnName: "WaitForIpv4Neighbors"},
