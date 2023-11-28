@@ -18,6 +18,7 @@ func TestIpNeighborsPerf(t *testing.T) {
 		"ifcCount":            1,
 		"startStopCount":      10,
 		"startStopIntervalMs": 100,
+		"gateways":            []string{},
 		"pktRate":             uint64(50),
 		"pktCount":            uint32(1000),
 		"pktSize":             uint32(128),
@@ -106,10 +107,13 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		SetPortNames([]string{ptx.Name(), prx.Name()}).
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
 
+	tc["gateways"] = []string{}
 	for i := 1; i <= tc["ifcCount"].(int); i++ {
 		txMac := fmt.Sprintf(tc["txMac"].(string), i)
+
 		txIp := fmt.Sprintf(tc["txIp"].(string), i)
 		rxIp := fmt.Sprintf(tc["rxIp"].(string), i)
+		tc["gateways"] = append(tc["gateways"].([]string), txIp, rxIp)
 
 		dtx := c.Devices().Add().SetName(fmt.Sprintf("dtx%d", i))
 		drx := c.Devices().Add().SetName(fmt.Sprintf("drx%d", i))
@@ -198,13 +202,14 @@ func ipNeighborsIpv4NeighborsOk(api *otg.OtgApi, tc map[string]interface{}) bool
 	count := 0
 	for _, n := range api.GetIpv4Neighbors() {
 		if n.HasLinkLayerAddress() {
-			for _, key := range []string{"txGateway", "rxGateway"} {
-				if n.Ipv4Address() == tc[key].(string) {
+			for _, gateway := range tc["gateways"].([]string) {
+				if n.Ipv4Address() == gateway {
 					count += 1
+					break
 				}
 			}
 		}
 	}
 
-	return count == tc["ifcCount"].(int)*2
+	return count == 2*tc["ifcCount"].(int)
 }
