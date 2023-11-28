@@ -107,13 +107,17 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
 
 	for i := 1; i <= tc["ifcCount"].(int); i++ {
+		txMac := fmt.Sprintf(tc["txMac"].(string), i)
+		txIp := fmt.Sprintf(tc["txIp"].(string), i)
+		rxIp := fmt.Sprintf(tc["rxIp"].(string), i)
+
 		dtx := c.Devices().Add().SetName(fmt.Sprintf("dtx%d", i))
 		drx := c.Devices().Add().SetName(fmt.Sprintf("drx%d", i))
 
 		dtxEth := dtx.Ethernets().
 			Add().
 			SetName(fmt.Sprintf("dtx%dEth", i)).
-			SetMac(fmt.Sprintf(tc["txMac"].(string), i)).
+			SetMac(txMac).
 			SetMtu(1500)
 
 		dtxEth.Connection().SetPortName(ptx.Name())
@@ -122,7 +126,7 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 			Ipv4Addresses().
 			Add().
 			SetName(fmt.Sprintf("dtx%dIp", i)).
-			SetAddress(fmt.Sprintf(tc["txIp"].(string), i)).
+			SetAddress(txIp).
 			SetGateway(fmt.Sprintf(tc["txGateway"].(string), i)).
 			SetPrefix(tc["txPrefix"].(uint32))
 
@@ -138,7 +142,7 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 			Ipv4Addresses().
 			Add().
 			SetName(fmt.Sprintf("drx%dIp", i)).
-			SetAddress(fmt.Sprintf(tc["rxIp"].(string), i)).
+			SetAddress(rxIp).
 			SetGateway(fmt.Sprintf(tc["rxGateway"].(string), i)).
 			SetPrefix(tc["rxPrefix"].(uint32))
 
@@ -154,11 +158,11 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 			SetRxNames([]string{drxIp.Name()})
 
 		ftxV4Eth := flow.Packet().Add().Ethernet()
-		ftxV4Eth.Src().SetValue(dtxEth.Mac())
+		ftxV4Eth.Src().SetValue(txMac)
 
 		ftxV4Ip := flow.Packet().Add().Ipv4()
-		ftxV4Ip.Src().SetValue(tc["txIp"].(string))
-		ftxV4Ip.Dst().SetValue(tc["rxIp"].(string))
+		ftxV4Ip.Src().SetValue(txIp)
+		ftxV4Ip.Dst().SetValue(rxIp)
 	}
 
 	api.Testing().Logf("Config:\n%v\n", c)
