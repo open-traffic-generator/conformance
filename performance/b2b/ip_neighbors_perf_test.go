@@ -109,6 +109,8 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		rxIp := fmt.Sprintf(tc["rxIp"].(string), i)
 		tc["gateways"] = append(tc["gateways"].([]string), txIp, rxIp)
 
+		perFlowRate := int(tc["ratePercent"].(float32)) / tc["ifcCount"].(int)
+
 		dtx := c.Devices().Add().SetName(fmt.Sprintf("dtx%d", i))
 		drx := c.Devices().Add().SetName(fmt.Sprintf("drx%d", i))
 
@@ -147,7 +149,7 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		flow := c.Flows().Add()
 		flow.SetName(fmt.Sprintf("ftx%dV4", i))
 		flow.Duration().Continuous()
-		flow.Rate().SetPercentage(tc["ratePercent"].(float32))
+		flow.Rate().SetPercentage(float32(perFlowRate))
 		flow.Size().SetFixed(tc["pktSize"].(uint32))
 		flow.Metrics().SetEnable(true)
 
