@@ -5,6 +5,7 @@ package b2b
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/open-traffic-generator/conformance/helpers/otg"
 	"github.com/open-traffic-generator/snappi/gosnappi"
@@ -13,52 +14,81 @@ import (
 func TestIpNeighborsPerf(t *testing.T) {
 	// TODO: add support for IPv6 as well
 	testConst := map[string]interface{}{
-		"pktRate":   uint64(50),
-		"pktCount":  uint32(100),
-		"pktSize":   uint32(128),
-		"txMac":     "00:00:01:01:01:01",
-		"txIp":      "1.1.1.1",
-		"txGateway": "1.1.1.2",
-		"txPrefix":  uint32(24),
-		"rxMac":     "00:00:01:01:01:02",
-		"rxIp":      "1.1.1.2",
-		"rxGateway": "1.1.1.1",
-		"rxPrefix":  uint32(24),
+		"ifcCounts":           []int{1, 2, 3, 4, 5},
+		"ifcCount":            1,
+		"startStopCount":      10,
+		"startStopIntervalMs": 100,
+		"pktRate":             uint64(50),
+		"pktCount":            uint32(1000),
+		"pktSize":             uint32(128),
+		"txMac":               "00:00:01:01:01:%X",
+		"txIp":                "1.1.1.%d",
+		"txGateway":           "1.1.2.%d",
+		"txPrefix":            uint32(24),
+		"rxMac":               "00:00:01:01:02:%X",
+		"rxIp":                "1.1.2.%d",
+		"rxGateway":           "1.1.1.%d",
+		"rxPrefix":            uint32(24),
 	}
 
 	distTables := []string{}
-	testCase := fmt.Sprintf("IpNeighborsIpHeader2Ports2Devices1Flow")
 
-	api := otg.NewOtgApi(t)
-	c := ipNeighborsConfig(api, testConst)
+	for _, ifcCount := range testConst["ifcCounts"].([]int) {
+		if ifcCount > 128 {
+			t.Fatal("ERROR: Interface count more than 128 is not supported")
+			continue
+		}
 
-	t.Log("TEST CASE: ", testCase)
-	for i := 1; i <= api.TestConfig().OtgIterations; i++ {
-		t.Logf("ITERATION: %d\n\n", i)
+		testConst["ifcCount"] = ifcCount
+		testCase := fmt.Sprintf("IpNeighborsIpHeader2Ports%dIfcFlows", 2*ifcCount)
 
-		api.SetConfig(c)
+		api := otg.NewOtgApi(t)
+		c := ipNeighborsConfig(api, testConst)
 
-		api.WaitFor(
-			func() bool { return ipNeighborsIpv4NeighborsOk(api, testConst) },
-			&otg.WaitForOpts{FnName: "WaitForIpv4Neighbors"},
-		)
+		t.Log("TEST CASE: ", testCase)
+		for i := 1; i <= api.TestConfig().OtgIterations; i++ {
+			t.Logf("ITERATION: %d\n\n", i)
 
-		api.StartTransmit()
+			api.SetConfig(c)
 
-		api.WaitFor(
-			func() bool { return flowMetricsOk(api, testConst) },
-			&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
-		)
-		api.Plot().AppendZero()
+			api.WaitFor(
+				func() bool { return ipNeighborsIpv4NeighborsOk(api, testConst) },
+				&otg.WaitForOpts{FnName: "WaitForIpv4Neighbors"},
+			)
+
+			api.StartTransmit()
+			for j := 1; j <= testConst["startStopCount"].(int); j++ {
+				api.StopTransmit()
+				api.WaitFor(
+					func() bool {
+						return flowMetricsTransmitStateOk(api, gosnappi.FlowMetricTransmit.STOPPED)
+					},
+					&otg.WaitForOpts{FnName: "WaitForFlowMetricsStopped", Interval: 10 * time.Millisecond},
+				)
+				api.StartTransmit()
+				api.WaitFor(
+					func() bool {
+						return flowMetricsTransmitStateOk(api, gosnappi.FlowMetricTransmit.STARTED)
+					},
+					&otg.WaitForOpts{FnName: "WaitForFlowMetricsStart", Interval: 10 * time.Millisecond},
+				)
+			}
+
+			api.WaitFor(
+				func() bool { return flowMetricsOk(api, testConst) },
+				&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
+			)
+			api.Plot().AppendZero()
+		}
+
+		api.LogPlot(testCase)
+
+		tb, err := api.Plot().ToTable()
+		if err != nil {
+			t.Fatal("ERROR:", err)
+		}
+		distTables = append(distTables, tb)
 	}
-
-	api.LogPlot(testCase)
-
-	tb, err := api.Plot().ToTable()
-	if err != nil {
-		t.Fatal("ERROR:", err)
-	}
-	distTables = append(distTables, tb)
 
 	for _, d := range distTables {
 		t.Log(d)
@@ -76,61 +106,73 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 		SetPortNames([]string{ptx.Name(), prx.Name()}).
 		SetSpeed(gosnappi.Layer1SpeedEnum(api.TestConfig().OtgSpeed))
 
-	dtx := c.Devices().Add().SetName("dtx")
-	drx := c.Devices().Add().SetName("drx")
+	for i := 1; i <= tc["ifcCount"].(int); i++ {
+		dtx := c.Devices().Add().SetName(fmt.Sprintf("dtx%d", i))
+		drx := c.Devices().Add().SetName(fmt.Sprintf("drx%d", i))
 
-	dtxEth := dtx.Ethernets().
-		Add().
-		SetName("dtxEth").
-		SetMac(tc["txMac"].(string)).
-		SetMtu(1500)
+		dtxEth := dtx.Ethernets().
+			Add().
+			SetName(fmt.Sprintf("dtx%dEth", i)).
+			SetMac(fmt.Sprintf(tc["txMac"].(string), i)).
+			SetMtu(1500)
 
-	dtxEth.Connection().SetPortName(ptx.Name())
+		dtxEth.Connection().SetPortName(ptx.Name())
 
-	dtxIp := dtxEth.
-		Ipv4Addresses().
-		Add().
-		SetName("dtxIp").
-		SetAddress(tc["txIp"].(string)).
-		SetGateway(tc["txGateway"].(string)).
-		SetPrefix(tc["txPrefix"].(uint32))
+		dtxIp := dtxEth.
+			Ipv4Addresses().
+			Add().
+			SetName(fmt.Sprintf("dtx%dIp", i)).
+			SetAddress(fmt.Sprintf(tc["txIp"].(string), i)).
+			SetGateway(fmt.Sprintf(tc["txGateway"].(string), i)).
+			SetPrefix(tc["txPrefix"].(uint32))
 
-	drxEth := drx.Ethernets().
-		Add().
-		SetName("drxEth").
-		SetMac(tc["rxMac"].(string)).
-		SetMtu(1500)
+		drxEth := drx.Ethernets().
+			Add().
+			SetName(fmt.Sprintf("drx%dEth", i)).
+			SetMac(fmt.Sprintf(tc["rxMac"].(string), i)).
+			SetMtu(1500)
 
-	drxEth.Connection().SetPortName(prx.Name())
+		drxEth.Connection().SetPortName(prx.Name())
 
-	drxIp := drxEth.
-		Ipv4Addresses().
-		Add().
-		SetName("drxIp").
-		SetAddress(tc["rxIp"].(string)).
-		SetGateway(tc["rxGateway"].(string)).
-		SetPrefix(tc["rxPrefix"].(uint32))
+		drxIp := drxEth.
+			Ipv4Addresses().
+			Add().
+			SetName(fmt.Sprintf("drx%dIp", i)).
+			SetAddress(fmt.Sprintf(tc["rxIp"].(string), i)).
+			SetGateway(fmt.Sprintf(tc["rxGateway"].(string), i)).
+			SetPrefix(tc["rxPrefix"].(uint32))
 
-	flow := c.Flows().Add()
-	flow.SetName("ftxV4")
-	flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
-	flow.Rate().SetPps(tc["pktRate"].(uint64))
-	flow.Size().SetFixed(tc["pktSize"].(uint32))
-	flow.Metrics().SetEnable(true)
+		flow := c.Flows().Add()
+		flow.SetName(fmt.Sprintf("ftx%dV4", i))
+		flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
+		flow.Rate().SetPps(tc["pktRate"].(uint64))
+		flow.Size().SetFixed(tc["pktSize"].(uint32))
+		flow.Metrics().SetEnable(true)
 
-	flow.TxRx().Device().
-		SetTxNames([]string{dtxIp.Name()}).
-		SetRxNames([]string{drxIp.Name()})
+		flow.TxRx().Device().
+			SetTxNames([]string{dtxIp.Name()}).
+			SetRxNames([]string{drxIp.Name()})
 
-	ftxV4Eth := flow.Packet().Add().Ethernet()
-	ftxV4Eth.Src().SetValue(dtxEth.Mac())
+		ftxV4Eth := flow.Packet().Add().Ethernet()
+		ftxV4Eth.Src().SetValue(dtxEth.Mac())
 
-	ftxV4Ip := flow.Packet().Add().Ipv4()
-	ftxV4Ip.Src().SetValue(tc["txIp"].(string))
-	ftxV4Ip.Dst().SetValue(tc["rxIp"].(string))
+		ftxV4Ip := flow.Packet().Add().Ipv4()
+		ftxV4Ip.Src().SetValue(tc["txIp"].(string))
+		ftxV4Ip.Dst().SetValue(tc["rxIp"].(string))
+	}
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
+}
+
+func flowMetricsTransmitStateOk(api *otg.OtgApi, ts gosnappi.FlowMetricTransmitEnum) bool {
+	for _, m := range api.GetFlowMetrics() {
+		if m.Transmit() != ts {
+			return false
+		}
+	}
+
+	return true
 }
 
 func flowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
@@ -160,5 +202,5 @@ func ipNeighborsIpv4NeighborsOk(api *otg.OtgApi, tc map[string]interface{}) bool
 		}
 	}
 
-	return count == 2
+	return count == tc["ifcCount"].(int)*2
 }
