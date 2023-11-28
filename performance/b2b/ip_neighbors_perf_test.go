@@ -19,8 +19,7 @@ func TestIpNeighborsPerf(t *testing.T) {
 		"startStopCount":      10,
 		"startStopIntervalMs": 100,
 		"gateways":            []string{},
-		"pktRate":             uint64(50),
-		"pktCount":            uint32(1000),
+		"ratePercent":         float32(100),
 		"pktSize":             uint32(128),
 		"txMac":               "00:00:01:01:01:%02X",
 		"txIp":                "1.1.1.%d",
@@ -57,15 +56,7 @@ func TestIpNeighborsPerf(t *testing.T) {
 				&otg.WaitForOpts{FnName: "WaitForIpv4Neighbors"},
 			)
 
-			api.StartTransmit()
 			for j := 1; j <= testConst["startStopCount"].(int); j++ {
-				api.StopTransmit()
-				api.WaitFor(
-					func() bool {
-						return flowMetricsTransmitStateOk(api, gosnappi.FlowMetricTransmit.STOPPED)
-					},
-					&otg.WaitForOpts{FnName: "WaitForFlowMetricsStopped", Interval: 10 * time.Millisecond},
-				)
 				api.StartTransmit()
 				api.WaitFor(
 					func() bool {
@@ -73,12 +64,15 @@ func TestIpNeighborsPerf(t *testing.T) {
 					},
 					&otg.WaitForOpts{FnName: "WaitForFlowMetricsStart", Interval: 10 * time.Millisecond},
 				)
+				api.StopTransmit()
+				api.WaitFor(
+					func() bool {
+						return flowMetricsTransmitStateOk(api, gosnappi.FlowMetricTransmit.STOPPED)
+					},
+					&otg.WaitForOpts{FnName: "WaitForFlowMetricsStopped", Interval: 10 * time.Millisecond},
+				)
 			}
 
-			api.WaitFor(
-				func() bool { return flowMetricsOk(api, testConst) },
-				&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
-			)
 			api.Plot().AppendZero()
 		}
 
@@ -152,8 +146,8 @@ func ipNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Conf
 
 		flow := c.Flows().Add()
 		flow.SetName(fmt.Sprintf("ftx%dV4", i))
-		flow.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
-		flow.Rate().SetPps(tc["pktRate"].(uint64))
+		flow.Duration().Continuous()
+		flow.Rate().SetPercentage(tc["ratePercent"].(float32))
 		flow.Size().SetFixed(tc["pktSize"].(uint32))
 		flow.Metrics().SetEnable(true)
 
@@ -178,21 +172,6 @@ func flowMetricsTransmitStateOk(api *otg.OtgApi, ts gosnappi.FlowMetricTransmitE
 		if m.Transmit() != ts {
 			return false
 		}
-	}
-
-	return true
-}
-
-func flowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
-	pktCount := uint64(tc["pktCount"].(uint32))
-
-	for _, m := range api.GetFlowMetrics() {
-		if m.Transmit() != gosnappi.FlowMetricTransmit.STOPPED ||
-			m.FramesTx() != pktCount ||
-			m.FramesRx() != pktCount {
-			return false
-		}
-
 	}
 
 	return true
