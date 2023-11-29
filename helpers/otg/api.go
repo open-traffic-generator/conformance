@@ -57,7 +57,10 @@ func (o *OtgApi) Plot() *plot.Plot {
 
 func (o *OtgApi) CleanupConfig() {
 	o.Testing().Log("Cleaning up config ...")
-	o.SetConfig(gosnappi.NewConfig())
+	defer o.Timer(time.Now(), "CleanupConfig")
+
+	res, err := o.Api().SetConfig(gosnappi.NewConfig())
+	o.LogWrnErr(res, err, true)
 }
 
 func (o *OtgApi) GetConfig() gosnappi.Config {

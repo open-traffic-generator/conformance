@@ -75,6 +75,8 @@ func TestIpNeighborsPerf(t *testing.T) {
 				)
 			}
 
+			api.CleanupConfig()
+
 			api.Plot().AppendZero()
 		}
 
