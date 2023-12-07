@@ -36,7 +36,7 @@ def test_isis_lsp_p2p_l12():
         "rxIpv6": "1100::2",
         "rxv6Gateway": "1100::1",
         "rxv6Prefix": 64,
-        "rxIsisSystemId": "650000000001",
+        "rxIsisSystemId": "650000000002",
         "rxIsisAreaAddress": ["490001"],
         "txRouteCount": 1,
         "rxRouteCount": 1,
