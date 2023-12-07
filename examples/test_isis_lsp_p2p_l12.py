@@ -32,7 +32,7 @@ def test_isis_lsp_p2p_l12():
         "rxIpv6": "1100::2",
         "rxv6Gateway": "1100::1",
         "rxv6Prefix": 64,
-        "rxIsisSystemId": "650000000002",
+        "rxIsisSystemId": "650000000001",
         "rxIsisAreaAddress": ["490001"],
         "txRouteCount": 1,
         "rxRouteCount": 1,
@@ -48,7 +48,7 @@ def test_isis_lsp_p2p_l12():
     cs = apis.control_state()
     cs.protocol.all.state = cs.protocol.all.START
     apis.set_control_state(cs)
-    time.sleep(5)
+    time.sleep(10)
 
     deadline = 60
     session_up = 0
@@ -59,11 +59,17 @@ def test_isis_lsp_p2p_l12():
         print(metrics)
         for m in metrics:
             print("ISIS METRICS", m, sep="\n")
+            l1lsp = int(m.l1_lsp_received)
+            l2lsp = int(m.l1_lsp_received)
+            total_lsp = l1lsp + l2lsp
             if (m.l2_sessions_up == 1 and m.l1_sessions_up == 1):
-                session_up = '2'
-                break
+                session_up = m.l2_sessions_up + m.l1_sessions_up
+                if l1lsp > 0 and l2lsp > 0 and total_lsp == 8 :
+                    break
+                # end if
+            # end if
         # end for
-        if session_up == '2':
+        if session_up == 2 and total_lsp >= 8:
             break
         time.sleep(1)
     else:
