@@ -1,15 +1,11 @@
-import logging as log
-import pytest
-import snappi
 import time
-#from helpers.otg import otg
+import snappi
+import datetime
 
 
-@pytest.mark.all
-@pytest.mark.cpdp
 def test_isis_lsp_p2p_l12():
 
-    api = snappi.api(
+    apis = snappi.api(
         "https://localhost:8443",
         verify=False,
         transport="http",
@@ -46,50 +42,52 @@ def test_isis_lsp_p2p_l12():
         "rxAdvRouteV6": "::20:20:20:01",
     }
 
-    c = isis_lsp_p2p_l12_config(api, test_const)
+    c = isis_lsp_p2p_l12_config(apis, test_const)
+    apis.set_config(c)
 
-    cs = api.control_state()
+    cs = apis.control_state()
     cs.protocol.all.state = cs.protocol.all.START
-    api.set_control_state(cs)
+    apis.set_control_state(cs)
     time.sleep(5)
 
-    req = api.metrics_request()
-    req.isis.router_names = []
-    metrics = api.get_metrics(req).isis_metrics
     deadline = 60
     session_up = 0
     for i in range(0, deadline):
+        req = apis.metrics_request()
+        req.isis.router_names = []
+        metrics = apis.get_metrics(req).isis_metrics
+        print(metrics)
         for m in metrics:
             print("ISIS METRICS", m, sep="\n")
-            if (m.l2_sessions_up == 2):
-                session_up = m.l2_sessions_up
+            if (m.l2_sessions_up == 1 and m.l1_sessions_up == 1):
+                session_up = '2'
                 break
         # end for
-        if session_up == 2:
+        if session_up == '2':
             break
         time.sleep(1)
     else:
-        pass
-        #return False
+        return False
     # end for
-       
 
-    print("Starting Traffic")
-    cs = api.control_state()
+    print("Sessions up Starting Traffic")
+    cs = apis.control_state()
+
     cs.traffic.flow_transmit.state = cs.traffic.flow_transmit.START
-    api.set_control_state(cs)
+    apis.set_control_state(cs)
     time.sleep(5)
+    cs.traffic.flow_transmit.state = cs.traffic.flow_transmit.STOP
 
-    flow_metrics_ok(api, test_const)
+    traffic_stats = flow_metrics_ok(apis, test_const)
 
     cs.protocol.all.state = cs.protocol.all.STOP
-    api.set_control_state(cs)
+    apis.set_control_state(cs)
 
 
-def isis_lsp_p2p_l12_config(api, tc):
-    c = api.config()
-    #ptx = c.ports.add(name="ptx", location=api.test_config.otg_ports[0])
-    #prx = c.ports.add(name="prx", location=api.test_config.otg_ports[1])
+def isis_lsp_p2p_l12_config(apis, tc):
+    c = apis.config()
+    #ptx = c.ports.add(name="ptx", location=apis.test_config.otg_ports[0])
+    #prx = c.ports.add(name="prx", location=apis.test_config.otg_ports[1])
     ptx = c.ports.add(name="ptx",
         location="uhd://10.36.70.24:7531;5+10.36.70.83:50075"
     )
@@ -98,7 +96,7 @@ def isis_lsp_p2p_l12_config(api, tc):
     )
 
     ly = c.layer1.add(name="ly", port_names=[ptx.name, prx.name])
-    #ly.speed = api.test_config.otg_speed
+    #ly.speed = apis.test_config.otg_speed
 
     # transmitter
     dtx = c.devices.add(name="dtx")
@@ -258,15 +256,15 @@ def isis_lsp_p2p_l12_config(api, tc):
     frx_v6_tcp.src_port.value = 5000
     frx_v6_tcp.dst_port.value = 6000
 
-    log.info("Config:\n%s", c)
+    print("Config:\n%s", c)
     return c
 
 
-def flow_metrics_ok(api, tc):
+def flow_metrics_ok(apis, tc):
     # Fetch metrics for configured flow
-    mr = api.metrics_request()
+    mr = apis.metrics_request()
     mr.flow.flow_names = []
-    metrics = api.get_metrics(mr).flow_metrics
+    metrics = apis.get_metrics(mr).flow_metrics
     for m in metrics:
         print("FLOW METRICS", m, sep="\n")
         if (
@@ -276,3 +274,5 @@ def flow_metrics_ok(api, tc):
          ):
             return False
     return True
+
+#test_isis_lsp_p2p_l12()
