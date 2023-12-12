@@ -116,20 +116,25 @@ def bgp_route_prefix_config(apis, tc):
         name="port_settings", port_names=[ptx.name, prx.name], speed="speed_100_gbps"
     )
 
+    # UHD port 3 configuration
+    # adding devices
     dtx = c.devices.add(name="dtx")
     drx = c.devices.add(name="drx")
 
+    # ethernet configuration
     dtx_eth = dtx.ethernets.add(name="dtx_eth")
     dtx_eth.connection.port_name = ptx.name
     dtx_eth.mac = tc["txMac"]
     dtx_eth.mtu = 1500
+    # vlan configuration
     dtx_vlan = dtx_eth.vlans.add(name="txVlan")
     dtx_vlan.set(id=tc["txVlan"])
+    # ipv4 configuration
     dtx_ip = dtx_eth.ipv4_addresses.add(name="dtx_ip")
     dtx_ip.set(address=tc["txIp"], gateway=tc["txGateway"], prefix=tc["txPrefix"])
 
+    # bgp configuration
     dtx.bgp.router_id = tc["txIp"]
-
     dtx_bgpv4 = dtx.bgp.ipv4_interfaces.add(ipv4_name=dtx_ip.name)
 
     dtx_bgpv4_peer = dtx_bgpv4.peers.add(name="dtx_bgpv4_peer")
@@ -150,17 +155,19 @@ def bgp_route_prefix_config(apis, tc):
         multi_exit_discriminator=50, origin=dtx_bgpv4_peer_rrv4.advanced.IGP
     )
 
+    # UHD port 4 configuration
+    # adding Ethernet
     drx_eth = drx.ethernets.add(name="drx_eth")
     drx_eth.connection.port_name = prx.name
     drx_eth.mac = tc["rxMac"]
     drx_eth.mtu = 1500
-
+    # adding vlan
     drx_vlan = dtx_eth.vlans.add(name="rxVlan")
     drx_vlan.set(id=tc["rxVlan"])
-
+    # adding ipv4
     drx_ip = drx_eth.ipv4_addresses.add(name="drx_ip")
     drx_ip.set(address=tc["rxIp"], gateway=tc["rxGateway"], prefix=tc["rxPrefix"])
-
+    # adding bgp
     drx.bgp.router_id = tc["rxIp"]
 
     drx_bgpv4 = drx.bgp.ipv4_interfaces.add()
@@ -190,6 +197,9 @@ def bgp_route_prefix_config(apis, tc):
         as_numbers=[65003, 65004], type=drx_bgpv4_peer_rrv4_seg.AS_SEQ
     )
 
+    # flow configuration
+    # flow1 --> from iBGP to eBGP
+    # flow2 --> from eBGP to iBGP
     for i in range(0, 2):
         f = c.flows.add()
         f.duration.fixed_packets.packets = tc["pktCount"]

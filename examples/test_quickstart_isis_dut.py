@@ -237,6 +237,11 @@ def isis_dut_config(apis, tc):
         address=tc["rxAdvRouteV6"], prefix=32, count=tc["rxRouteCount"], step=1
     )
 
+    # flow configuration
+    # flow0: ipv4 isis L1 to L2
+    # flow1: ipv6 isis L1 to L2
+    # flow2: ipv4 isis L2 to L1
+    # flow3: ipv6 isis L2 to L1
     for i in range(0, 4):
         f = c.flows.add()
         f.duration.fixed_packets.packets = tc["pktCount"]
@@ -245,7 +250,7 @@ def isis_dut_config(apis, tc):
         f.metrics.enable = True
 
     ftx_v4 = c.flows[0]
-    ftx_v4.name = "ftx_v4"
+    ftx_v4.name = "IPv4 isis L1 to L2"
     ftx_v4.tx_rx.device.tx_names = [dtx_isis_rr4.name]
     ftx_v4.tx_rx.device.rx_names = [drx_isis_rr4.name]
 
@@ -258,7 +263,7 @@ def isis_dut_config(apis, tc):
     ftx_v4_ip.dst.value = tc["rxAdvRouteV4"]
 
     ftx_v6 = c.flows[1]
-    ftx_v6.name = "ftx_v6"
+    ftx_v6.name = "IPv6 isis L1 to L2"
     ftx_v6.tx_rx.device.tx_names = [dtx_isis_rrv6.name]
     ftx_v6.tx_rx.device.rx_names = [drx_isis_rrv6.name]
 
@@ -271,7 +276,7 @@ def isis_dut_config(apis, tc):
     ftx_v6_ip.dst.value = tc["rxAdvRouteV6"]
 
     frx_v4 = c.flows[2]
-    frx_v4.name = "frx_v4"
+    frx_v4.name = "IPv4 isis L2 to L1"
     frx_v4.tx_rx.device.tx_names = [drx_isis_rr4.name]
     frx_v4.tx_rx.device.rx_names = [dtx_isis_rr4.name]
 
@@ -284,7 +289,7 @@ def isis_dut_config(apis, tc):
     frx_v4_ip.dst.value = tc["txAdvRouteV4"]
 
     frx_v6 = c.flows[3]
-    frx_v6.name = "frx_v6"
+    frx_v6.name = "IPv4 isis L2 to L1"
     frx_v6.tx_rx.device.tx_names = [drx_isis_rrv6.name]
     frx_v6.tx_rx.device.rx_names = [dtx_isis_rrv6.name]
 
