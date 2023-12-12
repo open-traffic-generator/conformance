@@ -3,7 +3,7 @@ import snappi
 import datetime
 
 
-def test_isis_lsp_p2p_l12():
+def test_isis_dut():
     apis = snappi.api(
         "https://nanorbit0.lbj.is.keysight.com:50087",
         verify=False,
@@ -39,58 +39,75 @@ def test_isis_lsp_p2p_l12():
         "rxAdvRouteV4": "200.1.1.1",
         "txAdvRouteV6": "::100:1:1:1",
         "rxAdvRouteV6": "::200:1:1:1",
+        "txVlan": 200,
+        "rxVlan": 201,
     }
 
-    c = isis_lsp_p2p_l12_config(apis, test_const)
+    # Optionally, print JSON representation of config
+    # print("\nCONFIGURATION", cfg.serialize(encoding=cfg.JSON), sep="\n")
+
+    c = isis_dut_config(apis, test_const)
+    # Push traffic configuration constructed so far to OTG
     apis.set_config(c)
 
+    # start protocols
     cs = apis.control_state()
     cs.protocol.all.state = cs.protocol.all.START
     apis.set_control_state(cs)
-    time.sleep(10)
+    time.sleep(5)
 
-    deadline = 60
-    session_up = 0
-    for i in range(0, deadline):
+    # Fetch metrics for isis
+    def isis_metrics_ok():
+        # Fetch ISIS metrics
         req = apis.metrics_request()
         req.isis.router_names = []
         metrics = apis.get_metrics(req).isis_metrics
-        print(metrics)
+        # print(metrics)
         for m in metrics:
-            print("ISIS METRICS", m, sep="\n")
-            l1lsp = int(m.l1_lsp_received)
-            l2lsp = int(m.l1_lsp_received)
-            total_lsp = l1lsp + l2lsp
-            if m.l2_sessions_up == 1 and m.l1_sessions_up == 1:
-                session_up = m.l2_sessions_up + m.l1_sessions_up
-                if l1lsp > 0 and l2lsp > 0 and total_lsp == 8:
-                    break
-                # end if
+            if m.l2_sessions_up != 1 and m.l1_sessions_up != 1:
+                return False
             # end if
         # end for
-        if session_up == 2 and total_lsp >= 8:
-            break
-        time.sleep(1)
-    else:
-        return False
-    # end for
+        return True
 
-    print("Sessions up Starting Traffic")
+    # Keep polling until either expectation is met or deadline exceeds
+    deadline = time.time() + 60
+    while not isis_metrics_ok():
+        if time.time() > deadline:
+            raise Exception("Deadline exceeded !")
+        time.sleep(0.1)
+
+    # Start transmitting the packets from configured flow
     cs = apis.control_state()
-
     cs.traffic.flow_transmit.state = cs.traffic.flow_transmit.START
     apis.set_control_state(cs)
     time.sleep(5)
-    cs.traffic.flow_transmit.state = cs.traffic.flow_transmit.STOP
 
-    traffic_stats = flow_metrics_ok(apis, test_const)
+    def flow_metrics_ok():
+        # Fetch metrics for configured flow
+        mr = apis.metrics_request()
+        mr.flow.flow_names = []
+        metrics = apis.get_metrics(mr).flow_metrics
+        for m in metrics:
+            print("FLOW METRICS", m, sep="\n")
+            if m.transmit != m.STOPPED and m.frames_tx != 100 and m.frames_rx != 100:
+                return False
+        return True
+
+    # Keep polling until either expectation is met or deadline exceeds
+    deadline = time.time() + 30
+    while not flow_metrics_ok():
+        if time.time() > deadline:
+            raise Exception("Deadline exceeded !")
+        time.sleep(0.1)
 
     cs.protocol.all.state = cs.protocol.all.STOP
     apis.set_control_state(cs)
 
 
-def isis_lsp_p2p_l12_config(apis, tc):
+def isis_dut_config(apis, tc):
     c = apis.config()
+
     ptx = c.ports.add(
         name="ptx",
         location="uhd://tf2-qa6.lbj.is.keysight.com:7531;5+nanorbit0.lbj.is.keysight.com:50075",
@@ -104,25 +121,34 @@ def isis_lsp_p2p_l12_config(apis, tc):
         name="port_settings", port_names=[ptx.name, prx.name], speed="speed_100_gbps"
     )
 
-    # transmitter
+    # adding devices
     dtx = c.devices.add(name="dtx")
     drx = c.devices.add(name="drx")
 
+    # UHD port3
+    # ethernet configuration
     dtx_eth = dtx.ethernets.add(name="dtx_eth")
     dtx_eth.connection.port_name = ptx.name
     dtx_eth.mac = tc["txMac"]
     dtx_eth.mtu = 1500
 
+    # vlan configuration
+    dtx_vlan = dtx_eth.vlans.add(name="txVlan")
+    dtx_vlan.set(id=tc["txVlan"])
+
+    # ipv4 configuration
     dtx_ip = dtx_eth.ipv4_addresses.add(name="dtx_ip")
     dtx_ip.address = tc["txIp"]
     dtx_ip.gateway = tc["txGateway"]
     dtx_ip.prefix = tc["txPrefix"]
 
+    # ipv6 configuration
     dtx_ipv6 = dtx_eth.ipv6_addresses.add(name="dtxv6_ip")
     dtx_ipv6.address = tc["txIpv6"]
     dtx_ipv6.gateway = tc["txv6Gateway"]
     dtx_ipv6.prefix = tc["txv6Prefix"]
 
+    # isis configuration
     dtx.isis.system_id = tc["txIsisSystemId"]
     dtx.isis.name = "dtx_isis"
 
@@ -138,16 +164,12 @@ def isis_lsp_p2p_l12_config(apis, tc):
     dtx_isis_int.eth_name = dtx_eth.name
     dtx_isis_int.name = "dtx_isis_int"
     dtx_isis_int.network_type = dtx_isis_int.POINT_TO_POINT
-    dtx_isis_int.level_type = dtx_isis_int.LEVEL_1_2
-
-    dtx_isis_int.l2_settings.dead_interval = 30
-    dtx_isis_int.l2_settings.hello_interval = 10
-    dtx_isis_int.l2_settings.priority = 0
+    dtx_isis_int.level_type = dtx_isis_int.LEVEL_1
 
     dtx_isis_int.advanced.auto_adjust_supported_protocols = True
 
     dtx_isis_rr4 = dtx.isis.v4_routes.add(name="dtx_isis_rr4")
-    dtx_isis_rr4.link_metric = 10
+    dtx_isis_rr4.link_metric = 11
     dtx_isis_rr4.addresses.add(
         address=tc["txAdvRouteV4"], prefix=32, count=tc["txRouteCount"], step=1
     )
@@ -157,22 +179,30 @@ def isis_lsp_p2p_l12_config(apis, tc):
         address=tc["txAdvRouteV6"], prefix=32, count=tc["txRouteCount"], step=1
     )
 
-    # receiver
+    # UHD port4
+    # ethernet configuration
     drx_eth = drx.ethernets.add(name="drx_eth")
     drx_eth.connection.port_name = prx.name
     drx_eth.mac = tc["rxMac"]
     drx_eth.mtu = 1500
 
+    # vlan configuration
+    drx_vlan = dtx_eth.vlans.add(name="rxVlan")
+    drx_vlan.set(id=tc["rxVlan"])
+
+    # ipv4 configuration
     drx_ip = drx_eth.ipv4_addresses.add(name="drx_ip")
     drx_ip.address = tc["rxIp"]
     drx_ip.gateway = tc["rxGateway"]
     drx_ip.prefix = tc["rxPrefix"]
 
+    # ipv6 configuration
     drx_ipv6 = drx_eth.ipv6_addresses.add(name="drxv6_ip")
     drx_ipv6.address = tc["rxIpv6"]
     drx_ipv6.gateway = tc["rxv6Gateway"]
     drx_ipv6.prefix = tc["rxv6Prefix"]
 
+    # isis configuration
     drx.isis.system_id = tc["rxIsisSystemId"]
     drx.isis.name = "rx_isis"
 
@@ -188,7 +218,7 @@ def isis_lsp_p2p_l12_config(apis, tc):
     drx_isis_int.eth_name = drx_eth.name
     drx_isis_int.name = "drx_isis_int"
     drx_isis_int.network_type = drx_isis_int.POINT_TO_POINT
-    drx_isis_int.level_type = drx_isis_int.LEVEL_1_2
+    drx_isis_int.level_type = drx_isis_int.LEVEL_2
 
     drx_isis_int.l2_settings.dead_interval = 30
     drx_isis_int.l2_settings.hello_interval = 10
@@ -197,7 +227,7 @@ def isis_lsp_p2p_l12_config(apis, tc):
     drx_isis_int.advanced.auto_adjust_supported_protocols = True
 
     drx_isis_rr4 = drx.isis.v4_routes.add(name="drx_isis_rr4")
-    drx_isis_rr4.link_metric = 10
+    drx_isis_rr4.link_metric = 11
     drx_isis_rr4.addresses.add(
         address=tc["rxAdvRouteV4"], prefix=32, count=tc["rxRouteCount"], step=1
     )
@@ -219,67 +249,52 @@ def isis_lsp_p2p_l12_config(apis, tc):
     ftx_v4.tx_rx.device.tx_names = [dtx_isis_rr4.name]
     ftx_v4.tx_rx.device.rx_names = [drx_isis_rr4.name]
 
-    ftx_v4_eth, ftx_v4_ip, ftx_v4_tcp = ftx_v4.packet.ethernet().ipv4().tcp()
+    ftx_v4_eth, ftx_v4_ip = ftx_v4.packet.ethernet().ipv4()
     ftx_v4_eth.src.value = dtx_eth.mac
+    ftx_v4_vlan = ftx_v4.packet.ethernet().vlan()[-1]
+    ftx_v4_vlan.id.value = tc["txVlan"]
+    ftx_v4_vlan.tpid.value = 33024
     ftx_v4_ip.src.value = tc["txAdvRouteV4"]
     ftx_v4_ip.dst.value = tc["rxAdvRouteV4"]
-    ftx_v4_tcp.src_port.value = 5000
-    ftx_v4_tcp.dst_port.value = 6000
 
     ftx_v6 = c.flows[1]
     ftx_v6.name = "ftx_v6"
     ftx_v6.tx_rx.device.tx_names = [dtx_isis_rrv6.name]
     ftx_v6.tx_rx.device.rx_names = [drx_isis_rrv6.name]
 
-    ftx_v6_eth, ftx_v6_ip, ftx_v6_tcp = ftx_v6.packet.ethernet().ipv6().tcp()
+    ftx_v6_eth, ftx_v6_ip = ftx_v6.packet.ethernet().ipv6()
     ftx_v6_eth.src.value = dtx_eth.mac
+    ftx_v6_vlan = ftx_v6.packet.ethernet().vlan()[-1]
+    ftx_v6_vlan.id.value = tc["txVlan"]
+    ftx_v6_vlan.tpid.value = 33024
     ftx_v6_ip.src.value = tc["txAdvRouteV6"]
     ftx_v6_ip.dst.value = tc["rxAdvRouteV6"]
-    ftx_v6_tcp.src_port.value = 5000
-    ftx_v6_tcp.dst_port.value = 6000
 
     frx_v4 = c.flows[2]
     frx_v4.name = "frx_v4"
     frx_v4.tx_rx.device.tx_names = [drx_isis_rr4.name]
     frx_v4.tx_rx.device.rx_names = [dtx_isis_rr4.name]
 
-    frx_v4_eth, frx_v4_ip, frx_v4_tcp = frx_v4.packet.ethernet().ipv4().tcp()
+    frx_v4_eth, frx_v4_ip = frx_v4.packet.ethernet().ipv4()
     frx_v4_eth.src.value = drx_eth.mac
+    ftx_v4_vlan = frx_v4.packet.ethernet().vlan()[-1]
+    ftx_v4_vlan.id.value = tc["rxVlan"]
+    ftx_v4_vlan.tpid.value = 33024
     frx_v4_ip.src.value = tc["rxAdvRouteV4"]
     frx_v4_ip.dst.value = tc["txAdvRouteV4"]
-    frx_v4_tcp.src_port.value = 5000
-    frx_v4_tcp.dst_port.value = 6000
 
     frx_v6 = c.flows[3]
     frx_v6.name = "frx_v6"
     frx_v6.tx_rx.device.tx_names = [drx_isis_rrv6.name]
     frx_v6.tx_rx.device.rx_names = [dtx_isis_rrv6.name]
 
-    frx_v6_eth, frx_v6_ip, frx_v6_tcp = frx_v6.packet.ethernet().ipv6().tcp()
+    frx_v6_eth, frx_v6_ip = frx_v6.packet.ethernet().ipv6()
     frx_v6_eth.src.value = drx_eth.mac
+    ftx_v6_vlan = frx_v6.packet.ethernet().vlan()[-1]
+    ftx_v6_vlan.id.value = tc["rxVlan"]
+    ftx_v6_vlan.tpid.value = 33024
     frx_v6_ip.src.value = tc["rxAdvRouteV6"]
     frx_v6_ip.dst.value = tc["txAdvRouteV6"]
-    frx_v6_tcp.src_port.value = 5000
-    frx_v6_tcp.dst_port.value = 6000
 
     print("Config:\n%s", c)
     return c
-
-
-def flow_metrics_ok(apis, tc):
-    # Fetch metrics for configured flow
-    mr = apis.metrics_request()
-    mr.flow.flow_names = []
-    metrics = apis.get_metrics(mr).flow_metrics
-    for m in metrics:
-        print("FLOW METRICS", m, sep="\n")
-        if (
-            m.transmit != m.STOPPED
-            or m.frames_tx != tc["pktCount"]
-            or m.frames_rx != tc["pktCount"]
-        ):
-            return False
-    return True
-
-
-# test_isis_lsp_p2p_l12()
