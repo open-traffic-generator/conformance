@@ -92,7 +92,7 @@ func (o *OtgApi) GetCapture(portName string) *CapturedPackets {
 	t.Logf("Getting capture from port %s ...\n", portName)
 	defer o.Timer(time.Now(), "GetCapture")
 
-	res, err := api.GetCapture(api.NewCaptureRequest().SetPortName(portName))
+	res, err := api.GetCapture(gosnappi.NewCaptureRequest().SetPortName(portName))
 	o.LogWrnErr(nil, err, true)
 
 	f, err := os.CreateTemp(".", "pcap")

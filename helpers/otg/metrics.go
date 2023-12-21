@@ -14,7 +14,7 @@ func (o *OtgApi) GetFlowMetrics() []gosnappi.FlowMetric {
 	t.Log("Getting flow metrics ...")
 	defer o.Timer(time.Now(), "GetFlowMetrics")
 
-	mr := api.NewMetricsRequest()
+	mr := gosnappi.NewMetricsRequest()
 	mr.Flow()
 	res, err := api.GetMetrics(mr)
 	o.LogWrnErr(nil, err, true)
@@ -59,7 +59,7 @@ func (o *OtgApi) GetBgpv4Metrics() []gosnappi.Bgpv4Metric {
 	t.Log("Getting bgpv4 metrics ...")
 	defer o.Timer(time.Now(), "GetBgpv4Metrics")
 
-	mr := api.NewMetricsRequest()
+	mr := gosnappi.NewMetricsRequest()
 	mr.Bgpv4()
 	res, err := api.GetMetrics(mr)
 	o.LogWrnErr(nil, err, true)
@@ -96,7 +96,7 @@ func (o *OtgApi) GetIsIsMetrics() []gosnappi.IsisMetric {
 	t.Log("Getting isis metrics ...")
 	defer o.Timer(time.Now(), "GetIsisMetrics")
 
-	mr := api.NewMetricsRequest()
+	mr := gosnappi.NewMetricsRequest()
 	mr.Isis()
 	res, err := api.GetMetrics(mr)
 	o.LogWrnErr(nil, err, true)
@@ -135,7 +135,7 @@ func (o *OtgApi) GetLldpMetrics() []gosnappi.LldpMetric {
 	t.Log("Getting LLDP metrics ...")
 	defer o.Timer(time.Now(), "GetLldpMetrics")
 
-	mr := api.NewMetricsRequest()
+	mr := gosnappi.NewMetricsRequest()
 	mr.Lldp()
 	res, err := api.GetMetrics(mr)
 	o.LogWrnErr(nil, err, true)
@@ -170,7 +170,7 @@ func (o *OtgApi) GetLagMetrics() []gosnappi.LagMetric {
 	t.Log("Getting LAG metrics ...")
 	defer o.Timer(time.Now(), "GetLagMetrics")
 
-	mr := api.NewMetricsRequest()
+	mr := gosnappi.NewMetricsRequest()
 	mr.Lag()
 	res, err := api.GetMetrics(mr)
 	o.LogWrnErr(nil, err, true)
@@ -215,7 +215,7 @@ func (o *OtgApi) GetLacpMetrics() []gosnappi.LacpMetric {
 	t.Log("Getting LACP metrics ...")
 	defer o.Timer(time.Now(), "GetLacpMetrics")
 
-	mr := api.NewMetricsRequest()
+	mr := gosnappi.NewMetricsRequest()
 	mr.Lacp()
 	res, err := api.GetMetrics(mr)
 	o.LogWrnErr(nil, err, true)

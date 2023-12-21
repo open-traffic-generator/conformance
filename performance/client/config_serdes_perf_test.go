@@ -51,9 +51,9 @@ func TestConfigSerdesPerf(t *testing.T) {
 		for i := 1; i <= api.TestConfig().OtgIterations; i++ {
 			t.Logf("ITERATION: %d\n\n", i)
 
-			api.ConfigToJson(api.NewConfigFromJson(cJson))
-			api.ConfigToYaml(api.NewConfigFromYaml(cYaml))
-			api.ConfigToPbText(api.NewConfigFromPbText(cPbText))
+			api.ConfigToJson(gosnappi.NewConfigFromJson(cJson))
+			api.ConfigToYaml(gosnappi.NewConfigFromYaml(cYaml))
+			api.ConfigToPbText(gosnappi.NewConfigFromPbText(cPbText))
 
 			api.Plot().AppendZero()
 		}
