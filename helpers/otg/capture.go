@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dreadl0ck/gopcap"
+	"github.com/open-traffic-generator/snappi/gosnappi"
 )
 
 type CapturedPacket struct {

@@ -80,7 +80,7 @@ func TestEbgpRoutePrefixPerf(t *testing.T) {
 }
 
 func ebgpRoutePrefixPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
-	c := api.Api().NewConfig()
+	c := gosnappi.NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
 	prx := c.Ports().Add().SetName("prx").SetLocation(api.TestConfig().OtgPorts[1])

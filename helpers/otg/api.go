@@ -12,7 +12,7 @@ import (
 type OtgApi struct {
 	t          *testing.T
 	testConfig *testconfig.TestConfig
-	api        gosnappi.GosnappiApi
+	api        gosnappi.Api
 	p          *plot.Plot
 }
 
@@ -47,7 +47,7 @@ func (o *OtgApi) Testing() *testing.T {
 	return o.t
 }
 
-func (o *OtgApi) Api() gosnappi.GosnappiApi {
+func (o *OtgApi) Api() gosnappi.Api {
 	return o.api
 }
 
@@ -82,7 +82,7 @@ func (o *OtgApi) StartProtocols() {
 	o.Testing().Log("Starting protocol ...")
 	defer o.Timer(time.Now(), "StartProtocols")
 
-	cs := o.Api().NewControlState()
+	cs := gosnappi.NewControlState()
 	cs.Protocol().All().SetState(gosnappi.StateProtocolAllState.START)
 	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
@@ -92,7 +92,7 @@ func (o *OtgApi) StopProtocols() {
 	o.Testing().Log("Stopping protocols ...")
 	defer o.Timer(time.Now(), "StopProtocols")
 
-	cs := o.Api().NewControlState()
+	cs := gosnappi.NewControlState()
 	cs.Protocol().All().SetState(gosnappi.StateProtocolAllState.STOP)
 	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
@@ -102,7 +102,7 @@ func (o *OtgApi) StartTransmit() {
 	o.Testing().Log("Starting transmit ...")
 	defer o.Timer(time.Now(), "StartTransmit")
 
-	cs := o.Api().NewControlState()
+	cs := gosnappi.NewControlState()
 	cs.Traffic().FlowTransmit().SetState(gosnappi.StateTrafficFlowTransmitState.START)
 	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
@@ -112,7 +112,7 @@ func (o *OtgApi) StopTransmit() {
 	o.Testing().Log("Stopping transmit ...")
 	defer o.Timer(time.Now(), "StopTransmit")
 
-	cs := o.Api().NewControlState()
+	cs := gosnappi.NewControlState()
 	cs.Traffic().FlowTransmit().SetState(gosnappi.StateTrafficFlowTransmitState.STOP)
 	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
@@ -126,7 +126,7 @@ func (o *OtgApi) StartCapture() {
 	o.Testing().Log("Starting capture ...")
 	defer o.Timer(time.Now(), "StartCapture")
 
-	cs := o.Api().NewControlState()
+	cs := gosnappi.NewControlState()
 	cs.Port().Capture().SetState(gosnappi.StatePortCaptureState.START)
 	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
@@ -140,7 +140,7 @@ func (o *OtgApi) StopCapture() {
 	o.Testing().Log("Stopping capture ...")
 	defer o.Timer(time.Now(), "StopCapture")
 
-	cs := o.Api().NewControlState()
+	cs := gosnappi.NewControlState()
 	cs.Port().Capture().SetState(gosnappi.StatePortCaptureState.STOP)
 	res, err := o.Api().SetControlState(cs)
 	o.LogWrnErr(res, err, true)
@@ -150,8 +150,8 @@ func (o *OtgApi) NewConfigFromJson(jsonStr string) gosnappi.Config {
 	o.Testing().Log("Loading config from JSON ...")
 	defer o.Timer(time.Now(), "NewConfigFromJson")
 
-	c := o.Api().NewConfig()
-	if err := c.FromJson(jsonStr); err != nil {
+	c := gosnappi.NewConfig()
+	if err := c.Unmarshal().FromJson(jsonStr); err != nil {
 		o.Testing().Fatal("ERROR: ", err)
 	}
 
@@ -162,8 +162,8 @@ func (o *OtgApi) NewConfigFromYaml(yamlStr string) gosnappi.Config {
 	o.Testing().Log("Loading config from YAML ...")
 	defer o.Timer(time.Now(), "NewConfigFromYaml")
 
-	c := o.Api().NewConfig()
-	if err := c.FromYaml(yamlStr); err != nil {
+	c := gosnappi.NewConfig()
+	if err := c.Unmarshal().FromYaml(yamlStr); err != nil {
 		o.Testing().Fatal("ERROR: ", err)
 	}
 
@@ -174,8 +174,8 @@ func (o *OtgApi) NewConfigFromPbText(pbStr string) gosnappi.Config {
 	o.Testing().Log("Loading config from pb text ...")
 	defer o.Timer(time.Now(), "NewConfigFromPbText")
 
-	c := o.Api().NewConfig()
-	if err := c.FromPbText(pbStr); err != nil {
+	c := gosnappi.NewConfig()
+	if err := c.Unmarshal().FromPbText(pbStr); err != nil {
 		o.Testing().Fatal("ERROR: ", err)
 	}
 
@@ -186,7 +186,7 @@ func (o *OtgApi) ConfigToJson(config gosnappi.Config) string {
 	o.Testing().Log("Serializing config to JSON ...")
 	defer o.Timer(time.Now(), "ConfigToJson")
 
-	v, err := config.ToJson()
+	v, err := config.Marshal().ToJson()
 	if err != nil {
 		o.Testing().Fatal("ERROR: ", err)
 	}
@@ -198,7 +198,7 @@ func (o *OtgApi) ConfigToYaml(config gosnappi.Config) string {
 	o.Testing().Log("Serializing config to YAML ...")
 	defer o.Timer(time.Now(), "ConfigToYaml")
 
-	v, err := config.ToYaml()
+	v, err := config.Marshal().ToYaml()
 	if err != nil {
 		o.Testing().Fatal("ERROR: ", err)
 	}
@@ -210,7 +210,7 @@ func (o *OtgApi) ConfigToPbText(config gosnappi.Config) string {
 	o.Testing().Log("Serializing config to pb text ...")
 	defer o.Timer(time.Now(), "ConfigToPbText")
 
-	v, err := config.ToPbText()
+	v, err := config.Marshal().ToPbText()
 	if err != nil {
 		o.Testing().Fatal("ERROR: ", err)
 	}

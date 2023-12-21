@@ -55,7 +55,7 @@ func TestQuickstart(t *testing.T) {
 	cus.SetBytes(hex.EncodeToString([]byte("..QUICKSTART SNAPPI..")))
 
 	// Optionally, print JSON representation of config
-	if j, err := config.ToJson(); err != nil {
+	if j, err := config.Marshal().ToJson(); err != nil {
 		t.Fatal(err)
 	} else {
 		t.Logf("\nCONFIGURATION\n%v\n", j)
