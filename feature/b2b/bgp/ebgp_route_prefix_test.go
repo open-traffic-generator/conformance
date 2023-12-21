@@ -9,9 +9,9 @@ import (
 	"github.com/open-traffic-generator/snappi/gosnappi"
 )
 
-/* Demonstrates advertisement , storage and retrieval of BGP 
+/* Demonstrates advertisement , storage and retrieval of BGP
    routes with attributes such as AS Path, Ext. Community, MED.
-   eBGP sessions do not advertise Local Preference so iBGP test should be 
+   eBGP sessions do not advertise Local Preference so iBGP test should be
    used to verify Local Preference behaviour */
 
 func TestEbgpRoutePrefix(t *testing.T) {
@@ -71,7 +71,7 @@ func TestEbgpRoutePrefix(t *testing.T) {
 }
 
 func ebgpRoutePrefixConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
-	c := api.Api().NewConfig()
+	c := gosnappi.NewConfig()
 
 	ptx := c.Ports().Add().SetName("ptx").SetLocation(api.TestConfig().OtgPorts[0])
 	prx := c.Ports().Add().SetName("prx").SetLocation(api.TestConfig().OtgPorts[1])

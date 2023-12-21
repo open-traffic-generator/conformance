@@ -71,7 +71,7 @@ func TestUdpTputPerf(t *testing.T) {
 }
 
 func udpTputPerfConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
-	c := api.Api().NewConfig()
+	c := gosnappi.NewConfig()
 	p1 := c.Ports().Add().SetName("p1").SetLocation(api.TestConfig().OtgPorts[0])
 
 	c.Layer1().Add().

@@ -45,7 +45,7 @@ func TestUdpStaticLag(t *testing.T) {
 }
 
 func udpStaticLagConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
-	c := api.Api().NewConfig()
+	c := gosnappi.NewConfig()
 	p1 := c.Ports().Add().SetName("p1").SetLocation(api.TestConfig().OtgPorts[0])
 	p2 := c.Ports().Add().SetName("p2").SetLocation(api.TestConfig().OtgPorts[1])
 	p3 := c.Ports().Add().SetName("p3").SetLocation(api.TestConfig().OtgPorts[2])
