@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # update for any release using
-# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v0.0.1-2994/versions.yaml
+# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.0.0-92/versions.yaml
 VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
@@ -17,7 +17,7 @@ KIND_VERSION=v0.20.0
 METALLB_VERSION=v0.13.11
 MESHNET_COMMIT=d7c306c
 MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
-KENG_OPERATOR_VERSION="0.3.15"
+KENG_OPERATOR_VERSION="0.3.28"
 KENG_OPERATOR_YAML="https://github.com/open-traffic-generator/keng-operator/releases/download/v${KENG_OPERATOR_VERSION}/ixiatg-operator.yaml"
 NOKIA_SRL_OPERATOR_VERSION="0.4.6"
 NOKIA_SRL_OPERATOR_YAML="https://github.com/srl-labs/srl-controller/config/default?ref=v${NOKIA_SRL_OPERATOR_VERSION}"
@@ -25,7 +25,7 @@ ARISTA_CEOS_OPERATOR_VERSION="2.0.1"
 ARISTA_CEOS_OPERATOR_YAML="https://github.com/aristanetworks/arista-ceoslab-operator/config/default?ref=v${ARISTA_CEOS_OPERATOR_VERSION}"
 ARISTA_CEOS_VERSION="4.29.1F-29233963"
 ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
-KNE_VERSION=v0.1.15
+KNE_VERSION=v0.1.16
 
 OPENCONFIG_MODELS_REPO=https://github.com/openconfig/public.git
 OPENCONFIG_MODELS_COMMIT=5ca6a36
