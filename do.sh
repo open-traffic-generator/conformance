@@ -33,6 +33,13 @@ OPENCONFIG_MODELS_COMMIT=5ca6a36
 TIMEOUT_SECONDS=300
 APT_GET_UPDATE=true
 
+
+IXIA_C_CONFIG_MAP="deployments/ixia-c-config.yaml"
+if [ "${LICENSING}" = "true" ]
+then
+    IXIA_C_CONFIG_MAP="deployments/ixia-c-licensed-config.yaml"
+fi
+
 apt_update() {
     if [ "${APT_UPDATE}" = "true" ]
     then
@@ -607,8 +614,10 @@ create_ixia_c_b2b_cpdp() {
         ipv6_enable_docker
     fi
     echo "Setting up back-to-back with CP/DP distribution of ixia-c ..."
-    login_ghcr                                              \
-    && docker run -d                                        \
+    login_ghcr                                              
+    if [ "${LICENSING}" = "true" ]
+    then
+        docker run -d                                        \
         --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
@@ -617,13 +626,23 @@ create_ixia_c_b2b_cpdp() {
         --trace                                             \
         --disable-app-usage-reporter                        \
         --license-servers localhost                         \
-    && docker run -d                                        \
+        && docker run -d                                        \
         --net=container:keng-controller                     \
         --name=keng-license-server                          \
         $(keng_license_server_img)                          \
         --accept-eula                                       \
-        --debug                                             \
-    && docker run --privileged -d                           \
+        --debug            
+    else
+        docker run -d                                        \
+        --name=keng-controller                              \
+        --publish 0.0.0.0:8443:8443                         \
+        --publish 0.0.0.0:40051:40051                       \
+        $(keng_controller_img)                              \
+        --accept-eula                                       \
+        --trace                                             \
+        --disable-app-usage-reporter
+    fi
+    docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
         -e ARG_IFACE_LIST="virtual@af_packet,${VETH_A}"     \
@@ -663,6 +682,11 @@ rm_ixia_c_b2b_cpdp() {
     echo "Tearing down back-to-back with CP/DP distribution of ixia-c ..."
     docker stop keng-controller && docker rm keng-controller
 
+    if [ "${LICENSING}" = "true" ]
+    then
+        docker stop keng-license-server && docker rm keng-license-server
+    fi
+
     docker stop ixia-c-traffic-engine-${VETH_A}
     docker stop ixia-c-protocol-engine-${VETH_A}
     docker rm ixia-c-traffic-engine-${VETH_A}
@@ -678,8 +702,10 @@ rm_ixia_c_b2b_cpdp() {
 
 create_ixia_c_b2b_lag() {
     echo "Setting up back-to-back LAG with CP/DP distribution of ixia-c ..."
-    login_ghcr                                              \
-    && docker run -d                                        \
+    login_ghcr                                             
+    if [ "${LICENSING}" = "true" ]
+    then
+        docker run -d                                        \
         --name=keng-controller                              \
         --publish 0.0.0.0:8443:8443                         \
         --publish 0.0.0.0:40051:40051                       \
@@ -688,13 +714,23 @@ create_ixia_c_b2b_lag() {
         --trace                                             \
         --disable-app-usage-reporter                        \
         --license-servers localhost                         \
-    && docker run -d                                        \
+        && docker run -d                                        \
         --net=container:keng-controller                     \
         --name=keng-license-server                          \
         $(keng_license_server_img)                          \
         --accept-eula                                       \
-        --debug                                             \
-    && docker run --privileged -d                           \
+        --debug            
+    else
+        docker run -d                                        \
+        --name=keng-controller                              \
+        --publish 0.0.0.0:8443:8443                         \
+        --publish 0.0.0.0:40051:40051                       \
+        $(keng_controller_img)                              \
+        --accept-eula                                       \
+        --trace                                             \
+        --disable-app-usage-reporter
+    fi
+    docker run --privileged -d                           \
         --name=ixia-c-traffic-engine-${VETH_A}              \
         -e OPT_LISTEN_PORT="5555"                           \
         -e ARG_IFACE_LIST="virtual@af_packet,${VETH_A} virtual@af_packet,${VETH_B} virtual@af_packet,${VETH_C}"     \
@@ -912,11 +948,11 @@ setup_k8s_plugins() {
 }
 
 ixia_c_image_path() {
-    grep "\"${1}\"" -A 1 deployments/ixia-c-config.yaml | grep path | cut -d\" -f4
+    grep "\"${1}\"" -A 1 $IXIA_C_CONFIG_MAP | grep path | cut -d\" -f4
 }
 
 ixia_c_image_tag() {
-    grep "\"${1}\"" -A 2 deployments/ixia-c-config.yaml | grep tag | cut -d\" -f4
+    grep "\"${1}\"" -A 2 $IXIA_C_CONFIG_MAP | grep tag | cut -d\" -f4
 }
 
 keng_operator_image() {
@@ -960,7 +996,12 @@ load_arista_ceos_image() {
 load_ixia_c_images() {
     echo "Loading ixia-c images in cluster ..."
     login_ghcr
-    for name in controller gnmi-server traffic-engine protocol-engine license-server
+    names="controller gnmi-server traffic-engine protocol-engine"
+    if [ "${LICENSING}" = "true" ]
+    then
+        names="$names license-server"
+    fi
+    for name in $names
     do
         p=$(ixia_c_image_path ${name})
         t=$(ixia_c_image_tag ${name})
@@ -971,7 +1012,7 @@ load_ixia_c_images() {
         && docker tag ${img} ${limg} \
         && kind load docker-image ${img} \
         && kind load docker-image ${limg}
-    done
+    done 
 }
 
 wait_for_pods() {
@@ -1052,7 +1093,7 @@ create_ixia_c_kne() {
     echo "Creating KNE ${1} ${2} topology ..."
     ns=$(kne_namespace ${1} ${2})
     topo=$(kne_topo_file ${1} ${2})
-    kubectl apply -f deployments/ixia-c-config.yaml \
+    kubectl apply -f $IXIA_C_CONFIG_MAP \
     && kne create ${topo} \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
