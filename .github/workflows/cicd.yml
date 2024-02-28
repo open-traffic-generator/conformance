@@ -233,7 +233,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -257,7 +257,7 @@ jobs:
             logs
       - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm cpdp
+          LICENSING=true ./do.sh topo rm cpdp
 
   cpdp_go:
     runs-on: ubuntu-22.04
@@ -268,7 +268,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -297,7 +297,7 @@ jobs:
             logs
       - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm cpdp
+          LICENSING=true ./do.sh topo rm cpdp
 
   cpdp_ipv6_py:
     runs-on: ubuntu-22.04
@@ -308,7 +308,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp ipv6
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp ipv6
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -332,7 +332,7 @@ jobs:
             logs
       - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm cpdp
+          LICENSING=true ./do.sh topo rm cpdp
 
   cpdp_ipv6_go:
     runs-on: ubuntu-22.04
@@ -343,7 +343,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp ipv6
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp ipv6
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -372,7 +372,7 @@ jobs:
             logs
       - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm cpdp
+          LICENSING=true ./do.sh topo rm cpdp
 
   kne_b2b_py:
     runs-on: ubuntu-22.04
@@ -387,10 +387,10 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
       - name: Setup KNE cluster
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster kne
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh new_k8s_cluster kne
       - name: Deploy KNE OTG back-to-back topology
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new kneb2b
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new kneb2b
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -410,7 +410,7 @@ jobs:
             logs
       - name: Teardown KNE OTG back-to-back topology
         run: |
-          ./do.sh topo rm kneb2b
+          LICENSING=true ./do.sh topo rm kneb2b
 
   kne_b2b_go:
     runs-on: ubuntu-22.04
@@ -433,10 +433,10 @@ jobs:
             kne_b2b_go_
       - name: Setup KNE cluster
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster kne
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh new_k8s_cluster kne
       - name: Deploy KNE OTG back-to-back topology
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new kneb2b
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new kneb2b
       - name: Run Go tests
         run: |
           ./do.sh gotest -tags=all ./feature/b2b/...
@@ -449,7 +449,7 @@ jobs:
             logs
       - name: Teardown KNE OTG back-to-back topology
         run: |
-          ./do.sh topo rm kneb2b
+          LICENSING=true ./do.sh topo rm kneb2b
 
   kne_pdp_arista_go:
     runs-on: ubuntu-22.04
@@ -472,10 +472,10 @@ jobs:
             kne_pdp_arista_go_
       - name: Setup KNE cluster
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster kne arista
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh new_k8s_cluster kne arista
       - name: Deploy KNE OTG port-dut-port topology
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new knepdp arista
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new knepdp arista
       - name: Run Go tests
         run: |
           ./do.sh gotest -tags=all ./feature/pdp/...
@@ -488,7 +488,7 @@ jobs:
             logs
       - name: Teardown KNE OTG port-dut-port topology
         run: |
-          ./do.sh topo rm knepdp arista
+         LICENSING=true ./do.sh topo rm knepdp arista
 
   kne_b2b_eth0:
     runs-on: ubuntu-22.04
@@ -511,10 +511,10 @@ jobs:
             kne_b2b_eth0_
       - name: Setup K8S cluster
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh new_k8s_cluster
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh new_k8s_cluster
       - name: Deploy OTG back-to-back topology with eth0
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new k8seth0
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new k8seth0
       - name: Run Go eth0 tests
         run: |
           ./do.sh gotest feature/b2b/packet/udp/udp_port_value_eth0_test.go
@@ -527,7 +527,7 @@ jobs:
             logs
       - name: Teardown OTG back-to-back topology with eth0
         run: |
-          ./do.sh topo rm k8seth0
+         LICENSING=true ./do.sh topo rm k8seth0
 
   b2blag:
     runs-on: ubuntu-22.04
@@ -538,7 +538,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back LAG CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new b2blag
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new b2blag
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -567,7 +567,7 @@ jobs:
             logs
       - name: Teardown back-to-back LAG CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm b2blag
+          LICENSING=true ./do.sh topo rm b2blag
 
   client_perf_py:
     runs-on: ubuntu-22.04
@@ -669,7 +669,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -698,7 +698,7 @@ jobs:
             logs
       - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm cpdp
+          LICENSING=true ./do.sh topo rm cpdp
 
   dp_grpc_perf:
     runs-on: ubuntu-22.04
@@ -709,7 +709,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -738,7 +738,7 @@ jobs:
             logs
       - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm cpdp
+          LICENSING=true ./do.sh topo rm cpdp
 
   cp_http_perf:
     runs-on: ubuntu-22.04
@@ -749,7 +749,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -778,7 +778,7 @@ jobs:
             logs
       - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm cpdp
+          LICENSING=true ./do.sh topo rm cpdp
 
   cp_grpc_perf:
     runs-on: ubuntu-22.04
@@ -789,7 +789,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
-          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} ./do.sh topo new cpdp
+          GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -818,4 +818,4 @@ jobs:
             logs
       - name: Teardown back-to-back CP/DP distribution of ixia-c
         run: |
-          ./do.sh topo rm cpdp
+          LICENSING=true  ./do.sh topo rm cpdp

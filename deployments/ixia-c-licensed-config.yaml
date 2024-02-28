@@ -35,6 +35,11 @@ data:
                     "name": "ixhw-server",
                     "path": "ghcr.io/open-traffic-generator/keng-layer23-hw-server",
                     "tag": "1.0.1-4"
+                },
+                {
+                    "name": "license-server",
+                    "path": "ghcr.io/open-traffic-generator/licensed/keng-license-server",
+                    "tag": "latest"
                 }
             ]
         }
