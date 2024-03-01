@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # update for any release using
-# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.0.0-92/versions.yaml
+# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.0.0-104/versions.yaml
 VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
@@ -25,7 +25,7 @@ ARISTA_CEOS_OPERATOR_VERSION="2.0.1"
 ARISTA_CEOS_OPERATOR_YAML="https://github.com/aristanetworks/arista-ceoslab-operator/config/default?ref=v${ARISTA_CEOS_OPERATOR_VERSION}"
 ARISTA_CEOS_VERSION="4.29.1F-29233963"
 ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
-KNE_VERSION=v0.1.16
+KNE_VERSION=v0.1.17
 
 OPENCONFIG_MODELS_REPO=https://github.com/openconfig/public.git
 OPENCONFIG_MODELS_COMMIT=5ca6a36
