@@ -23,9 +23,20 @@ NOKIA_SRL_OPERATOR_VERSION="0.4.6"
 NOKIA_SRL_OPERATOR_YAML="https://github.com/srl-labs/srl-controller/config/default?ref=v${NOKIA_SRL_OPERATOR_VERSION}"
 ARISTA_CEOS_OPERATOR_VERSION="2.0.1"
 ARISTA_CEOS_OPERATOR_YAML="https://github.com/aristanetworks/arista-ceoslab-operator/config/default?ref=v${ARISTA_CEOS_OPERATOR_VERSION}"
-ARISTA_CEOS_VERSION="4.29.1F-29233963"
+ARISTA_CEOS_VERSION="4.30.1f-32091951"
 ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
+ARISTA_TAR_PATH="./ceos-4.30.tar"
 KNE_VERSION=v0.1.17
+
+#docker-compose file for otg-hw topology
+OTG_HW_COMPOSE="docker-compose.with.license.yaml"
+
+#otg-hw host
+OTG_HW_HOST="https://0.0.0.0:8443"
+
+#otg-hw ports(Chassis ports)
+OTG_HW_PORT_1="10.36.87.207;1;1"
+OTG_HW_PORT_2="10.36.87.207;1;2"
 
 OPENCONFIG_MODELS_REPO=https://github.com/openconfig/public.git
 OPENCONFIG_MODELS_COMMIT=5ca6a36
@@ -337,6 +348,15 @@ gen_config_common() {
     echo -n "$yml" | sed "s/^        //g" | tee -a ./test-config.yaml > /dev/null
 }
 
+gen_config_common_hw() {
+    yml="otg_speed: speed_400_gbps
+        otg_capture_check: true
+        otg_iterations: 100
+        otg_grpc_transport: false
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee -a ./test-config.yaml > /dev/null
+}
+
 gen_config_b2b_dp() {
     yml="otg_host: https://localhost:8443
         otg_ports:
@@ -415,6 +435,17 @@ gen_config_kne() {
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
     gen_config_common
+}
+
+gen_config_otg_hw() {
+    yml="otg_host: ${OTG_HW_HOST}
+        otg_ports:
+          - ${OTG_HW_PORT_1}
+          - ${OTG_HW_PORT_2}
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+
+    gen_config_common_hw
 }
 
 gen_config_k8s() {
@@ -990,7 +1021,19 @@ load_image_to_kind() {
 }
 
 load_arista_ceos_image() {
-    load_image_to_kind "${ARISTA_CEOS_IMAGE}:${ARISTA_CEOS_VERSION}" "local"
+    #load_image_to_kind "${ARISTA_CEOS_IMAGE}:${ARISTA_CEOS_VERSION}" "local"
+
+    if docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "${ARISTA_CEOS_IMAGE}:local"; then
+        kind load docker-image ${ARISTA_CEOS_IMAGE}:local
+    elif docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "${ARISTA_CEOS_IMAGE}:${ARISTA_CEOS_VERSION}"; then
+        docker tag ${ARISTA_CEOS_IMAGE}:${ARISTA_CEOS_VERSION} ${ARISTA_CEOS_IMAGE}:local
+        kind load docker-image ${ARISTA_CEOS_IMAGE}:local
+    else 
+        docker load -i $ARISTA_TAR_PATH #constant
+        docker tag ${ARISTA_CEOS_IMAGE}:${ARISTA_CEOS_VERSION} ${ARISTA_CEOS_IMAGE}:local
+        kind load docker-image ${ARISTA_CEOS_IMAGE}:local
+    fi
+    
 }
 
 load_ixia_c_images() {
@@ -1110,6 +1153,26 @@ rm_ixia_c_kne() {
     && wait_for_no_namespace ${ns}
 }
 
+create_otg_hw_b2b() {
+    if docker-compose -f $OTG_HW_COMPOSE ps | grep -q "Up"; then
+        echo "OTG-HW topology is already running. Please bring it down first."
+        exit 1
+    else
+        echo "Creating OTG-HW topology using docker-compose ..."
+        docker-compose -f $OTG_HW_COMPOSE up -d
+
+        gen_config_otg_hw
+
+        docker ps
+        echo "Sucessfully deployed !"
+    fi
+}
+
+rm_otg_hw_b2b() {
+    echo "Removing OTG-HW topology ..."
+    docker-compose -f docker-compose.with.license.yaml down
+}
+
 k8s_namespace() {
     grep namespace deployments/k8s/manifests/${1}.yaml -m 1 | cut -d \: -f2 | cut -d \  -f 2
 }
@@ -1154,6 +1217,9 @@ topo() {
                 k8seth0 )
                     create_ixia_c_k8s ixia-c-b2b-eth0
                 ;;
+                otghw_b2b )
+                    create_otg_hw_b2b
+                ;;
                 *   )
                     echo "unsupported topo type: ${2}"
                     exit 1
@@ -1179,6 +1245,9 @@ topo() {
                 ;;
                 k8seth0 )
                     rm_ixia_c_k8s ixia-c-b2b-eth0
+                ;;
+                otghw_b2b )
+                    rm_otg_hw_b2b
                 ;;
                 *   )
                     echo "unsupported topo type: ${2}"

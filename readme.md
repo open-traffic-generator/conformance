@@ -11,6 +11,7 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 - At least 10GB Free Hard Disk Space
 - Go 1.17+ or Python 3.6+ (with pip)
 - Docker Engine (Community Edition)
+- Docker Compose  
 
 
 ### Usage:
@@ -149,4 +150,15 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ./do.sh topo rm knepdp arista
     # delete KNE cluster
     ./do.sh rm_k8s_cluster kne arista
+    ```
+
+7. Run tests against OTG-HW (Back-To-Back)
+
+    ```sh
+    # create OTG-HW topology
+    ./do.sh topo new otghw_b2b
+    # run all back-to-back feature tests
+    ./do.sh gotest -tags="all" ./feature/b2b/...
+    # delete OTG-HW topology
+    ./do.sh topo rm otghw_b2b
     ```
