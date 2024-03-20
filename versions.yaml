@@ -1,14 +1,14 @@
-release: 1.0.0-104
+release: 1.1.0-10
 images:
   - name: controller
     path: ghcr.io/open-traffic-generator/keng-controller
-    tag: 1.0.0-104
+    tag: 1.1.0-10
   - name: traffic-engine
     path: ghcr.io/open-traffic-generator/ixia-c-traffic-engine
     tag: 1.6.0.109
   - name: protocol-engine
     path: ghcr.io/open-traffic-generator/ixia-c-protocol-engine
-    tag: 1.00.0.367
+    tag: 1.00.0.370
   - name: license-server
     path: ghcr.io/open-traffic-generator/licensed/keng-license-server
     tag: latest
