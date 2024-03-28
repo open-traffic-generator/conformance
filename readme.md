@@ -10,8 +10,8 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 - At least 6GB RAM
 - At least 10GB Free Hard Disk Space
 - Go 1.17+ or Python 3.6+ (with pip)
-- Docker Engine (Community Edition)
-- Docker Compose  
+- Docker Engine (Community Edition) ( https://docs.docker.com/engine/install/ubuntu/ )
+- Docker Compose  ( sudo apt install docker-compose )
 
 
 ### Usage:
