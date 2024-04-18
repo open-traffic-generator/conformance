@@ -2,6 +2,10 @@
 
 # update for any release using
 # curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.0.0-104/versions.yaml
+
+GITHUB_USER="give your github username"
+GITHUB_PAT="give your github PAT"
+
 VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
@@ -28,7 +32,18 @@ ARISTA_CEOS_IMAGE="ghcr.io/open-traffic-generator/ceos"
 ARISTA_TAR_PATH="./ceos-4.30.tar"
 KNE_VERSION=v0.1.17
 
-#docker-compose file for otg-hw topology
+export OTG_HW_PATH=$(yq e '.images[] | select(.name == "otg-ixhw-c") | .path' ~/conformance/versions.yaml)
+export OTG_HW_TAG=$(yq e '.images[] | select(.name == "otg-ixhw-c") | .tag' ~/conformance/versions.yaml)
+export GNMI_SERVER_PATH=$(yq e '.images[] | select(.name == "gnmi-server") | .path' ~/conformance/versions.yaml)
+export GNMI_SERVER_TAG=$(yq e '.images[] | select(.name == "gnmi-server") | .tag' ~/conformance/versions.yaml)
+export CONTROLLER_PATH=$(yq e '.images[] | select(.name == "controller") | .path' ~/conformance/versions.yaml)
+export CONTROLLER_TAG=$(yq e '.images[] | select(.name == "controller") | .tag' ~/conformance/versions.yaml)
+export PROTOCOL_ENGINE_PATH=$(yq e '.images[] | select(.name == "protocol-engine") | .path' ~/conformance/versions.yaml)
+export PROTOCOL_ENGINE_TAG=$(yq e '.images[] | select(.name == "protocol-engine") | .tag' ~/conformance/versions.yaml)
+
+#-------------------------------------------------------------------------------------------------------------
+#OTG_HW details
+#-------------------------------------------------------------------------------------------------------------
 OTG_HW_COMPOSE="docker-compose.with.license.yaml"
 
 #otg-hw host
@@ -37,6 +52,17 @@ OTG_HW_HOST="https://0.0.0.0:8443"
 #otg-hw ports(Chassis ports)
 OTG_HW_PORT_1="10.36.87.207;1;1"
 OTG_HW_PORT_2="10.36.87.207;1;2"
+#----------------------------------------------------------------------------------------------------------------------
+#UHD setup details
+#----------------------------------------------------------------------------------------------------------------------
+TRUNK_INTERFACE="ens192"
+UHD_CONTROLLER_COMPOSE="docker-compose.controller.uhd.yaml"
+PE_LIST="1 2"
+UHD_HOST="10.36.87.205:40051"
+#for example ports will look like :=
+#"uhd://10.36.87.166:7531;1+0.0.0.0:50071"
+#"uhd://10.36.87.166:7531;2+0.0.0.0:50072"
+#-----------------------------------------------------------------------------------------------------------------------
 
 OPENCONFIG_MODELS_REPO=https://github.com/openconfig/public.git
 OPENCONFIG_MODELS_COMMIT=5ca6a36
@@ -357,6 +383,15 @@ gen_config_common_hw() {
     echo -n "$yml" | sed "s/^        //g" | tee -a ./test-config.yaml > /dev/null
 }
 
+gen_config_common_uhd() {
+    yml="otg_speed: speed_400_gbps
+        otg_capture_check: true
+        otg_iterations: 100
+        otg_grpc_transport: true
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee -a ./test-config.yaml > /dev/null
+}
+
 gen_config_b2b_dp() {
     yml="otg_host: https://localhost:8443
         otg_ports:
@@ -446,6 +481,22 @@ gen_config_otg_hw() {
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
     gen_config_common_hw
+}
+
+gen_config_uhd_b2b() {
+    ELEMENT1=""
+    ELEMENT2=""
+
+    ELEMENT1=$(echo "$PE_LIST" | awk '{print $1}')
+    ELEMENT2=$(echo "$PE_LIST" | awk '{print $2}')
+    yml="otg_host: ${UHD_HOST}
+        otg_ports:
+          - uhd://10.36.87.166:7531;$ELEMENT1+10.36.87.205:$((50070 + ELEMENT1))
+          - uhd://10.36.87.166:7531;$ELEMENT2+10.36.87.205:$((50070 + ELEMENT2))
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+
+    gen_config_common_uhd
 }
 
 gen_config_k8s() {
@@ -1154,6 +1205,8 @@ rm_ixia_c_kne() {
 }
 
 create_otg_hw_b2b() {
+    login_ghcr
+
     if docker-compose -f $OTG_HW_COMPOSE ps | grep -q "Up"; then
         echo "OTG-HW topology is already running. Please bring it down first."
         exit 1
@@ -1171,6 +1224,121 @@ create_otg_hw_b2b() {
 rm_otg_hw_b2b() {
     echo "Removing OTG-HW topology ..."
     docker-compose -f docker-compose.with.license.yaml down
+    echo "Removed successfully"
+}
+
+create_uhd() {
+
+    login_ghcr
+
+    if docker-compose -f $UHD_CONTROLLER_COMPOSE ps | grep -q "Up"; then
+        echo "UHD-B2B topology is already running. Please bring it down first."
+        exit 1
+    else
+        echo "Creating UHD-B2B topology using docker-compose ..."
+        #Deploying uhd controller and gnmi server
+        docker-compose -f $UHD_CONTROLLER_COMPOSE up -d
+        docker-compose -f $UHD_CONTROLLER_COMPOSE up -d otg-gnmi-server #as of now manual since with compose not gettin' up
+        
+        #Deploying protocol engines
+        for port in $PE_LIST; do
+            deploy_ixia_c_protocol_engine "$port"
+        done
+
+
+        gen_config_uhd_b2b
+
+        docker ps
+        echo "Sucessfully deployed !"
+    fi
+}
+
+
+
+deploy_ixia_c_protocol_engine() {
+
+    port=$1
+    if [ $port -gt 32 ] || [ $port -lt 1 ]; then
+        echo "Port $port out of range"
+        return 1
+    fi
+    # check if trunk exists
+    if ! sudo ip link show "$TRUNK_INTERFACE" > /dev/null 2>&1; then
+        echo "Trunk interface: $TRUNK_INTERFACE doesn't exist"
+        return 1;
+    fi
+    # set trunk port up/promic mode
+    sudo ip link set $TRUNK_INTERFACE up promisc on
+    cleanup_protocol_engine "$port" > /dev/null 2>/dev/null || true
+    container_name="ixiape$port"
+    echo "starting container $container_name: for UHD Port $port"
+    #-e PE_MAX_CORE='4' 
+    docker run \
+            --privileged \
+            -p $((50070 + $port)):50071 \
+            -e "OPT_NO_HUGEPAGES=Yes" \
+            -e ARG_IFACE_LIST="virtual@af_packet,eth1" \
+            -l controller=bash \
+            -l app=ixia-c-protocol-engine \
+            -l port="$port" \
+            -d \
+            --name "$container_name" \
+            "${PROTOCOL_ENGINE_PATH}:${PROTOCOL_ENGINE_TAG}"
+    # Create VLAN Interface
+    vlan_map="136 144 152 160 168 176 184 192 320 312 304 296 288 280 272 264"
+    pe_interface="ixiape$port"
+    vlan=$(get_vlan $port)
+    #vlan=${vlan_map[$(( port - 1 ))]}
+    echo "creating $pe_interface: for UHD Port $port $pe_interface=$TRUNK_INTERFACE vlan id $vlan"
+    # delete interface if exists
+    sudo ip link del "$pe_interface" 2>/dev/null || true
+    sudo ip link add link "$TRUNK_INTERFACE" name "$pe_interface" type vlan id "$vlan"
+    sudo ip link set "$pe_interface" up promisc on
+    # generate random mac address for the 
+    sudo ip link set "$pe_interface" address "$(printf '00:60:2F:0A:0B:%02X\n' "${port}")"
+
+    # move ixiapeN interface into the container
+    echo "moving interface $pe_interface into $container_name"
+    pid=$(docker inspect "${container_name}" --format {{.State.Pid}})
+    # set name to network namespace
+    mkdir -p /var/run/netns/
+    sudo ln -sf /proc/"$pid"/ns/net "/var/run/netns/$container_name"
+
+    # move interface to container's network namespace
+    sudo ip link set "$pe_interface" netns "$container_name"
+    sudo ip netns exec "$pe_interface" sudo ip link set "$pe_interface" name eth1
+    sudo ip netns exec "$pe_interface" sudo ip link set eth1 up promisc on
+
+}
+
+get_vlan() {
+    local port=$1
+    local index=$((port - 1))
+    local vlan=$(echo $vlan_map | cut -d' ' -f$((index + 1)))
+    echo "$vlan"
+}
+
+cleanup_protocol_engine(){
+    port=$1
+    if [ $port -gt 16 ] || [ $port -lt 1 ]; then
+        echo "Port $port out of range"
+        return 1
+    fi
+    echo "Deleting Ixia-c-protocol-engine containers for port $port"
+    docker ps -q -f label=app=ixia-c-protocol-engine -f label=port=$port 
+    # delete container
+    docker rm -f $(docker ps -q -f label=app=ixia-c-protocol-engine -f label=port=$port) > /dev/null 2>/dev/null || true
+    # delete vlan interface
+    pe_interface="ixiape$port"
+    sudo ip link delete "$pe_interface" 2>/dev/null
+}
+
+rm_uhd() {
+    docker-compose -f $UHD_CONTROLLER_COMPOSE down
+    for port in $PE_LIST; do
+        cleanup_protocol_engine "$port" > /dev/null 2>/dev/null || true
+    done
+    echo "Successfully removed topology"
 }
 
 k8s_namespace() {
@@ -1220,6 +1388,9 @@ topo() {
                 otghw_b2b )
                     create_otg_hw_b2b
                 ;;
+                uhd )
+                    create_uhd
+                ;;
                 *   )
                     echo "unsupported topo type: ${2}"
                     exit 1
@@ -1248,6 +1419,9 @@ topo() {
                 ;;
                 otghw_b2b )
                     rm_otg_hw_b2b
+                ;;
+                uhd )
+                    rm_uhd
                 ;;
                 *   )
                     echo "unsupported topo type: ${2}"

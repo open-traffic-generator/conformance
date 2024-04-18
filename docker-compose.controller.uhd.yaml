@@ -1,0 +1,33 @@
+version: "2"
+
+services:
+  otg-gnmi-server:
+    image: ${GNMI_SERVER_PATH}:${GNMI_SERVER_TAG}
+    container_name: otg-gnmi-server
+    profiles: ["all", "gnmi"]
+    restart: always
+    ports:
+      - "50051:50051"
+    command:
+      - "-http-server"
+      - "https://keng-controller:8443"
+      - "--debug"
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: "2"
+        mode: "non-blocking"
+
+  keng-controller:
+    image: ${CONTROLLER_PATH}:${CONTROLLER_TAG}
+    container_name: keng-controller
+    restart: always
+    ports:
+      - "8443:8443"
+      - "40051:40051"
+    command:
+      - "--accept-eula"
+      - "--debug"
+    environment:
+      - LICENSE_SERVERS=10.36.87.205

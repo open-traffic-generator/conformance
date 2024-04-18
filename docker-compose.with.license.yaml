@@ -2,7 +2,7 @@ version: "2.4"
 
 services:
   otg-ixhw-c:
-    image: ghcr.io/open-traffic-generator/keng-layer23-hw-server:1.0.1-4
+    image: ${OTG_HW_PATH}:${OTG_HW_TAG}
     restart: always
     ports:
       - "5001:5001"
@@ -19,7 +19,7 @@ services:
         max-file: "2"
         mode: "non-blocking"
   ixia-c-gnmi-server:
-    image: ghcr.io/open-traffic-generator/otg-gnmi-server:1.13.9
+    image: ${GNMI_SERVER_PATH}:${GNMI_SERVER_TAG}
     restart: always
     ports:
       - "50051:50051"
@@ -34,7 +34,7 @@ services:
         max-file: "2"
         mode: "non-blocking"
   ixia-c-controller:
-    image: ghcr.io/open-traffic-generator/keng-controller:1.0.0-92
+    image: ${CONTROLLER_PATH}:${CONTROLLER_TAG}
     restart: always
     ports:
       - "8443:8443"

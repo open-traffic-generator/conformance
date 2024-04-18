@@ -9,9 +9,10 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 - At least 2 CPU cores
 - At least 6GB RAM
 - At least 10GB Free Hard Disk Space
-- Go 1.17+ or Python 3.6+ (with pip)
+- Go 1.17+ or Python 3.6+ (with pip and pexpect)
 - Docker Engine (Community Edition) ( https://docs.docker.com/engine/install/ubuntu/ )
-- Docker Compose  ( sudo apt install docker-compose )
+- Docker Compose  ( sudo apt install docker-compose ) 
+- 
 
 
 ### Usage:
@@ -21,6 +22,7 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
     ```sh
     git clone https://github.com/open-traffic-generator/conformance.git && cd conformance
     ```
+    Go to the do.sh file and edit the GITHUB_USER and GITHUB_PAT variables before using this repo
 
 2. Deploy topology
 
@@ -156,9 +158,39 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 
     ```sh
     # create OTG-HW topology
+    # user can change the Chassis ports to use "OTG_HW_PORT", inside the do.sh file.
     ./do.sh topo new otghw_b2b
     # run all back-to-back feature tests
     ./do.sh gotest -tags="all" ./feature/b2b/...
     # delete OTG-HW topology
     ./do.sh topo rm otghw_b2b
+    ```
+
+8. Run tests against UHD (Back-To-Back)
+
+    Pre-requisite : check if the trunk interface ens192 link is up(command on terminal: ip link show). User can change the "TRUNK INTERFACE" in the do.sh. 
+    The versions and path to images has been picked from versions.yaml file. User can change it as per their need.
+
+    ```sh
+    # create UHD topology-controller,gnmi and PEs. User can go to the do.sh file to change the "PE_LIST" to deploy and the "UHD_HOST" to Use For the Setup 
+    # User can edit the test-config.yaml file after deployment to change the IP of the components to your machine IP as required, currently set as 10.36.87.205
+    ./do.sh topo new uhd
+
+    # deploy the uhd build you want to run on the uhd400 box. User can change the version and path of uhd, to be found on versions.yaml
+    # change the "ip_address" and "password" inside the uhd_ssh.py file to your uhd box.
+    python3 uhd_ssh.py
+
+    #set all the uhd port 1-16 speed to 400 gbps and port 32 speed to 10 gbps.
+    #Change the "UHD_IP" to your uhd box IP.
+    #User can change the port speeds within the script file and run the command.
+    ./set_uhd_port_speed.sh
+
+    #check all the port metrics to see all configured correctly and link is up. Change the IP to your UHD IP. Intall jq before running this command using sudo apt install jq.
+    curl -X POST -ksfL http://10.36.87.166/port/api/v1/monitor/metrics | jq '.port_metrics[] | {name, link}'
+
+    # run back-to-back tests feature tests
+    ./do.sh gotest -tags="all" ./feature/b2b/...
+
+    # delete UHD topology
+    ./do.sh topo rm uhd
     ```
