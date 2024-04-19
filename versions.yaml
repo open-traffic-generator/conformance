@@ -12,3 +12,12 @@ images:
   - name: license-server
     path: ghcr.io/open-traffic-generator/licensed/keng-license-server
     tag: latest
+  - name: otg-ixhw-c
+    path: ghcr.io/open-traffic-generator/keng-layer23-hw-server
+    tag: 1.0.1-4
+  - name: gnmi-server
+    path: ghcr.io/open-traffic-generator/otg-gnmi-server
+    tag: 1.13.14
+  - name: uhd400
+    path: artifactorylbj.it.keysight.com/artifactory/generic-virtual-p4isg/kcos-ghost
+    tag: 1.2.4-uhd400+20240326.235053.c55cb06a

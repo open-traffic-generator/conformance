@@ -1,0 +1,55 @@
+version: "2.4"
+
+services:
+  otg-ixhw-c:
+    image: ${OTG_HW_PATH}:${OTG_HW_TAG}
+    restart: always
+    ports:
+      - "5001:5001"
+    command:
+      - "dotnet"
+      - "otg-ixhw.dll"
+      - "--trace"
+      - "--log-level"
+      - "trace"
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: "2"
+        mode: "non-blocking"
+  ixia-c-gnmi-server:
+    image: ${GNMI_SERVER_PATH}:${GNMI_SERVER_TAG}
+    restart: always
+    ports:
+      - "50051:50051"
+    command:
+      - "-http-server"
+      - "https://ixia-c-controller:8443"
+      - "--debug"
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: "2"
+        mode: "non-blocking"
+  ixia-c-controller:
+    image: ${CONTROLLER_PATH}:${CONTROLLER_TAG}
+    restart: always
+    ports:
+      - "8443:8443"
+      - "40051:40051"
+    command:
+      - "--accept-eula"
+      - "--keng-layer23-hw-server"
+      - "otg-ixhw-c:5001"
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: "2"
+        mode: "non-blocking"
+    environment:
+      - LICENSE_SERVERS=10.36.87.205
+
+
