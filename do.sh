@@ -1,12 +1,10 @@
 #!/bin/sh
 
 # update for any release using
-# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.0.0-104/versions.yaml
-
+# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.3.0-2/versions.yaml
+VERSIONS_YAML="versions.yaml"
 GITHUB_USER="give your github username"
 GITHUB_PAT="give your github PAT"
-
-VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
 # additional member ports for LAG
