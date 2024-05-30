@@ -1672,8 +1672,8 @@ github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJ
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn4U=
-github.com/open-traffic-generator/snappi/gosnappi v1.5.0 h1:ZDh37S06Yt+IBH985yTGtQqBKiEl1usZV2xnP2yutdE=
-github.com/open-traffic-generator/snappi/gosnappi v1.5.0/go.mod h1:ty62DVAUirewB4ZN5a1YFAt0wDkTUHAREiHjKt8dawg=
+github.com/open-traffic-generator/snappi/gosnappi v1.5.1 h1:EQxOtbwizSOnoWvOeJnRk6Apd6vpVbNHlVJMj1XPwhQ=
+github.com/open-traffic-generator/snappi/gosnappi v1.5.1/go.mod h1:ty62DVAUirewB4ZN5a1YFAt0wDkTUHAREiHjKt8dawg=
 github.com/openconfig/gnmi v0.0.0-20200414194230-1597cc0f2600/go.mod h1:M/EcuapNQgvzxo1DDXHK4tx3QpYM/uG4l591v33jG2A=
 github.com/openconfig/gnmi v0.0.0-20200508230933-d19cebf5e7be/go.mod h1:M/EcuapNQgvzxo1DDXHK4tx3QpYM/uG4l591v33jG2A=
 github.com/openconfig/gnmi v0.0.0-20220920173703-480bf53a74d2/go.mod h1:Y9os75GmSkhHw2wX8sMsxfI7qRGAEcDh8NTa5a8vj6E=
