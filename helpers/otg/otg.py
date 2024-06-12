@@ -434,7 +434,73 @@ class OtgApi(object):
             return CapturedPackets(b)
         finally:
             self.timer("get_capture", start)
+    def get_lldp_metrics(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting lldp metrics ...")
+            req = self.api.metrics_request()
+            req.lldp.lldp_names = []
+            metrics = self.api.get_metrics(req).lldp_metrics
+            print(metrics)
 
+            tb = table.Table(
+                "LLDP Metrics",
+                [
+                    "Name",
+                    "Frames Tx",
+                    "Frames Rx",
+                ],
+                15,
+            )
+
+            for m in metrics:
+                tb.append_row(
+                    [
+                        m.name,
+                        m.frames_tx,
+                        m.frames_rx,
+                    ]
+                )
+
+            log.info(tb)
+            return metrics
+        finally:
+            self.timer("get_lldp_metrics", start)
+            
+    def get_lldp_neighbors(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting IPv4 Neighbors ...")
+            req = self.api.states_request()
+            req.lldp_neighbors.lldp_names = []
+            neighbors = self.api.get_states(req).lldp_neighbors
+
+            tb = table.Table(
+                "IPv4 Neighbors",
+                [
+                    "LLDP Name",
+			        "Chassis ID",
+			        "Chassis ID Type",
+			        "System Name",
+                ],
+                20,
+            )
+
+            for n in neighbors:
+                tb.append_row(
+                    [
+                        n.lldp_name,
+                        "" if n.chassis_id is None else n.chassis_id,
+                        "" if n.chassis_id_type is None else n.chassis_id_type,
+                        "" if n.system_name is None else n.system_name,
+                    ]
+                )
+
+            log.info(tb)
+            return neighbors
+
+        finally:
+            self.timer("get_lldp_neighbors", start)
 
 class CapturedPackets(object):
     def __init__(self, pcap_bytes):
@@ -511,3 +577,5 @@ class CapturedPacket(object):
     def __init__(self, sequence, data):
         self.sequence = sequence
         self.data = data
+
+
