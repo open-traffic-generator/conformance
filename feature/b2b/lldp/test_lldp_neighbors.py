@@ -70,9 +70,11 @@ def lldp_neigbhors_metrics_ok(api, tc):
 
 def lldp_neighbors_ok(api, tc):
     count = 0
+    # Print LLDP neighbors TLV chassis_id, chassis_type, Port ID, Port ID Type, TTL, System name and System description
+    # Validate chassis_id, Chassis_id_type and TTL
     for n in api.get_lldp_neighbors():
         for i in ["txMac", "rxMac"]:
-            if n.chassis_id_type == "mac_address" and n.chassis_id == tc[i]:
+            if n.chassis_id_type == "mac_address" and n.chassis_id == tc[i] and n.ttl == tc["holdTime"]:
                 count += 1
 
     return count == 2

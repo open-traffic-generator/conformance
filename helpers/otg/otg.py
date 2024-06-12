@@ -441,7 +441,6 @@ class OtgApi(object):
             req = self.api.metrics_request()
             req.lldp.lldp_names = []
             metrics = self.api.get_metrics(req).lldp_metrics
-            print(metrics)
 
             tb = table.Table(
                 "LLDP Metrics",
@@ -470,20 +469,24 @@ class OtgApi(object):
     def get_lldp_neighbors(self):
         start = datetime.datetime.now()
         try:
-            log.info("Getting IPv4 Neighbors ...")
+            log.info("Getting LLDP Neighbors ...")
             req = self.api.states_request()
             req.lldp_neighbors.lldp_names = []
             neighbors = self.api.get_states(req).lldp_neighbors
-
+            #LLDP neighbors TLVs
             tb = table.Table(
-                "IPv4 Neighbors",
+                "LLDP Neighbors",
                 [
                     "LLDP Name",
 			        "Chassis ID",
 			        "Chassis ID Type",
+                    "Port ID",
+                    "Port ID Type",
+                    "TTL",
 			        "System Name",
+                    "System Description",
                 ],
-                20,
+                25,
             )
 
             for n in neighbors:
@@ -492,7 +495,11 @@ class OtgApi(object):
                         n.lldp_name,
                         "" if n.chassis_id is None else n.chassis_id,
                         "" if n.chassis_id_type is None else n.chassis_id_type,
+                        "" if n.port_id is None else n.port_id,
+                        "" if n.port_id_type is None else n.port_id_type,
+                        n.ttl,
                         "" if n.system_name is None else n.system_name,
+                        "" if n.system_description is None else n.system_description,
                     ]
                 )
 
