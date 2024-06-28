@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # update for any release using
-# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.5.1-1/versions.yaml
+# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.6.2-1/versions.yaml
 VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
@@ -17,7 +17,7 @@ KIND_VERSION=v0.20.0
 METALLB_VERSION=v0.13.11
 MESHNET_COMMIT=d7c306c
 MESHNET_IMAGE="networkop/meshnet\:v0.3.0"
-KENG_OPERATOR_VERSION="0.3.29"
+KENG_OPERATOR_VERSION="0.3.30"
 KENG_OPERATOR_YAML="https://github.com/open-traffic-generator/keng-operator/releases/download/v${KENG_OPERATOR_VERSION}/ixiatg-operator.yaml"
 NOKIA_SRL_OPERATOR_VERSION="0.4.6"
 NOKIA_SRL_OPERATOR_YAML="https://github.com/srl-labs/srl-controller/config/default?ref=v${NOKIA_SRL_OPERATOR_VERSION}"
