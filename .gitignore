@@ -8,3 +8,4 @@ logs/
 /deployments/k8s/meshnet-cni
 /deployments/k8s/mod.yaml
 /etc
+/deployments/.ixia-c-config.yaml

@@ -33,12 +33,49 @@ OPENCONFIG_MODELS_COMMIT=5ca6a36
 TIMEOUT_SECONDS=300
 APT_GET_UPDATE=true
 
+IXIA_C_CONFIG_MAP_TEMP="deployments/template-ixia-c-config.yaml"
+IXIA_C_CONFIG_MAP="deployments/.ixia-c-config.yaml"
 
-IXIA_C_CONFIG_MAP="deployments/ixia-c-config.yaml"
-if [ "${LICENSING}" = "true" ]
-then
-    IXIA_C_CONFIG_MAP="deployments/ixia-c-licensed-config.yaml"
-fi
+YQ_RELEASE="v4.34.1"
+YQ_SOURCE="github.com/mikefarah/yq/v4@${YQ_RELEASE}"
+get_yq() {
+    echo "Getting yq ..."    
+    echo "Installing yq ${YQ_SOURCE} ..."
+    go install "${YQ_SOURCE}"
+    echo "Successfully installed yq !"
+}
+
+configq() {
+    # echo is needed to further evaluate the 
+    # contents extracted from configuration
+    eval echo $(yq "${@}" versions.yaml)
+}
+
+eval_config_map() {
+    get_yq \
+    && rm -rf ${IXIA_C_CONFIG_MAP}
+
+    # avoid splitting based on whitespace
+    IFS=''
+    # mix of cat and echo is used to ensure the input file has
+    # at least one newline before EOF, otherwise read will not
+    # provide last line
+    { cat ${IXIA_C_CONFIG_MAP_TEMP}; echo; } | while read line; do
+        # replace all double-quotes with single quotes
+        line=$(echo "${line}" | sed s#\"#\'#g)
+        # and revert them back to double-quotes post eval;
+        # this will result in converting all single-quotes
+        # to double-quotes regardless of whether they were
+        # originally double-quotes, but hopefully this won't
+        # be an issue
+        # this workaround was put in place because eval gets
+        # rid of double-quotes
+        eval echo \"$line\" | sed s#\'#\"#g >> ${IXIA_C_CONFIG_MAP}
+    done
+    # restore default IFS
+    unset IFS
+    cat ${IXIA_C_CONFIG_MAP}
+}
 
 apt_update() {
     if [ "${APT_UPDATE}" = "true" ]
@@ -1066,6 +1103,7 @@ new_k8s_cluster() {
     common_install \
     && setup_kind_cluster \
     && setup_k8s_plugins ${1} ${2} \
+    && eval_config_map \
     && load_ixia_c_images
 }
 
@@ -1093,7 +1131,8 @@ create_ixia_c_kne() {
     echo "Creating KNE ${1} ${2} topology ..."
     ns=$(kne_namespace ${1} ${2})
     topo=$(kne_topo_file ${1} ${2})
-    kubectl apply -f $IXIA_C_CONFIG_MAP \
+    eval_config_map \
+    && kubectl apply -f $IXIA_C_CONFIG_MAP \
     && kne create ${topo} \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
