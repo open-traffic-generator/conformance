@@ -6,30 +6,28 @@ metadata:
 data:
     versions: |
         {
-        "release": "local",
-        "images": [
+          "release": "local",
+          "images": [
                 {
                     "name": "controller",
                     "path": "$(configq .images[0].path)",
-                    "tag": "$(configq .images[0].tag)",
-                    "env": {
-                        "TRACE": "true"
-                    }
+                    "tag": "$(configq .images[0].tag)"
                 },
                 {
                     "name": "gnmi-server",
                     "path": "$(configq .images[1].path)",
-                    "tag": "$(configq .images[1].tag)",
+                    "tag": "$(configq .images[1].tag)"
                 },
                 {
                     "name": "traffic-engine",
                     "path": "$(configq .images[2].path)",
-                    "tag": "$(configq .images[2].tag)",
+                    "tag": "$(configq .images[2].tag)"
                 },
                 {
                     "name": "protocol-engine",
                     "path": "$(configq .images[3].path)",
-                    "tag": "$(configq .images[3].tag)",
+                    "tag": "$(configq .images[3].tag)"
                 }
             ]
         }
+
