@@ -662,13 +662,7 @@ create_ixia_c_b2b_cpdp() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers localhost                         \
-        && docker run -d                                        \
-        --net=container:keng-controller                     \
-        --name=keng-license-server                          \
-        $(keng_license_server_img)                          \
-        --accept-eula                                       \
-        --debug            
+        --license-servers localhost 
     else
         docker run -d                                        \
         --name=keng-controller                              \
@@ -719,11 +713,6 @@ rm_ixia_c_b2b_cpdp() {
     echo "Tearing down back-to-back with CP/DP distribution of ixia-c ..."
     docker stop keng-controller && docker rm keng-controller
 
-    if [ "${LICENSING}" = "true" ]
-    then
-        docker stop keng-license-server && docker rm keng-license-server
-    fi
-
     docker stop ixia-c-traffic-engine-${VETH_A}
     docker stop ixia-c-protocol-engine-${VETH_A}
     docker rm ixia-c-traffic-engine-${VETH_A}
@@ -750,13 +739,7 @@ create_ixia_c_b2b_lag() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers localhost                         \
-        && docker run -d                                        \
-        --net=container:keng-controller                     \
-        --name=keng-license-server                          \
-        $(keng_license_server_img)                          \
-        --accept-eula                                       \
-        --debug            
+        --license-servers localhost 
     else
         docker run -d                                        \
         --name=keng-controller                              \
