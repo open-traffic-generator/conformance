@@ -1169,7 +1169,7 @@ create_ixia_c_k8s() {
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
-    && gen_config_k8s .${1}.yaml \
+    && gen_config_k8s .${1} \
     && echo "Successfully deployed !"
 }
 
