@@ -33,12 +33,49 @@ OPENCONFIG_MODELS_COMMIT=5ca6a36
 TIMEOUT_SECONDS=300
 APT_GET_UPDATE=true
 
+IXIA_C_CONFIG_MAP_TEMP="deployments/template-ixia-c-config.yaml"
+IXIA_C_CONFIG_MAP="deployments/.ixia-c-config.yaml"
 
-IXIA_C_CONFIG_MAP="deployments/ixia-c-config.yaml"
-if [ "${LICENSING}" = "true" ]
-then
-    IXIA_C_CONFIG_MAP="deployments/ixia-c-licensed-config.yaml"
-fi
+YQ_RELEASE="v4.34.1"
+YQ_SOURCE="github.com/mikefarah/yq/v4@${YQ_RELEASE}"
+get_yq() {
+    echo "Getting yq ..."    
+    echo "Installing yq ${YQ_SOURCE} ..."
+    go install "${YQ_SOURCE}"
+    echo "Successfully installed yq !"
+}
+
+configq() {
+    # echo is needed to further evaluate the 
+    # contents extracted from configuration
+    eval echo $(yq "${@}" versions.yaml)
+}
+
+eval_config_map() {
+    get_yq \
+    && rm -rf ${IXIA_C_CONFIG_MAP}
+
+    # avoid splitting based on whitespace
+    IFS=''
+    # mix of cat and echo is used to ensure the input file has
+    # at least one newline before EOF, otherwise read will not
+    # provide last line
+    { cat ${IXIA_C_CONFIG_MAP_TEMP}; echo; } | while read line; do
+        # replace all double-quotes with single quotes
+        line=$(echo "${line}" | sed s#\"#\'#g)
+        # and revert them back to double-quotes post eval;
+        # this will result in converting all single-quotes
+        # to double-quotes regardless of whether they were
+        # originally double-quotes, but hopefully this won't
+        # be an issue
+        # this workaround was put in place because eval gets
+        # rid of double-quotes
+        eval echo \"$line\" | sed s#\'#\"#g >> ${IXIA_C_CONFIG_MAP}
+    done
+    # restore default IFS
+    unset IFS
+    cat ${IXIA_C_CONFIG_MAP}
+}
 
 apt_update() {
     if [ "${APT_UPDATE}" = "true" ]
@@ -418,9 +455,10 @@ gen_config_kne() {
 }
 
 gen_config_k8s() {
+    pwd
     ADDR=$(kubectl get service -n ixia-c service-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-    ETH1=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | head -n1 | cut -d\: -f2 | cut -d\  -f2)
-    ETH2=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | tail -n1 | cut -d\: -f2 | cut -d\  -f2)
+    ETH1=$(grep "location:" deployments/k8s/manifests/.${1}.yaml -m 2 | head -n1 | cut -d\: -f2 | cut -d\  -f2)
+    ETH2=$(grep "location:" deployments/k8s/manifests/.${1}.yaml -m 2 | tail -n1 | cut -d\: -f2 | cut -d\  -f2)
     yml="otg_host: https://${ADDR}:8443
         otg_ports:
           - ${ETH1}
@@ -625,13 +663,7 @@ create_ixia_c_b2b_cpdp() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers localhost                         \
-        && docker run -d                                        \
-        --net=container:keng-controller                     \
-        --name=keng-license-server                          \
-        $(keng_license_server_img)                          \
-        --accept-eula                                       \
-        --debug            
+        --license-servers localhost 
     else
         docker run -d                                        \
         --name=keng-controller                              \
@@ -682,11 +714,6 @@ rm_ixia_c_b2b_cpdp() {
     echo "Tearing down back-to-back with CP/DP distribution of ixia-c ..."
     docker stop keng-controller && docker rm keng-controller
 
-    if [ "${LICENSING}" = "true" ]
-    then
-        docker stop keng-license-server && docker rm keng-license-server
-    fi
-
     docker stop ixia-c-traffic-engine-${VETH_A}
     docker stop ixia-c-protocol-engine-${VETH_A}
     docker rm ixia-c-traffic-engine-${VETH_A}
@@ -713,13 +740,7 @@ create_ixia_c_b2b_lag() {
         --accept-eula                                       \
         --trace                                             \
         --disable-app-usage-reporter                        \
-        --license-servers localhost                         \
-        && docker run -d                                        \
-        --net=container:keng-controller                     \
-        --name=keng-license-server                          \
-        $(keng_license_server_img)                          \
-        --accept-eula                                       \
-        --debug            
+        --license-servers localhost 
     else
         docker run -d                                        \
         --name=keng-controller                              \
@@ -997,10 +1018,6 @@ load_ixia_c_images() {
     echo "Loading ixia-c images in cluster ..."
     login_ghcr
     names="controller gnmi-server traffic-engine protocol-engine"
-    if [ "${LICENSING}" = "true" ]
-    then
-        names="$names license-server"
-    fi
     for name in $names
     do
         p=$(ixia_c_image_path ${name})
@@ -1066,6 +1083,8 @@ new_k8s_cluster() {
     common_install \
     && setup_kind_cluster \
     && setup_k8s_plugins ${1} ${2} \
+    && eval_config_map \
+    && eval_yaml deployments/k8s/manifests/${1}.yaml \
     && load_ixia_c_images
 }
 
@@ -1093,7 +1112,8 @@ create_ixia_c_kne() {
     echo "Creating KNE ${1} ${2} topology ..."
     ns=$(kne_namespace ${1} ${2})
     topo=$(kne_topo_file ${1} ${2})
-    kubectl apply -f $IXIA_C_CONFIG_MAP \
+    eval_config_map \
+    && kubectl apply -f $IXIA_C_CONFIG_MAP \
     && kne create ${topo} \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
@@ -1114,10 +1134,38 @@ k8s_namespace() {
     grep namespace deployments/k8s/manifests/${1}.yaml -m 1 | cut -d \: -f2 | cut -d \  -f 2
 }
 
+eval_yaml() {
+    get_yq
+    new_yaml=$(dirname ${1})/.$(basename ${1})
+    rm -rf ${new_yaml}
+
+    # avoid splitting based on whitespace
+    IFS=''
+    # mix of cat and echo is used to ensure the input file has
+    # at least one newline before EOF, otherwise read will not
+    # provide last line
+    { cat ${1}; echo; } | while read line; do
+        # replace all double-quotes with single quotes
+        line=$(echo "${line}" | sed s#\"#\'#g)
+        # and revert them back to double-quotes post eval;
+        # this will result in converting all single-quotes
+        # to double-quotes regardless of whether they were
+        # originally double-quotes, but hopefully this won't
+        # be an issue
+        # this workaround was put in place because eval gets
+        # rid of double-quotes
+        eval echo \"$line\" | sed s#\'#\"#g >> ${new_yaml}
+    done
+    # restore default IFS
+    unset IFS
+    echo ${new_yaml}
+}
+
 create_ixia_c_k8s() {
     echo "Creating K8S ${1} topology ..."
     ns=$(k8s_namespace ${1})
-    kubectl apply -f deployments/k8s/manifests/${1}.yaml \
+    eval_yaml deployments/k8s/manifests/${1}.yaml \
+    && kubectl apply -f deployments/k8s/manifests/.${1}.yaml \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
@@ -1126,9 +1174,9 @@ create_ixia_c_k8s() {
 }
 
 rm_ixia_c_k8s() {
-    echo "Removing K8S ${1} topology ..."
-    ns=$(k8s_namespace ${1})
-    kubectl delete -f deployments/k8s/manifests/${1}.yaml \
+    echo "Removing K8S .${1}.yaml topology ..."
+    ns=$(k8s_namespace deployments/k8s/manifests/.${1}.yaml)
+    kubectl delete -f deployments/k8s/manifests/.${1}.yaml \
     && wait_for_no_namespace ${ns}
 }
 

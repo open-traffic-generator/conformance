@@ -34,7 +34,7 @@ items:
         - args:
             - --accept-eula
             - --debug
-          image: ghcr.io/open-traffic-generator/keng-controller:local
+          image: $(configq .images[0].path):$(configq .images[0].tag)
           imagePullPolicy: IfNotPresent
           name: keng-controller
           volumeMounts:
@@ -45,7 +45,7 @@ items:
             - -http-server
             - https://localhost:8443
             - --debug
-          image: ghcr.io/open-traffic-generator/otg-gnmi-server:local
+          image: $(configq .images[1].path):$(configq .images[1].tag)
           imagePullPolicy: IfNotPresent
           name: otg-gnmi-server
           ports:
@@ -77,7 +77,7 @@ items:
               value: "5555"
             - name: ARG_CORE_LIST
               value: 1 1 1
-          image: ghcr.io/open-traffic-generator/ixia-c-traffic-engine:local
+          image: $(configq .images[2].path):$(configq .images[2].tag)
           imagePullPolicy: IfNotPresent
           name: otg-port-eth1-traffic-engine
           securityContext:
@@ -85,7 +85,7 @@ items:
         - env:
             - name: INTF_LIST
               value: eth0
-          image: ghcr.io/open-traffic-generator/ixia-c-protocol-engine:local
+          image: $(configq .images[3].path):$(configq .images[3].tag)
           imagePullPolicy: IfNotPresent
           name: otg-port-eth1-protocol-engine
           securityContext:
@@ -110,7 +110,7 @@ items:
               value: "5555"
             - name: ARG_CORE_LIST
               value: 1 1 1
-          image: ghcr.io/open-traffic-generator/ixia-c-traffic-engine:local
+          image: $(configq .images[2].path):$(configq .images[2].tag)
           imagePullPolicy: IfNotPresent
           name: otg-port-eth2-traffic-engine
           securityContext:
@@ -118,7 +118,7 @@ items:
         - env:
             - name: INTF_LIST
               value: eth0
-          image: ghcr.io/open-traffic-generator/ixia-c-protocol-engine:local
+          image: $(configq .images[3].path):$(configq .images[3].tag)
           imagePullPolicy: IfNotPresent
           name: otg-port-eth2-protocol-engine
           securityContext:
