@@ -1083,6 +1083,7 @@ new_k8s_cluster() {
     && setup_kind_cluster \
     && setup_k8s_plugins ${1} ${2} \
     && eval_config_map \
+    && eval_yaml deployments/k8s/manifests/${1}.yaml \
     && load_ixia_c_images
 }
 
