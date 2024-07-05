@@ -1175,7 +1175,7 @@ create_ixia_c_k8s() {
 
 rm_ixia_c_k8s() {
     echo "Removing K8S .${1}.yaml topology ..."
-    ns=$(k8s_namespace .${1}.yaml
+    ns=$(k8s_namespace .${1}.yaml)
     kubectl delete -f deployments/k8s/manifests/.${1}.yaml \
     && wait_for_no_namespace ${ns}
 }
