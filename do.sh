@@ -1166,7 +1166,6 @@ create_ixia_c_k8s() {
     ns=$(k8s_namespace ${1})
     eval_yaml deployments/k8s/manifests/${1}.yaml \
     && kubectl apply -f deployments/k8s/manifests/.${1}.yaml \
-    && cd ../../.. \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
