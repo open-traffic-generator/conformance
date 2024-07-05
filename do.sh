@@ -455,6 +455,7 @@ gen_config_kne() {
 }
 
 gen_config_k8s() {
+    pwd
     ADDR=$(kubectl get service -n ixia-c service-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
     ETH1=$(grep "location:" deployments/k8s/manifests/.${1}.yaml -m 2 | head -n1 | cut -d\: -f2 | cut -d\  -f2)
     ETH2=$(grep "location:" deployments/k8s/manifests/.${1}.yaml -m 2 | tail -n1 | cut -d\: -f2 | cut -d\  -f2)
