@@ -1168,7 +1168,7 @@ create_ixia_c_k8s() {
     echo "Creating K8S ${1} topology ..."
     ns=$(k8s_namespace ${1})
     cd deployments/k8s/manifests \
-    && eval_config_manifest "{1}.yaml" \
+    && eval_config_manifest "${1}.yaml" \
     && kubectl apply -f .${1}.yaml \
     && cd ../../.. \
     && wait_for_pods ${ns} \
