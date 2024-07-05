@@ -1136,18 +1136,17 @@ k8s_namespace() {
     grep namespace deployments/k8s/manifests/${1}.yaml -m 1 | cut -d \: -f2 | cut -d \  -f 2
 }
 
-eval_config_manifest() {
-    file=${1}
-    new_file=".${file}"
-    get_yq \
-    && rm -rf ${new_file}
+eval_yaml() {
+    get_yq
+    new_yaml=$(dirname ${1})/.$(basename ${1})
+    rm -rf ${new_yaml}
 
     # avoid splitting based on whitespace
     IFS=''
     # mix of cat and echo is used to ensure the input file has
     # at least one newline before EOF, otherwise read will not
     # provide last line
-    { cat ${file}; echo; } | while read line; do
+    { cat ${1}; echo; } | while read line; do
         # replace all double-quotes with single quotes
         line=$(echo "${line}" | sed s#\"#\'#g)
         # and revert them back to double-quotes post eval;
@@ -1157,19 +1156,18 @@ eval_config_manifest() {
         # be an issue
         # this workaround was put in place because eval gets
         # rid of double-quotes
-        eval echo \"$line\" | sed s#\'#\"#g >> ${new_file}
+        eval echo \"$line\" | sed s#\'#\"#g >> ${new_yaml}
     done
     # restore default IFS
     unset IFS
-    cat ${new_file}
+    echo ${new_yaml}
 }
 
 create_ixia_c_k8s() {
     echo "Creating K8S ${1} topology ..."
     ns=$(k8s_namespace ${1})
-    cd deployments/k8s/manifests \
-    && eval_config_manifest "${1}.yaml" \
-    && kubectl apply -f .${1}.yaml \
+    eval_yaml deployments/k8s/manifests/${1}.yaml \
+    && kubectl apply -f deployments/k8s/manifests/.${1}.yaml \
     && cd ../../.. \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
