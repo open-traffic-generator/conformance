@@ -1169,13 +1169,13 @@ create_ixia_c_k8s() {
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
-    && gen_config_k8s ${1} \
+    && gen_config_k8s .${1}.yaml \
     && echo "Successfully deployed !"
 }
 
 rm_ixia_c_k8s() {
-    echo "Removing K8S ${1} topology ..."
-    ns=$(k8s_namespace ${1})
+    echo "Removing K8S .${1}.yaml topology ..."
+    ns=$(k8s_namespace .${1}.yaml
     kubectl delete -f deployments/k8s/manifests/.${1}.yaml \
     && wait_for_no_namespace ${ns}
 }
