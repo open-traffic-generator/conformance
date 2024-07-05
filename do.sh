@@ -1017,10 +1017,6 @@ load_ixia_c_images() {
     echo "Loading ixia-c images in cluster ..."
     login_ghcr
     names="controller gnmi-server traffic-engine protocol-engine"
-    if [ "${LICENSING}" = "true" ]
-    then
-        names="$names license-server"
-    fi
     for name in $names
     do
         p=$(ixia_c_image_path ${name})
