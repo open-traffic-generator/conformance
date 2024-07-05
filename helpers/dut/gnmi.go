@@ -42,7 +42,7 @@ func NewGnmiClient(d *DutApi) (*GnmiClient, error) {
 	location := fmt.Sprintf("%s:%d", d.dutConfig.Host, d.dutConfig.GnmiPort)
 	d.t.Logf("Creating gNMI client for server %s ...\n", location)
 
-	grpcConn, err := grpc.Dial(
+	grpcConn, err := grpc.NewClient(
 		location,
 		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})),
 		grpc.WithPerRPCCredentials(&grpcPassCred{
@@ -50,6 +50,7 @@ func NewGnmiClient(d *DutApi) (*GnmiClient, error) {
 			password: d.dutConfig.GnmiPassword,
 		}),
 	)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to dial gRPC for location %s: %v", location, err)
 	}
