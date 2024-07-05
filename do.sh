@@ -1136,10 +1136,41 @@ k8s_namespace() {
     grep namespace deployments/k8s/manifests/${1}.yaml -m 1 | cut -d \: -f2 | cut -d \  -f 2
 }
 
+eval_config_manifest() {
+    file={1}
+    new_file=".{1}"
+    get_yq \
+    && rm -rf ${new_file}
+
+    # avoid splitting based on whitespace
+    IFS=''
+    # mix of cat and echo is used to ensure the input file has
+    # at least one newline before EOF, otherwise read will not
+    # provide last line
+    { cat ${file}; echo; } | while read line; do
+        # replace all double-quotes with single quotes
+        line=$(echo "${line}" | sed s#\"#\'#g)
+        # and revert them back to double-quotes post eval;
+        # this will result in converting all single-quotes
+        # to double-quotes regardless of whether they were
+        # originally double-quotes, but hopefully this won't
+        # be an issue
+        # this workaround was put in place because eval gets
+        # rid of double-quotes
+        eval echo \"$line\" | sed s#\'#\"#g >> ${new_file}
+    done
+    # restore default IFS
+    unset IFS
+    cat ${new_file}
+}
+
 create_ixia_c_k8s() {
     echo "Creating K8S ${1} topology ..."
     ns=$(k8s_namespace ${1})
-    kubectl apply -f deployments/k8s/manifests/${1}.yaml \
+    cd deployments/k8s/manifests \
+    && eval_config_manifest {1}.yaml \
+    && kubectl apply -f .${1}.yaml \
+    && cd ../../.. \
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
@@ -1150,7 +1181,7 @@ create_ixia_c_k8s() {
 rm_ixia_c_k8s() {
     echo "Removing K8S ${1} topology ..."
     ns=$(k8s_namespace ${1})
-    kubectl delete -f deployments/k8s/manifests/${1}.yaml \
+    kubectl delete -f deployments/k8s/manifests/.${1}.yaml \
     && wait_for_no_namespace ${ns}
 }
 

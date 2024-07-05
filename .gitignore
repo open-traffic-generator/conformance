@@ -9,3 +9,4 @@ logs/
 /deployments/k8s/mod.yaml
 /etc
 /deployments/.ixia-c-config.yaml
+/deployments/k8s/manifests/.ixia-c-b2b-eth0.yaml
