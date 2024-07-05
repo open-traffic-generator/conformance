@@ -456,8 +456,8 @@ gen_config_kne() {
 
 gen_config_k8s() {
     ADDR=$(kubectl get service -n ixia-c service-otg-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-    ETH1=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | head -n1 | cut -d\: -f2 | cut -d\  -f2)
-    ETH2=$(grep "location:" deployments/k8s/manifests/${1}.yaml -m 2 | tail -n1 | cut -d\: -f2 | cut -d\  -f2)
+    ETH1=$(grep "location:" deployments/k8s/manifests/.${1}.yaml -m 2 | head -n1 | cut -d\: -f2 | cut -d\  -f2)
+    ETH2=$(grep "location:" deployments/k8s/manifests/.${1}.yaml -m 2 | tail -n1 | cut -d\: -f2 | cut -d\  -f2)
     yml="otg_host: https://${ADDR}:8443
         otg_ports:
           - ${ETH1}
@@ -1169,13 +1169,13 @@ create_ixia_c_k8s() {
     && wait_for_pods ${ns} \
     && kubectl get pods -A \
     && kubectl get services -A \
-    && gen_config_k8s .${1} \
+    && gen_config_k8s ${1} \
     && echo "Successfully deployed !"
 }
 
 rm_ixia_c_k8s() {
     echo "Removing K8S .${1}.yaml topology ..."
-    ns=$(k8s_namespace .${1}.yaml)
+    ns=$(k8s_namespace deployments/k8s/manifests/.${1}.yaml)
     kubectl delete -f deployments/k8s/manifests/.${1}.yaml \
     && wait_for_no_namespace ${ns}
 }
