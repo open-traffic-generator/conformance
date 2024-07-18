@@ -21,7 +21,10 @@ data:
                 {
                     "name": "traffic-engine",
                     "path": "$(configq .images[2].path)",
-                    "tag": "$(configq .images[2].tag)"
+                    "tag": "$(configq .images[2].tag)",
+                    "env": {
+                        "DBG_RX_SLEEPY": "Yes"
+                    }
                 },
                 {
                     "name": "protocol-engine",
@@ -30,4 +33,3 @@ data:
                 }
             ]
         }
-

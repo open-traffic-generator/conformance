@@ -73,6 +73,8 @@ items:
               value: virtual@af_packet,eth0
             - name: OPT_NO_HUGEPAGES
               value: "Yes"
+            - name: DBG_RX_SLEEPY
+              value: "Yes"
             - name: OPT_LISTEN_PORT
               value: "5555"
             - name: ARG_CORE_LIST
