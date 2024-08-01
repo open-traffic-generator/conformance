@@ -621,7 +621,7 @@ create_ixia_c_b2b_dp() {
         -e ARG_IFACE_LIST="virtual@af_packet,${VETH_A}"     \
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
-        -e DBG_RX_SLEEPY="Yes"                              \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                              \
         $(ixia_c_traffic_engine_img)                        \
     && docker run --net=host --privileged -d                \
         --name=ixia-c-traffic-engine-${VETH_Z}              \
@@ -629,7 +629,7 @@ create_ixia_c_b2b_dp() {
         -e ARG_IFACE_LIST="virtual@af_packet,${VETH_Z}"     \
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
-        -e DBG_RX_SLEEPY="Yes"                              \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                              \
         $(ixia_c_traffic_engine_img)                        \
     && docker ps -a                                         \
     && gen_controller_config_b2b_dp                         \
@@ -683,7 +683,7 @@ create_ixia_c_b2b_cpdp() {
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
         -e WAIT_FOR_IFACE="Yes"                             \
-        -e DBG_RX_SLEEPY="Yes"                              \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                              \
         $(ixia_c_traffic_engine_img)                        \
     && docker run --privileged -d                           \
         --net=container:ixia-c-traffic-engine-${VETH_A}     \
@@ -697,7 +697,7 @@ create_ixia_c_b2b_cpdp() {
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
         -e WAIT_FOR_IFACE="Yes"                             \
-        -e DBG_RX_SLEEPY="Yes"                              \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                              \
         $(ixia_c_traffic_engine_img)                        \
     && docker run --privileged -d                           \
         --net=container:ixia-c-traffic-engine-${VETH_Z}     \
@@ -762,7 +762,7 @@ create_ixia_c_b2b_lag() {
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
         -e WAIT_FOR_IFACE="Yes"                             \
-        -e DBG_RX_SLEEPY="Yes"                              \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                              \
         -e OPT_MEMORY="1024"                                \
         $(ixia_c_traffic_engine_img)                        \
     && docker run --privileged -d                           \
@@ -777,7 +777,7 @@ create_ixia_c_b2b_lag() {
         -e OPT_NO_HUGEPAGES="Yes"                           \
         -e OPT_NO_PINNING="Yes"                             \
         -e WAIT_FOR_IFACE="Yes"                             \
-        -e DBG_RX_SLEEPY="Yes"                              \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                              \
         -e OPT_MEMORY="1024"                                \
         $(ixia_c_traffic_engine_img)                        \
     && docker run --privileged -d                           \
