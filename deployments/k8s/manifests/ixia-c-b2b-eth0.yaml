@@ -73,6 +73,8 @@ items:
               value: virtual@af_packet,eth0
             - name: OPT_NO_HUGEPAGES
               value: "Yes"
+            - name: OPT_ADAPTIVE_CPU_USAGE
+              value: "Yes"
             - name: OPT_LISTEN_PORT
               value: "5555"
             - name: ARG_CORE_LIST
