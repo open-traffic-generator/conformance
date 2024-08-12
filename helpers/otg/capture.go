@@ -100,7 +100,7 @@ func (o *OtgApi) GetCapture(portName string) *CapturedPackets {
 	if err != nil {
 		t.Fatalf("ERROR: Could not create temporary pcap file: %v\n", err)
 	}
-	defer os.Remove(f.Name())
+	//defer os.Remove(f.Name())
 
 	if _, err := f.Write(res); err != nil {
 		t.Fatalf("ERROR: Could not write bytes to pcap file: %v\n", err)
@@ -190,4 +190,29 @@ func (o *OtgApi) Uint64ToBytes(num uint64, size int) []byte {
 	}
 
 	return b
+}
+
+func (o *OtgApi) SaveCapture(portName string, fname string) {
+	t := o.Testing()
+	api := o.Api()
+
+	if !o.TestConfig().OtgCaptureCheck {
+		t.Log("Skipped GetCapture")
+	}
+
+	t.Logf("Getting capture from port %s ...\n", portName)
+	defer o.Timer(time.Now(), "GetCapture")
+
+	res, err := api.GetCapture(gosnappi.NewCaptureRequest().SetPortName(portName))
+	o.LogWrnErr(nil, err, true)
+
+	f, err := os.Create(fname + ".pcap")
+	if err != nil {
+		t.Fatalf("ERROR: Could not create temporary pcap file: %v\n", err)
+	}
+
+	if _, err := f.Write(res); err != nil {
+		t.Fatalf("ERROR: Could not write bytes to pcap file: %v\n", err)
+	}
+	f.Close()
 }

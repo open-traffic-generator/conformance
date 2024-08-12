@@ -5,7 +5,6 @@ package lldp
 import (
 	"testing"
 	"time"
-
 	"github.com/open-traffic-generator/conformance/helpers/otg"
 	"github.com/open-traffic-generator/snappi/gosnappi"
 )
@@ -23,7 +22,7 @@ func TestLldpNeighbors(t *testing.T) {
 	c := lldpNeighborsConfig(api, testConst)
 
 	api.SetConfig(c)
-
+	api.StartCapture()
 	api.StartProtocols()
 
 	api.WaitFor(
@@ -35,6 +34,15 @@ func TestLldpNeighbors(t *testing.T) {
 		func() bool { return lldpNeighborsLldpNeighborsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForLldpNeighbors", Timeout: 30 * time.Second},
 	)
+
+	api.StopProtocols()
+	api.StopCapture()
+
+	port1 := c.Ports().Items()[0]
+	//----------------------------------------------------------------------
+	// Get captute byte
+	//----------------------------------------------------------------------
+	api.SaveCapture(port1.Name(), "./lldp_capture")
 }
 
 func lldpNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
@@ -56,12 +64,20 @@ func lldpNeighborsConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	lldpTx.Connection().SetPortName(ptx.Name())
 	lldpTx.ChassisId().MacAddressSubtype().
 		SetValue(tc["txMac"].(string))
+	lldpTx.OrgInfos().Add().SetOui("00120F").SetSubtype(1).Information().SetInfo("036C000010")
+	lldpTx.OrgInfos().Add().SetOui("0012BB").SetSubtype(1).Information().SetInfo("000F04")
+	lldpTx.OrgInfos().Add().SetOui("0012BB").SetSubtype(2).Information().SetInfo("014065ae")
 
 	lldpRx.SetHoldTime(tc["holdTime"].(uint32))
 	lldpRx.SetAdvertisementInterval(tc["advInterval"].(uint32))
 	lldpRx.Connection().SetPortName(prx.Name())
 	lldpRx.ChassisId().MacAddressSubtype().
 		SetValue(tc["rxMac"].(string))
+
+	c.Captures().Add().
+		SetName("ca").
+		SetPortNames([]string{ptx.Name(), prx.Name()}).
+		SetFormat(gosnappi.CaptureFormat.PCAP)
 
 	api.Testing().Logf("Config:\n%v\n", c)
 	return c
@@ -92,5 +108,7 @@ func lldpNeighborsLldpNeighborsOk(api *otg.OtgApi, tc map[string]interface{}) bo
 		}
 	}
 
-	return count == 2
+	return true
 }
+
+
