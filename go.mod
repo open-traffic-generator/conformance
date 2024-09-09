@@ -1,6 +1,6 @@
 module github.com/open-traffic-generator/conformance
 
-go 1.18
+go 1.23
 
 require (
 	github.com/dreadl0ck/gopcap v0.0.0-20190327214342-be2a4d78505f
