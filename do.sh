@@ -1324,7 +1324,7 @@ pylint() {
 
 golint() {
 
-    GO111MODULE=on CGO_ENABLED=0 go install -v github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.2
+    GO111MODULE=on CGO_ENABLED=0 go install -v github.com/golangci/golangci-lint/cmd/golangci-lint@v1.60.0
     # TODO: skip-dirs does not actually skip analysis, it just supresses warnings
     if [ -z "${CI}" ]
     then
