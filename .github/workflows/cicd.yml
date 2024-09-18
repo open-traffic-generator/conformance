@@ -65,7 +65,7 @@ jobs:
           ./do.sh topo logs
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: examples_curl
           path: |
@@ -100,7 +100,7 @@ jobs:
           ./do.sh topo logs
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: examples_py
           path: |
@@ -140,7 +140,7 @@ jobs:
           ./do.sh topo logs
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: examples_go
           path: |
@@ -175,7 +175,7 @@ jobs:
   #         ./do.sh topo logs
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: dp_py
   #         path: |
@@ -215,7 +215,7 @@ jobs:
   #         ./do.sh topo logs
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: dp_go
   #         path: |
@@ -250,7 +250,7 @@ jobs:
   #         ./do.sh topo logs cpdp
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: cpdp_py
   #         path: |
@@ -290,7 +290,7 @@ jobs:
   #         ./do.sh topo logs cpdp
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: cpdp_go
   #         path: |
@@ -325,7 +325,7 @@ jobs:
   #         ./do.sh topo logs cpdp
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: cpdp_ipv6_py
   #         path: |
@@ -365,7 +365,7 @@ jobs:
   #         ./do.sh topo logs cpdp
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: cpdp_ipv6_go
   #         path: |
@@ -403,7 +403,7 @@ jobs:
   #         ./do.sh pytest ./feature/b2b/
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: kne_b2b_py
   #         path: |
@@ -442,7 +442,7 @@ jobs:
   #         ./do.sh gotest -tags=all ./feature/b2b/...
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: kne_b2b_go
   #         path: |
@@ -481,7 +481,7 @@ jobs:
           ./do.sh gotest -tags=all ./feature/pdp/...
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kne_pdp_arista_go
           path: |
@@ -520,7 +520,7 @@ jobs:
           ./do.sh gotest feature/b2b/packet/udp/udp_port_value_eth0_test.go
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: kne_b2b_eth0
           path: |
@@ -560,7 +560,7 @@ jobs:
   #         ./do.sh topo logs cpdp
   #     - name: Archive logs
   #       if: always()
-  #       uses: actions/upload-artifact@v3
+  #       uses: actions/upload-artifact@v4
   #       with:
   #         name: b2blag
   #         path: |
@@ -586,7 +586,7 @@ jobs:
           OTG_ITERATIONS=2 ./do.sh pytest ./performance/client/
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client_perf_py
           path: |
@@ -614,7 +614,7 @@ jobs:
           OTG_ITERATIONS=10 ./do.sh gotest -tags="all" ./performance/client/...
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client_perf_go
           path: |
@@ -651,7 +651,7 @@ jobs:
           ./do.sh topo logs dp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dp_tput_perf
           path: |
@@ -691,7 +691,7 @@ jobs:
           ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dp_http_perf
           path: |
@@ -731,7 +731,7 @@ jobs:
           ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dp_grpc_perf
           path: |
@@ -771,7 +771,7 @@ jobs:
           ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cp_http_perf
           path: |
@@ -811,7 +811,7 @@ jobs:
           ./do.sh topo logs cpdp
       - name: Archive logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cp_grpc_perf
           path: |
