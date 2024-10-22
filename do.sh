@@ -608,6 +608,7 @@ wait_for_sock() {
 
 create_ixia_c_b2b_dp() {
     echo "Setting up back-to-back with DP-only distribution of ixia-c ..."
+    docker ps -a 
     create_veth_pair ${VETH_A} ${VETH_Z}                    \
     && docker run --net=host  -d                            \
         --name=keng-controller                              \
@@ -649,12 +650,13 @@ rm_ixia_c_b2b_dp() {
 }
 
 create_ixia_c_b2b_cpdp() {
+    docker ps -a
     if [ "${1}" = "ipv6" ]
     then 
         ipv6_enable_docker
     fi
     echo "Setting up back-to-back with CP/DP distribution of ixia-c ..."
-    login_ghcr                                              
+    login_ghcr
     if [ "${LICENSING}" = "true" ]
     then
         docker run -d                                        \
@@ -715,6 +717,7 @@ create_ixia_c_b2b_cpdp() {
 }
 
 rm_ixia_c_b2b_cpdp() {
+    docker ps -a
     echo "Tearing down back-to-back with CP/DP distribution of ixia-c ..."
     docker stop keng-controller && docker rm keng-controller
 
@@ -732,6 +735,7 @@ rm_ixia_c_b2b_cpdp() {
 }
 
 create_ixia_c_b2b_lag() {
+    docker ps -a
     echo "Setting up back-to-back LAG with CP/DP distribution of ixia-c ..."
     login_ghcr                                             
     if [ "${LICENSING}" = "true" ]
