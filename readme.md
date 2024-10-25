@@ -1,6 +1,6 @@
 # Open Traffic Generator Conformance Tests 
 
-This repository hosts equivalent Go and Python tests written using [snappi](https://github.com/open-traffic-generator/snappi) against a back-to-back connected [Ixia-C](https://github.com/open-traffic-generator/ixia-c) topology.
+This repository hosts equivalent Go and Python tests written using [snappi](https://github.com/open-traffic-generator/snappi) against a back-to-back connected [ixia-c](https://github.com/open-traffic-generator/ixia-c) topology.
 
 
 ### Prerequisites
@@ -11,6 +11,9 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 - At least 10GB Free Hard Disk Space
 - Go 1.17+ or Python 3.6+ (with pip)
 - Docker Engine (Community Edition)
+- License:
+    - depending on ixia-c test platform in use, usage and scale of protocols and traffic,
+      there might be need of ixia-c licenses. For details, please refer to [ixia-c licensing documentation](https://github.com/open-traffic-generator/ixia-c/blob/main/docs/reference/licensing.md) or contact [ixia-c support](https://github.com/open-traffic-generator/ixia-c/blob/main/docs/support.md).
 
 
 ### Usage:
