@@ -58,6 +58,10 @@ func TestOspfv2P2pLsa(t *testing.T) {
 	)
 }
 
+// Please refer to ospfv2 model documentation under 'devices/[ospfv2]' of following url
+// for more ospfv2 configuration attributes.
+// model: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-traffic-generator/models/master/artifacts/openapi.yaml&nocors#tag/Configuration/operation/set_config
+
 func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Config {
 	c := gosnappi.NewConfig()
 
@@ -90,20 +94,8 @@ func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 		SetPrefix(tc["txPrefix"].(uint32))
 
 	dtxOspfv2 := dtx.Ospfv2().
-		SetName(tc["txRouterName"].(string))
-
-	dtxOspfv2.RouterId().SetCustom(dtxIp.Address())
-	dtxOspfv2.GracefulRestart().SetHelperMode(true)
-
-	dtxOspfv2.
-		SetLsaRetransmitTime(4).
-		SetLsaRefreshTime(1800).
-		SetInterBurstLsuInterval(33).
+		SetName(tc["txRouterName"].(string)).
 		SetStoreLsa(true)
-
-	dtxOspfv2.Capabilities().
-		SetNpBit(true).
-		SetEBit(true)
 
 	dtxOspfv2Int := dtxOspfv2.
 		Interfaces().
@@ -111,19 +103,15 @@ func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 		SetName("dtxOspfv2Int").
 		SetIpv4Name(dtxIp.Name())
 
+	// Note: please change DUT default value for network-type from Broadcast to
+	// PointToPoint to make this test interoperable to a port-dut topology
 	dtxOspfv2Int.NetworkType().PointToPoint()
-
-	dtxOspfv2Int.Advanced().
-		SetHelloInterval(9).
-		SetDeadInterval(36).
-		SetPriority(0).
-		SetRoutingMetric(0)
 
 	dtxOspfv2RrV4 := dtxOspfv2.
 		V4Routes().
 		Add().
 		SetName("dtxOspfv2RrV4").
-		SetMetric(0)
+		SetMetric(10)
 
 	dtxOspfv2RrV4.
 		Addresses().
@@ -132,12 +120,6 @@ func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 		SetPrefix(32).
 		SetCount(tc["txRouteCount"].(uint32)).
 		SetStep(1)
-
-	dtxOspfv2RrV4.RouteOrigin().
-		InterArea().
-		Flags().
-		SetAFlag(true).
-		SetNFlag(true)
 
 	// recieve
 	drxEth := drx.Ethernets().
@@ -157,20 +139,8 @@ func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 		SetPrefix(tc["rxPrefix"].(uint32))
 
 	drxOspfv2 := drx.Ospfv2().
-		SetName(tc["rxRouterName"].(string))
-
-	drxOspfv2.RouterId().SetCustom(drxIp.Address())
-	drxOspfv2.GracefulRestart().SetHelperMode(true)
-
-	drxOspfv2.
-		SetLsaRetransmitTime(4).
-		SetLsaRefreshTime(1800).
-		SetInterBurstLsuInterval(33).
+		SetName(tc["rxRouterName"].(string)).
 		SetStoreLsa(true)
-
-	drxOspfv2.Capabilities().
-		SetNpBit(true).
-		SetEBit(true)
 
 	drxOspfv2Int := drxOspfv2.
 		Interfaces().
@@ -178,19 +148,15 @@ func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 		SetName("drxOspfv2Int").
 		SetIpv4Name(drxIp.Name())
 
+	// Note: please change DUT default value for network-type from Broadcast to
+	// PointToPoint to make this test interoperable to a port-dut topology
 	drxOspfv2Int.NetworkType().PointToPoint()
-
-	drxOspfv2Int.Advanced().
-		SetHelloInterval(9).
-		SetDeadInterval(36).
-		SetPriority(0).
-		SetRoutingMetric(0)
 
 	drxOspfv2RrV4 := drxOspfv2.
 		V4Routes().
 		Add().
 		SetName("drxOspfv2RrV4").
-		SetMetric(0)
+		SetMetric(10)
 
 	drxOspfv2RrV4.
 		Addresses().
@@ -199,12 +165,6 @@ func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 		SetPrefix(32).
 		SetCount(tc["rxRouteCount"].(uint32)).
 		SetStep(1)
-
-	drxOspfv2RrV4.RouteOrigin().
-		InterArea().
-		Flags().
-		SetAFlag(true).
-		SetNFlag(true)
 
 	// traffic
 	for i := 1; i <= 2; i++ {
@@ -281,7 +241,7 @@ func ospfv2P2pLsasOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 		// validate lsas
 		nwSummaryLsas := m.NetworkSummaryLsas().Items()
 		if len(nwSummaryLsas) == 1 &&
-			nwSummaryLsas[0].Metric() == 0 &&
+			nwSummaryLsas[0].Metric() == 10 &&
 			nwSummaryLsas[0].Header().AdvertisingRouterId() == advRouterId &&
 			nwSummaryLsas[0].Header().LsaId() == nwSummaryLsaId {
 			lsaCount += 1

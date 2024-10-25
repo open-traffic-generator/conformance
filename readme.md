@@ -12,8 +12,11 @@ This repository hosts equivalent Go and Python tests written using [snappi](http
 - Go 1.17+ or Python 3.6+ (with pip)
 - Docker Engine (Community Edition)
 - License:
-    - depending on ixia-c test platform in use, usage and scale of protocols and traffic,
-      there might be need of ixia-c licenses. For details, please refer to [ixia-c licensing documentation](https://github.com/open-traffic-generator/ixia-c/blob/main/docs/reference/licensing.md) or contact [ixia-c support](https://github.com/open-traffic-generator/ixia-c/blob/main/docs/support.md).
+    - Test(s) in this repository which contain only 'flows' or 'bgp' would not require license
+      with ixia-c. 
+    - License of ixia-c would be required for test(s) which use other control-plane protocols e.g. 'isis',
+      'lacp', "ospfv2" etc. 
+    - For further details, please refer to [ixia-c licensing documentation](https://github.com/open-traffic-generator/ixia-c/blob/main/docs/reference/licensing.md) or contact [ixia-c support](https://github.com/open-traffic-generator/ixia-c/blob/main/docs/support.md).
 
 
 ### Usage:

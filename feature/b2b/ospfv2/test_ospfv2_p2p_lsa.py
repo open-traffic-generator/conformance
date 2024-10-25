@@ -50,6 +50,11 @@ def test_ospfv2_p2p_lsa():
     )
 
 
+# Please refer to ospfv2 model documentation under 'devices/[ospfv2]' of following url
+# for more ospfv2 configuration attributes.
+# model: https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/open-traffic-generator/models/master/artifacts/openapi.yaml&nocors#tag/Configuration/operation/set_config
+
+
 def ospfv2_p2p_lsa_config(api, tc):
     c = api.api.config()
     ptx = c.ports.add(name="ptx", location=api.test_config.otg_ports[0])
@@ -73,32 +78,20 @@ def ospfv2_p2p_lsa_config(api, tc):
     dtx_ip.prefix = tc["txPrefix"]
 
     dtx.ospfv2.name = tc["txRouterName"]
-    dtx.ospfv2.router_id.custom = dtx_ip.address
-
-    dtx.ospfv2.lsa_retransmit_time = 4
-    dtx.ospfv2.lsa_refresh_time = 1800
-    dtx.ospfv2.inter_burst_lsu_interval = 33
-    dtx.ospfv2.graceful_restart.helper_mode = True
     dtx.ospfv2.store_lsa = True
-    dtx.ospfv2.capabilities.np_bit = True
-    dtx.ospfv2.capabilities.e_bit = True
 
     dtx_ospfv2_int = dtx.ospfv2.interfaces.add(name="dtx_ospfv2_int")
     dtx_ospfv2_int.ipv4_name = dtx_ip.name
+
+    # Note: please change DUT default value for network-type from Broadcast to
+    # PointToPoint to make this test interoperable to a port-dut topology
     dtx_ospfv2_int.network_type.choice = dtx_ospfv2_int.network_type.POINT_TO_POINT
-    dtx_ospfv2_int.advanced.hello_interval = 9
-    dtx_ospfv2_int.advanced.dead_interval = 36
-    dtx_ospfv2_int.advanced.priority = 0
-    dtx_ospfv2_int.advanced.routing_metric = 0
 
     dtx_ospfv2_rr4 = dtx.ospfv2.v4_routes.add(name="dtx_ospfv2_rr4")
+    dtx_ospfv2_rr4.metric = 10
     dtx_ospfv2_rr4.addresses.add(
         address=tc["txAdvRouteV4"], prefix=32, count=tc["txRouteCount"], step=1
     )
-    dtx_ospfv2_rr4.metric = 0
-    dtx_ospfv2_rr4_origin = dtx_ospfv2_rr4.route_origin.inter_area
-    dtx_ospfv2_rr4_origin.flags.a_flag = True
-    dtx_ospfv2_rr4_origin.flags.n_flag = True
 
     # receive
     drx_eth = drx.ethernets.add(name="drx_eth")
@@ -112,32 +105,20 @@ def ospfv2_p2p_lsa_config(api, tc):
     drx_ip.prefix = tc["rxPrefix"]
 
     drx.ospfv2.name = tc["rxRouterName"]
-    drx.ospfv2.router_id.custom = drx_ip.address
-
-    drx.ospfv2.lsa_retransmit_time = 4
-    drx.ospfv2.lsa_refresh_time = 1800
-    drx.ospfv2.inter_burst_lsu_interval = 33
-    drx.ospfv2.graceful_restart.helper_mode = True
     drx.ospfv2.store_lsa = True
-    drx.ospfv2.capabilities.np_bit = True
-    drx.ospfv2.capabilities.e_bit = True
 
     drx_ospfv2_int = drx.ospfv2.interfaces.add(name="drx_ospfv2_int")
     drx_ospfv2_int.ipv4_name = drx_ip.name
+
+    # Note: please change DUT default value for network-type from Broadcast to
+    # PointToPoint to make this test interoperable to a port-dut topology
     drx_ospfv2_int.network_type.choice = drx_ospfv2_int.network_type.POINT_TO_POINT
-    drx_ospfv2_int.advanced.hello_interval = 9
-    drx_ospfv2_int.advanced.dead_interval = 36
-    drx_ospfv2_int.advanced.priority = 0
-    drx_ospfv2_int.advanced.routing_metric = 0
 
     drx_ospfv2_rr4 = drx.ospfv2.v4_routes.add(name="drx_ospfv2_rr4")
+    drx_ospfv2_rr4.metric = 10
     drx_ospfv2_rr4.addresses.add(
         address=tc["rxAdvRouteV4"], prefix=32, count=tc["rxRouteCount"], step=1
     )
-    drx_ospfv2_rr4.metric = 0
-    drx_ospfv2_rr4_origin = drx_ospfv2_rr4.route_origin.inter_area
-    drx_ospfv2_rr4_origin.flags.a_flag = True
-    drx_ospfv2_rr4_origin.flags.n_flag = True
 
     # traffic
     for i in range(0, 2):
@@ -209,7 +190,7 @@ def ospfv2_lsas_ok(api, tc):
         # validate lsas
         if (
             len(m.network_summary_lsas) == 1
-            and m.network_summary_lsas[0].metric == 0
+            and m.network_summary_lsas[0].metric == 10
             and m.network_summary_lsas[0].header.advertising_router_id == adv_router_id
             and m.network_summary_lsas[0].header.lsa_id == nw_summary_lsa_id
         ):
