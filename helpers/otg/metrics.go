@@ -128,6 +128,43 @@ func (o *OtgApi) GetIsIsMetrics() []gosnappi.IsisMetric {
 	return res.IsisMetrics().Items()
 }
 
+func (o *OtgApi) GetOspfv2Metrics() []gosnappi.Ospfv2Metric {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting ospfv2 metrics ...")
+	defer o.Timer(time.Now(), "GetOspfv2Metrics")
+
+	mr := gosnappi.NewMetricsRequest()
+	mr.Ospfv2()
+	res, err := api.GetMetrics(mr)
+	o.LogWrnErr(nil, err, true)
+
+	tb := table.NewTable(
+		"Ospfv2 Metrics",
+		[]string{
+			"Name",
+			"Full State Count",
+            "LSA Sent",
+            "LSA Received",
+		},
+		20,
+	)
+	for _, v := range res.Ospfv2Metrics().Items() {
+		if v != nil {
+			tb.AppendRow([]interface{}{
+				v.Name(),
+				v.FullStateCount(),
+				v.LsaSent(),
+				v.LsaReceived(),
+			})
+		}
+	}
+
+	t.Log(tb.String())
+	return res.Ospfv2Metrics().Items()
+}
+
 func (o *OtgApi) GetLldpMetrics() []gosnappi.LldpMetric {
 	t := o.Testing()
 	api := o.Api()
