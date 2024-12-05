@@ -589,20 +589,20 @@ wait_for_sock() {
     then
         TIMEOUT_SECONDS=${3}
     fi
-
     echo "Waiting for ${1}:${2} to be ready (timeout=${TIMEOUT_SECONDS}s)..."
-    start_time=$(date +%S)
+    elapsed=0
+    TIMEOUT_SECONDS=$(($TIMEOUT_SECONDS * 10))
     while true
     do
         nc -z -v ${1} ${2} && return 0
 
-        current_time=$(date +%S)
-        elapsed=$(( current_time - start_time ))
-        echo "elapsed time: $elapsed"
+        elapsed=$(($elapsed+1))
+        # echo "Timeout: $TIMEOUT_SECONDS"
+        # echo "elapsed time: $elapsed"
 
         if [ $elapsed -gt ${TIMEOUT_SECONDS} ]
         then
-            echo "${1}:${2} to be ready after ${TIMEOUT_SECONDS}s"
+            echo "${1}:${2} to be ready after ${TIMEOUT_SECONDS}"
             exit 1
         fi
         sleep 0.1
