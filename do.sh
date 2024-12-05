@@ -598,7 +598,7 @@ wait_for_sock() {
 
         current_time=$(date +%S)
         elapsed=$(( current_time - start_time ))
-        # echo "elapsed time: $elapsed"
+        echo "elapsed time: $elapsed"
 
         if [ $elapsed -gt ${TIMEOUT_SECONDS} ]
         then
