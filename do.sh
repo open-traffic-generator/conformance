@@ -483,6 +483,8 @@ gen_config_k8s_test_const() {
         txMac=$(kubectl exec -n ixia-c otg-port-eth1 -c otg-port-eth1-protocol-engine -- ifconfig eth0 | grep ether | sed 's/  */_/g' | cut -d_ -f3)
         rxMac=$(kubectl exec -n ixia-c otg-port-eth2 -c otg-port-eth2-protocol-engine -- ifconfig eth0 | grep ether | sed 's/  */_/g' | cut -d_ -f3)
         # drop UDP packets on given dst port
+        kubectl exec -n ixia-c otg-port-eth2 -c otg-port-eth2-protocol-engine -- lsb_release -sc
+        kubectl exec -n ixia-c otg-port-eth2 -c otg-port-eth2-protocol-engine -- apt-get -y update
         kubectl exec -n ixia-c otg-port-eth2 -c otg-port-eth2-protocol-engine -- apt-get install -y iptables
         kubectl exec -n ixia-c otg-port-eth2 -c otg-port-eth2-protocol-engine -- iptables -A INPUT -p udp --destination-port ${rxUdpPort} -j DROP
 
