@@ -586,21 +586,25 @@ gen_openconfig_models_sdk() {
 }
 
 wait_for_sock() {
-    start=$SECONDS
     TIMEOUT_SECONDS=30
     if [ ! -z "${3}" ]
     then
         TIMEOUT_SECONDS=${3}
     fi
     echo "Waiting for ${1}:${2} to be ready (timeout=${TIMEOUT_SECONDS}s)..."
+    elapsed=0
+    TIMEOUT_SECONDS=$(($TIMEOUT_SECONDS * 10))
     while true
     do
         nc -z -v ${1} ${2} && return 0
 
-        elapsed=$(( SECONDS - start ))
+        elapsed=$(($elapsed+1))
+        # echo "Timeout: $TIMEOUT_SECONDS"
+        # echo "elapsed time: $elapsed"
+
         if [ $elapsed -gt ${TIMEOUT_SECONDS} ]
         then
-            echo "${1}:${2} to be ready after ${TIMEOUT_SECONDS}s"
+            echo "${1}:${2} to be ready after ${TIMEOUT_SECONDS}"
             exit 1
         fi
         sleep 0.1
