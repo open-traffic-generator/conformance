@@ -1,11 +1,11 @@
-release: 1.20.0-3
+release: 1.20.0-6
 images:
   - name: controller
     path: ghcr.io/open-traffic-generator/keng-controller
-    tag: 1.20.0-3
+    tag: 1.20.0-6
   - name: gnmi-server
     path: ghcr.io/open-traffic-generator/otg-gnmi-server
-    tag: 1.20.0
+    tag: 1.20.2
   - name: traffic-engine
     path: ghcr.io/open-traffic-generator/ixia-c-traffic-engine
     tag: 1.8.0.245
