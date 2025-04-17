@@ -4,13 +4,13 @@ go 1.23
 
 require (
 	github.com/dreadl0ck/gopcap v0.0.0-20190327214342-be2a4d78505f
-	github.com/open-traffic-generator/snappi/gosnappi v1.24.0
+	github.com/open-traffic-generator/snappi/gosnappi v1.28.2
 	github.com/openconfig/gnmi v0.9.1
 	github.com/openconfig/goyang v1.2.0
 	github.com/openconfig/ygnmi v0.7.7
 	github.com/openconfig/ygot v0.25.6
-	golang.org/x/crypto v0.30.0
-	google.golang.org/grpc v1.70.0
+	golang.org/x/crypto v0.32.0
+	google.golang.org/grpc v1.71.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -19,18 +19,17 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/golang/glog v1.2.3 // indirect
+	github.com/golang/glog v1.2.4 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gopacket v1.1.19 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/miekg/pcap v1.0.1 // indirect
 	github.com/openconfig/gocloser v0.0.0-20220310182203-c6c950ed3b0b // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	go.universe.tf/netboot v0.0.0-20210617221821-fc2840fa7b05 // indirect
-	golang.org/x/net v0.32.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 )
