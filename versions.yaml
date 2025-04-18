@@ -11,4 +11,4 @@ images:
     tag: 1.8.0.245
   - name: protocol-engine
     path: ghcr.io/open-traffic-generator/ixia-c-protocol-engine
-    tag: 1.00.0.447
+    tag: 1.00.0.448
