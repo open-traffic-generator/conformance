@@ -1,14 +1,14 @@
-release: 1.24.0-15
+release: 1.28.0-6
 images:
   - name: controller
     path: ghcr.io/open-traffic-generator/keng-controller
-    tag: 1.24.0-15
+    tag: 1.28.0-6
   - name: gnmi-server
     path: ghcr.io/open-traffic-generator/otg-gnmi-server
-    tag: 1.24.2
+    tag: 1.28.2
   - name: traffic-engine
     path: ghcr.io/open-traffic-generator/ixia-c-traffic-engine
     tag: 1.8.0.245
   - name: protocol-engine
     path: ghcr.io/open-traffic-generator/ixia-c-protocol-engine
-    tag: 1.00.0.443
+    tag: 1.00.0.448
