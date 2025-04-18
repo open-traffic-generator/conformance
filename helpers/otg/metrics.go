@@ -285,3 +285,40 @@ func (o *OtgApi) GetLacpMetrics() []gosnappi.LacpMetric {
 	t.Log(tb.String())
 	return res.LacpMetrics().Items()
 }
+
+func (o *OtgApi) GetOspfv3Metrics() []gosnappi.Ospfv3Metric {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting ospfv3 metrics ...")
+	defer o.Timer(time.Now(), "GetOspfv3Metrics")
+
+	mr := gosnappi.NewMetricsRequest()
+	mr.Ospfv3()
+	res, err := api.GetMetrics(mr)
+	o.LogWrnErr(nil, err, true)
+
+	tb := table.NewTable(
+		"Ospfv3 Metrics",
+		[]string{
+			"Name",
+			"Full State Count",
+            "LSA Sent",
+            "LSA Received",
+		},
+		20,
+	)
+	for _, v := range res.Ospfv3Metrics().Items() {
+		if v != nil {
+			tb.AppendRow([]interface{}{
+				v.Name(),
+				v.FullStateCount(),
+				v.LsaSent(),
+				v.LsaReceived(),
+			})
+		}
+	}
+
+	t.Log(tb.String())
+	return res.Ospfv3Metrics().Items()
+}

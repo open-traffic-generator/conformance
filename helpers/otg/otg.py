@@ -337,6 +337,41 @@ class OtgApi(object):
         finally:
             self.timer("get_ospfv2_metrics", start)
 
+    def get_ospfv3_metrics(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting ospfv3 metrics ...")
+            req = self.api.metrics_request()
+            req.ospfv3.router_names = []
+
+            metrics = self.api.get_metrics(req).ospfv3_metrics
+
+            tb = table.Table(
+                "OSPFv3 Metrics",
+                [
+                    "Name",
+                    "Full State Count",
+                    "LSA Sent",
+                    "LSA Received",
+                ],
+                20,
+            )
+
+            for m in metrics:
+                tb.append_row(
+                    [
+                        m.name,
+                        m.full_state_count,
+                        m.lsa_sent,
+                        m.lsa_received,
+                    ]
+                )
+
+            log.info(tb)
+            return metrics
+        finally:
+            self.timer("get_ospfv3_metrics", start)
+
     def get_ipv4_neighbors(self):
         start = datetime.datetime.now()
         try:
@@ -467,6 +502,20 @@ class OtgApi(object):
 
         finally:
             self.timer("get_ospfv2_lsas", start)
+
+    def get_ospfv3_lsas(self):
+        start = datetime.datetime.now()
+        try:
+            log.info("Getting OSPFv3 LSAs ...")
+            req = self.api.states_request()
+            req.ospfv3_lsas.router_names = []
+
+            res = self.api.get_states(req)
+            print(res.serialize(encoding=res.JSON))
+            return res.ospfv3_lsas
+
+        finally:
+            self.timer("get_ospfv3_lsas", start)
 
     def get_capture(self, port_name):
         if not self.test_config.otg_capture_check:
