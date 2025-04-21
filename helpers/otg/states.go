@@ -186,6 +186,22 @@ func (o *OtgApi) GetOspfv2Lsas() []gosnappi.Ospfv2LsaState {
 	return res.Ospfv2Lsas().Items()
 }
 
+func (o *OtgApi) GetOspfv3Lsas() []gosnappi.Ospfv3LsaState {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting OSPFv3 LSAs ...")
+	defer o.Timer(time.Now(), "GetOspfv3Lsas")
+
+	sr := gosnappi.NewStatesRequest()
+	sr.Ospfv3Lsas()
+	res, err := api.GetStates(sr)
+	o.LogWrnErr(nil, err, true)
+
+	fmt.Println(res.Marshal().ToJson())
+	return res.Ospfv3Lsas().Items()
+}
+
 func (o *OtgApi) GetLldpNeighbors() []gosnappi.LldpNeighborsState {
 	t := o.Testing()
 	api := o.Api()
