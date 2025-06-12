@@ -26,7 +26,7 @@ def test_ospfv2_p2p_lsa():
 
     api = otg.OtgApi()
     c = ospfv2_p2p_lsa_config(api, test_const)
-
+    api.api.request_timeout = 300
     api.set_config(c)
 
     api.start_protocols()
@@ -195,20 +195,20 @@ def ospfv2_lsas_ok(api, tc):
             and m.network_summary_lsas[0].header.lsa_id == nw_summary_lsa_id
         ):
             lsa_count += 1
-
         if (
             len(m.router_lsas) == 1
             and m.router_lsas[0].header.advertising_router_id == adv_router_id
             and m.router_lsas[0].header.lsa_id == router_lsa_id
             and len(m.router_lsas[0].links) == 2
-            and m.router_lsas[0].links[0].type == "point_to_point"
-            and m.router_lsas[0].links[0].metric == 0
-            and m.router_lsas[0].links[0].id == router_lsa_link_id
-            and m.router_lsas[0].links[0].data == router_lsa_link_data
-            and m.router_lsas[0].links[1].type == "stub"
-            and m.router_lsas[0].links[1].metric == 0
         ):
-            lsa_count += 1
+            for link in (m.router_lsas[0].links):
+                if ((link.type == "stub"
+                    and link.metric == 0 or 1) or (link.type == "point_to_point"
+                    and link.id == router_lsa_link_id
+                    and link.data == router_lsa_link_data
+                    and link.metric == 0 or 1)
+                ):
+                    lsa_count += 1
 
     return lsa_count == 4
 

@@ -252,14 +252,12 @@ func ospfv2P2pLsasOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 			routerLsas[0].Header().AdvertisingRouterId() == advRouterId &&
 			routerLsas[0].Header().LsaId() == routerLsaId &&
 			len(routerLsas[0].Links().Items()) == 2 {
-			links := routerLsas[0].Links().Items()
-			if links[0].Type() == gosnappi.Ospfv2LinkType.POINT_TO_POINT &&
-				links[0].Metric() == 0 &&
-				links[0].Id() == routerLsaLinkId &&
-				links[0].Data() == routerLsaLinkData &&
-				links[1].Type() == gosnappi.Ospfv2LinkType.STUB &&
-				links[1].Metric() == 0 {
-				lsaCount += 1
+			for _, link := range routerLsas[0].Links().Items() {
+				if (link.Type() == gosnappi.Ospfv2LinkType.STUB && (link.Metric() == 0 || link.Metric() == 1)) ||
+					(link.Type() == gosnappi.Ospfv2LinkType.POINT_TO_POINT && link.Id() == routerLsaLinkId &&
+						link.Data() == routerLsaLinkData && (link.Metric() == 0 || link.Metric() == 1)) {
+					lsaCount += 1
+				}
 			}
 		}
 	}

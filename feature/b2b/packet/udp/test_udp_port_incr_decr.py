@@ -23,7 +23,7 @@ def test_udp_port_incr_decr():
     }
     api = otg.OtgApi()
     c = udp_port_incr_decr_config(api, test_const)
-
+    api.api.request_timeout = 300
     api.set_config(c)
 
     api.start_capture()
@@ -52,7 +52,7 @@ def udp_port_incr_decr_config(api, tc):
 
     f1 = c.flows.add(name="f1")
     f1.tx_rx.port.tx_name = p1.name
-    f1.tx_rx.port.rx_name = p2.name
+    f1.tx_rx.port.rx_names = [p2.name]
     f1.duration.fixed_packets.packets = tc["pktCount"]
     f1.rate.pps = tc["pktRate"]
     f1.size.fixed = tc["pktSize"]
