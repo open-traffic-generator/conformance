@@ -201,15 +201,20 @@ def ospfv2_lsas_ok(api, tc):
             and m.router_lsas[0].header.lsa_id == router_lsa_id
             and len(m.router_lsas[0].links) == 2
         ):
+            has_stub = False
+            has_p2p = False
             for link in (m.router_lsas[0].links):
-                if ((link.type == "stub"
-                    and link.metric == 0 or 1) or (link.type == "point_to_point"
+                if (link.type == "stub" and link.metric == 0 or 1):
+                    has_stub = True
+                if (link.type == "point_to_point"
                     and link.id == router_lsa_link_id
                     and link.data == router_lsa_link_data
-                    and link.metric == 0 or 1)
-                ):
-                    lsa_count += 1
-
+                    and link.metric == 0 or 1):
+                    has_p2p = True
+ 
+            if has_stub and has_p2p:
+                lsa_count += 1
+                
     return lsa_count == 4
 
 

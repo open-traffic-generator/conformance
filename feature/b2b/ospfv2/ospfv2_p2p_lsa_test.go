@@ -252,14 +252,21 @@ func ospfv2P2pLsasOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 			routerLsas[0].Header().AdvertisingRouterId() == advRouterId &&
 			routerLsas[0].Header().LsaId() == routerLsaId &&
 			len(routerLsas[0].Links().Items()) == 2 {
-			for _, link := range routerLsas[0].Links().Items() {
-				if (link.Type() == gosnappi.Ospfv2LinkType.STUB && (link.Metric() == 0 || link.Metric() == 1)) ||
-					(link.Type() == gosnappi.Ospfv2LinkType.POINT_TO_POINT && link.Id() == routerLsaLinkId &&
-						link.Data() == routerLsaLinkData && (link.Metric() == 0 || link.Metric() == 1)) {
-					lsaCount += 1
-				}
-			}
-		}
+	            hasPointToPoint := false
+                hasStub := false
+                for _, link := range routerLsas[0].Links().Items() {
+	                if link.Type() == gosnappi.Ospfv2LinkType.STUB && (link.Metric() == 0 || link.Metric() == 1) {
+	                    hasStub = true
+	                }
+	                if link.Type() == gosnappi.Ospfv2LinkType.POINT_TO_POINT && link.Id() == routerLsaLinkId &&
+	                   link.Data() == routerLsaLinkData && (link.Metric() == 0 || link.Metric() == 1) {
+	                    hasPointToPoint = true
+	                }
+                }
+                if hasPointToPoint && hasStub {
+                    lsaCount += 1
+                }
+		    }
 	}
 
 	return lsaCount == 4
