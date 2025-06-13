@@ -1,8 +1,8 @@
-release: 1.31.0-3
+release: 1.31.0-TBD
 images:
   - name: controller
     path: ghcr.io/open-traffic-generator/keng-controller
-    tag: 1.31.0-3
+    tag: 1.31.0-TBD
   - name: gnmi-server
     path: ghcr.io/open-traffic-generator/otg-gnmi-server
     tag: 1.31.0
