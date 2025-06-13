@@ -60,7 +60,7 @@ func udpPortValuesConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Co
 	f1 := c.Flows().Add().SetName("f1")
 	f1.TxRx().Port().
 		SetTxName(p1.Name()).
-		SetRxName(p2.Name())
+		SetRxNames([]string{p2.Name()})
 	f1.Duration().FixedPackets().SetPackets(tc["pktCount"].(uint32))
 	f1.Rate().SetPps(tc["pktRate"].(uint64))
 	f1.Size().SetFixed(tc["pktSize"].(uint32))
