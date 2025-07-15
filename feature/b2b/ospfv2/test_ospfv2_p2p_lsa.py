@@ -26,7 +26,7 @@ def test_ospfv2_p2p_lsa():
 
     api = otg.OtgApi()
     c = ospfv2_p2p_lsa_config(api, test_const)
-
+    api.api.request_timeout = 300
     api.set_config(c)
 
     api.start_protocols()
@@ -82,10 +82,11 @@ def ospfv2_p2p_lsa_config(api, tc):
 
     dtx_ospfv2_int = dtx.ospfv2.interfaces.add(name="dtx_ospfv2_int")
     dtx_ospfv2_int.ipv4_name = dtx_ip.name
-
+    
     # Note: please change DUT default value for network-type from Broadcast to
     # PointToPoint to make this test interoperable to a port-dut topology
     dtx_ospfv2_int.network_type.choice = dtx_ospfv2_int.network_type.POINT_TO_POINT
+    dtx_ospfv2_int.advanced.routing_metric = 2
 
     dtx_ospfv2_rr4 = dtx.ospfv2.v4_routes.add(name="dtx_ospfv2_rr4")
     dtx_ospfv2_rr4.metric = 10
@@ -109,10 +110,11 @@ def ospfv2_p2p_lsa_config(api, tc):
 
     drx_ospfv2_int = drx.ospfv2.interfaces.add(name="drx_ospfv2_int")
     drx_ospfv2_int.ipv4_name = drx_ip.name
-
+    
     # Note: please change DUT default value for network-type from Broadcast to
     # PointToPoint to make this test interoperable to a port-dut topology
     drx_ospfv2_int.network_type.choice = drx_ospfv2_int.network_type.POINT_TO_POINT
+    drx_ospfv2_int.advanced.routing_metric = 2
 
     drx_ospfv2_rr4 = drx.ospfv2.v4_routes.add(name="drx_ospfv2_rr4")
     drx_ospfv2_rr4.metric = 10
@@ -195,21 +197,26 @@ def ospfv2_lsas_ok(api, tc):
             and m.network_summary_lsas[0].header.lsa_id == nw_summary_lsa_id
         ):
             lsa_count += 1
-
         if (
             len(m.router_lsas) == 1
             and m.router_lsas[0].header.advertising_router_id == adv_router_id
             and m.router_lsas[0].header.lsa_id == router_lsa_id
             and len(m.router_lsas[0].links) == 2
-            and m.router_lsas[0].links[0].type == "point_to_point"
-            and m.router_lsas[0].links[0].metric == 0
-            and m.router_lsas[0].links[0].id == router_lsa_link_id
-            and m.router_lsas[0].links[0].data == router_lsa_link_data
-            and m.router_lsas[0].links[1].type == "stub"
-            and m.router_lsas[0].links[1].metric == 0
         ):
-            lsa_count += 1
-
+            has_stub = False
+            has_p2p = False
+            for link in (m.router_lsas[0].links):
+                if (link.type == "stub" and link.metric == 2):
+                    has_stub = True
+                if (link.type == "point_to_point"
+                    and link.id == router_lsa_link_id
+                    and link.data == router_lsa_link_data
+                    and link.metric == 2):
+                    has_p2p = True
+ 
+            if has_stub and has_p2p:
+                lsa_count += 1
+                
     return lsa_count == 4
 
 

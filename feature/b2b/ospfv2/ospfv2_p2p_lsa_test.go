@@ -106,6 +106,7 @@ func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 	// Note: please change DUT default value for network-type from Broadcast to
 	// PointToPoint to make this test interoperable to a port-dut topology
 	dtxOspfv2Int.NetworkType().PointToPoint()
+	dtxOspfv2Int.Advanced().SetRoutingMetric(2)
 
 	dtxOspfv2RrV4 := dtxOspfv2.
 		V4Routes().
@@ -151,7 +152,8 @@ func ospfv2P2pLsaConfig(api *otg.OtgApi, tc map[string]interface{}) gosnappi.Con
 	// Note: please change DUT default value for network-type from Broadcast to
 	// PointToPoint to make this test interoperable to a port-dut topology
 	drxOspfv2Int.NetworkType().PointToPoint()
-
+	drxOspfv2Int.Advanced().SetRoutingMetric(2)
+	
 	drxOspfv2RrV4 := drxOspfv2.
 		V4Routes().
 		Add().
@@ -252,13 +254,18 @@ func ospfv2P2pLsasOk(api *otg.OtgApi, tc map[string]interface{}) bool {
 			routerLsas[0].Header().AdvertisingRouterId() == advRouterId &&
 			routerLsas[0].Header().LsaId() == routerLsaId &&
 			len(routerLsas[0].Links().Items()) == 2 {
-			links := routerLsas[0].Links().Items()
-			if links[0].Type() == gosnappi.Ospfv2LinkType.POINT_TO_POINT &&
-				links[0].Metric() == 0 &&
-				links[0].Id() == routerLsaLinkId &&
-				links[0].Data() == routerLsaLinkData &&
-				links[1].Type() == gosnappi.Ospfv2LinkType.STUB &&
-				links[1].Metric() == 0 {
+			hasPointToPoint := false
+			hasStub := false
+			for _, link := range routerLsas[0].Links().Items() {
+				if link.Type() == gosnappi.Ospfv2LinkType.STUB && (link.Metric() == 2) {
+					hasStub = true
+				}
+				if link.Type() == gosnappi.Ospfv2LinkType.POINT_TO_POINT && link.Id() == routerLsaLinkId &&
+					link.Data() == routerLsaLinkData && (link.Metric() == 2) {
+					hasPointToPoint = true
+				}
+			}
+			if hasPointToPoint && hasStub {
 				lsaCount += 1
 			}
 		}
