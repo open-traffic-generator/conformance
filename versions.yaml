@@ -5,7 +5,7 @@ images:
     tag: 1.33.0-20
   - name: gnmi-server
     path: ghcr.io/open-traffic-generator/otg-gnmi-server
-    tag: 1.33.2
+    tag: 1.33.3
   - name: traffic-engine
     path: ghcr.io/open-traffic-generator/ixia-c-traffic-engine
     tag: 1.8.0.245
