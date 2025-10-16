@@ -41,6 +41,14 @@ func TestQuickstartB2BDp(t *testing.T) {
 	f1Ip.Src().SetValue("10.10.10.1")
 	f1Ip.Dst().SetValue("20.20.20.1")
 
+	f1Tcp := f1.Packet().Add().Tcp()
+	f1Tcp.SrcPort().SetValues([]uint32{
+		5000, 5050, 5015, 5040, 5032, 5021,
+	})
+	f1Tcp.DstPort().SetValues([]uint32{
+		6000, 6015, 6050,
+	})
+
 	// Optionally, print JSON representation of config
 	if j, err := config.Marshal().ToJson(); err != nil {
 		t.Fatal(err)
