@@ -3,6 +3,7 @@
 package examples
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -10,6 +11,9 @@ import (
 )
 
 func TestQuickstartB2BDp(t *testing.T) {
+	fmt.Println("Running QuickstartB2BDp with:")
+	fmt.Println("  Ports:", *portA, "<->", *portZ)
+
 	// Create a new API handle to make API calls against OTG
 	api := gosnappi.NewApi()
 
@@ -20,8 +24,8 @@ func TestQuickstartB2BDp(t *testing.T) {
 	config := gosnappi.NewConfig()
 
 	// add ports
-	p1 := config.Ports().Add().SetName("p1").SetLocation("veth1")
-	p2 := config.Ports().Add().SetName("p2").SetLocation("veth2")
+	p1 := config.Ports().Add().SetName("p1").SetLocation(*portA)
+	p2 := config.Ports().Add().SetName("p2").SetLocation(*portZ)
 
 	// add flow
 	f1 := config.Flows().Add()

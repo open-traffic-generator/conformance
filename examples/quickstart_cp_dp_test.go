@@ -5,18 +5,24 @@ package examples
 import (
 	"flag"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/open-traffic-generator/snappi/gosnappi"
 )
 
-func TestQuickstartB2BCpDp(t *testing.T) {
+var (
+	portA = flag.String("portA", "veth1", "Name of port A interface")
+	portZ = flag.String("portZ", "veth2", "Name of port Z interface")
+)
 
-	portA := flag.String("portA", "veth1", "Name of port A interface")
-	portZ := flag.String("portZ", "veth2", "Name of port Z interface")
+func TestMain(m *testing.M) {
 	flag.Parse()
+	os.Exit(m.Run())
+}
 
+func TestQuickstartB2BCpDp(t *testing.T) {
 	fmt.Println("Running QuickstartB2BCpDp with:")
 	fmt.Println("  Ports:", *portA, "<->", *portZ)
 
