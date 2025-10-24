@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # update for any release using
-# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.40.0-148/versions.yaml
+# curl -kLO https://github.com/open-traffic-generator/ixia-c/releases/download/v1.40.0-158/versions.yaml
 VERSIONS_YAML="versions.yaml"
 VETH_A="veth-a"
 VETH_Z="veth-z"
