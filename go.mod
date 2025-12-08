@@ -4,13 +4,13 @@ go 1.25.0
 
 require (
 	github.com/dreadl0ck/gopcap v0.0.0-20190327214342-be2a4d78505f
-	github.com/open-traffic-generator/snappi/gosnappi v1.41.0
+	github.com/open-traffic-generator/snappi/gosnappi v1.42.0
 	github.com/openconfig/gnmi v0.9.1
 	github.com/openconfig/goyang v1.2.0
 	github.com/openconfig/ygnmi v0.7.7
 	github.com/openconfig/ygot v0.25.6
-	golang.org/x/crypto v0.41.0
-	google.golang.org/grpc v1.76.0
+	golang.org/x/crypto v0.43.0
+	google.golang.org/grpc v1.77.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -32,7 +32,7 @@ require (
 	github.com/miekg/pcap v1.0.1 // indirect
 	github.com/openconfig/gocloser v0.0.0-20220310182203-c6c950ed3b0b // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0 // indirect
 	go.opentelemetry.io/otel v1.38.0 // indirect
@@ -44,11 +44,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.1 // indirect
 	go.universe.tf/netboot v0.0.0-20210617221821-fc2840fa7b05 // indirect
-	golang.org/x/net v0.43.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250825161204-c5933d9347a5 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250825161204-c5933d9347a5 // indirect
+	golang.org/x/net v0.46.1-0.20251013234738-63d1a5100f82 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251022142026-3a174f9686a8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )
