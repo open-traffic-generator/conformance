@@ -46,7 +46,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           ./do.sh topo new dp
@@ -80,7 +80,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Deploy back-to-back DP distribution of ixia-c
         run: |
           ./do.sh topo new dp
@@ -115,7 +115,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Deploy back-to-back DP distribution of ixia-c
         run: |
           ./do.sh topo new dp
@@ -155,7 +155,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Deploy back-to-back DP-only distribution of ixia-c
   #       run: |
   #         ./do.sh topo new dp
@@ -190,7 +190,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Deploy back-to-back DP-only distribution of ixia-c
   #       run: |
   #         ./do.sh topo new dp
@@ -230,7 +230,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Deploy back-to-back CP/DP distribution of ixia-c
   #       run: |
   #         GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
@@ -265,7 +265,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Deploy back-to-back CP/DP distribution of ixia-c
   #       run: |
   #         GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
@@ -305,7 +305,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Deploy back-to-back CP/DP distribution of ixia-c
   #       run: |
   #         GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp ipv6
@@ -340,7 +340,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Deploy back-to-back CP/DP distribution of ixia-c
   #       run: |
   #         GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp ipv6
@@ -380,7 +380,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Setup Go
   #       uses: actions/setup-go@v3
   #       with:
@@ -418,7 +418,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Setup Go
   #       uses: actions/setup-go@v3
   #       with:
@@ -457,7 +457,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -496,7 +496,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -535,7 +535,7 @@ jobs:
   #     - name: Checkout source
   #       uses: actions/checkout@v3
   #     - name: Setup docker
-  #       uses: docker-practice/actions-setup-docker@master
+  #       uses: docker/setup-buildx-action@v3
   #     - name: Deploy back-to-back LAG CP/DP distribution of ixia-c
   #       run: |
   #         GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new b2blag
@@ -626,7 +626,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Deploy back-to-back DP-only distribution of ixia-c
         run: |
           ./do.sh topo new dp
@@ -666,7 +666,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
@@ -706,7 +706,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
@@ -746,7 +746,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
@@ -786,7 +786,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
       - name: Setup docker
-        uses: docker-practice/actions-setup-docker@master
+        uses: docker/setup-buildx-action@v3
       - name: Deploy back-to-back CP/DP distribution of ixia-c
         run: |
           GITHUB_USER=${{ secrets.ENV_GITHUB_USER }} GITHUB_PAT=${{ secrets.ENV_GITHUB_PAT }} LICENSING=true ./do.sh topo new cpdp
