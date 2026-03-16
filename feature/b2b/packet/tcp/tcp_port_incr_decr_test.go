@@ -35,6 +35,11 @@ func TestTcpPortIncrDecr(t *testing.T) {
 	api.StartTransmit()
 
 	api.WaitFor(
+		func() bool { return tcpPortIncrDecrPortMetricsOk(api, testConst) },
+		&otg.WaitForOpts{FnName: "WaitForPortMetrics"},
+	)
+
+	api.WaitFor(
 		func() bool { return tcpPortIncrDecrFlowMetricsOk(api, testConst) },
 		&otg.WaitForOpts{FnName: "WaitForFlowMetrics"},
 	)
@@ -98,6 +103,15 @@ func tcpPortIncrDecrFlowMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bo
 	return m.Transmit() == gosnappi.FlowMetricTransmit.STOPPED &&
 		m.FramesTx() == expCount &&
 		m.FramesRx() == expCount
+}
+
+func tcpPortIncrDecrPortMetricsOk(api *otg.OtgApi, tc map[string]interface{}) bool {
+	m := api.GetPortMetrics()[0]
+	TransmittedBytes := m.BytesTx()
+	TxState := m.Transmit()
+	m = api.GetPortMetrics()[1]
+	ReceivedBytes := m.BytesRx()
+	return TransmittedBytes == ReceivedBytes && TxState == gosnappi.PortMetricTransmit.STOPPED
 }
 
 func tcpPortIncrDecrCaptureOk(api *otg.OtgApi, c gosnappi.Config, tc map[string]interface{}) {

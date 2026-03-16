@@ -7,6 +7,51 @@ import (
 	"github.com/open-traffic-generator/snappi/gosnappi"
 )
 
+func (o *OtgApi) GetPortMetrics() []gosnappi.PortMetric {
+	t := o.Testing()
+	api := o.Api()
+
+	t.Log("Getting port metrics ...")
+	defer o.Timer(time.Now(), "GetPortMetrics")
+
+	mr := gosnappi.NewMetricsRequest()
+	mr.Port()
+	res, err := api.GetMetrics(mr)
+	o.LogWrnErr(nil, err, true)
+
+	tb := table.NewTable(
+		"Port Metrics",
+		[]string{
+			"Transmit",
+			"Location",
+			"Link",
+			"Capture",
+			"FPS Tx",
+			"FPS Rx",
+			"Bytes Tx",
+			"Bytes Rx",
+		},
+		15,
+	)
+	for _, v := range res.PortMetrics().Items() {
+		if v != nil {
+			tb.AppendRow([]interface{}{
+				v.Transmit(),
+				v.Location(),
+				v.Link(),
+				v.Capture(),
+				v.FramesTxRate(),
+				v.FramesRxRate(),
+				v.BytesTx(),
+				v.BytesRx(),
+			})
+		}
+	}
+
+	t.Log(tb.String())
+	return res.PortMetrics().Items()
+}
+
 func (o *OtgApi) GetFlowMetrics() []gosnappi.FlowMetric {
 	t := o.Testing()
 	api := o.Api()
@@ -145,8 +190,8 @@ func (o *OtgApi) GetOspfv2Metrics() []gosnappi.Ospfv2Metric {
 		[]string{
 			"Name",
 			"Full State Count",
-            "LSA Sent",
-            "LSA Received",
+			"LSA Sent",
+			"LSA Received",
 		},
 		20,
 	)
@@ -303,8 +348,8 @@ func (o *OtgApi) GetOspfv3Metrics() []gosnappi.Ospfv3Metric {
 		[]string{
 			"Name",
 			"Full State Count",
-            "LSA Sent",
-            "LSA Received",
+			"LSA Sent",
+			"LSA Received",
 		},
 		20,
 	)
