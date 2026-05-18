@@ -4,19 +4,19 @@ go 1.25.0
 
 require (
 	github.com/dreadl0ck/gopcap v0.0.0-20190327214342-be2a4d78505f
-	github.com/open-traffic-generator/snappi/gosnappi v1.53.0
+	github.com/open-traffic-generator/snappi/gosnappi v1.54.0
 	github.com/openconfig/gnmi v0.9.1
 	github.com/openconfig/goyang v1.2.0
 	github.com/openconfig/ygnmi v0.7.7
 	github.com/openconfig/ygot v0.25.6
 	golang.org/x/crypto v0.49.0
-	google.golang.org/grpc v1.80.0
+	google.golang.org/grpc v1.81.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	github.com/0intro/pcap v0.0.0-20220629123124-63f0e9c4c221 // indirect
-	github.com/Masterminds/semver/v3 v3.4.0 // indirect
+	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
