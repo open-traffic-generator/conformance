@@ -133,9 +133,23 @@ apt_install_pkgs() {
 
 get_go() {
     which go > /dev/null 2>&1 && return
+    arch=$(uname -m)
+    case "${arch}" in
+        x86_64)
+            go_arch="amd64"
+        ;;
+        aarch64|arm64)
+            go_arch="arm64"
+        ;;
+        *)
+            echo "Unsupported architecture for Go install: ${arch}"
+            exit 1
+        ;;
+    esac
+
     echo "Installing Go ${GO_VERSION} ..."
     # install golang per https://golang.org/doc/install#tarball
-    curl -kL https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz | sudo tar -C /usr/local/ -xzf - \
+    curl -kL https://dl.google.com/go/go${GO_VERSION}.linux-${go_arch}.tar.gz | sudo tar -C /usr/local/ -xzf - \
     && echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.profile \
     && . $HOME/.profile \
     && go version
@@ -143,13 +157,27 @@ get_go() {
 
 get_docker() {
     which docker > /dev/null 2>&1 && return
+    arch=$(uname -m)
+    case "${arch}" in
+        x86_64)
+            docker_arch="amd64"
+        ;;
+        aarch64|arm64)
+            docker_arch="arm64"
+        ;;
+        *)
+            echo "Unsupported architecture for Docker install: ${arch}"
+            exit 1
+        ;;
+    esac
+
     echo "Installing docker ..."
     sudo apt-get remove docker docker-engine docker.io containerd runc 2> /dev/null
 
     curl -kfsSL https://download.docker.com/linux/ubuntu/gpg \
         | sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+    echo "deb [arch=${docker_arch} signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
         | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     sudo apt-get update \
@@ -295,6 +323,36 @@ gen_controller_config_b2b_dp() {
     && rm -rf ./config.yaml
 }
 
+gen_controller_config_b2b_dp_3pair() {
+        configdir=/home/ixia-c/controller/config
+
+        wait_for_sock localhost 5555
+        wait_for_sock localhost 5556
+        wait_for_sock localhost 5557
+        wait_for_sock localhost 5558
+        wait_for_sock localhost 5559
+        wait_for_sock localhost 5560
+
+        yml="location_map:
+              - location: ${VETH_A}
+                endpoint: localhost:5555
+              - location: ${VETH_B}
+                endpoint: localhost:5556
+              - location: ${VETH_C}
+                endpoint: localhost:5557
+              - location: ${VETH_Z}
+                endpoint: localhost:5558
+              - location: ${VETH_Y}
+                endpoint: localhost:5559
+              - location: ${VETH_X}
+                endpoint: localhost:5560
+            "
+        echo -n "$yml" | sed "s/^        //g" | tee ./config.yaml > /dev/null \
+        && docker exec keng-controller mkdir -p ${configdir} \
+        && docker cp ./config.yaml keng-controller:${configdir}/ \
+        && rm -rf ./config.yaml
+}
+
 gen_controller_config_b2b_cpdp() {
     configdir=/home/ixia-c/controller/config
     if [ "${1}" = "ipv6" ]
@@ -383,6 +441,21 @@ gen_config_b2b_dp() {
     echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
 
     gen_config_common 
+}
+
+gen_config_b2b_dp_3pair() {
+    yml="otg_host: https://localhost:8443
+        otg_ports:
+          - ${VETH_A}
+          - ${VETH_B}
+          - ${VETH_C}
+          - ${VETH_Z}
+          - ${VETH_Y}
+          - ${VETH_X}
+        "
+    echo -n "$yml" | sed "s/^        //g" | tee ./test-config.yaml > /dev/null
+
+    gen_config_common
 }
 
 gen_config_b2b_cpdp() {
@@ -644,6 +717,73 @@ create_ixia_c_b2b_dp() {
     && echo "Successfully deployed !"
 }
 
+create_ixia_c_b2b_dp_3pair() {
+    echo "Setting up back-to-back with DP-only distribution of ixia-c (3 veth pairs) ..."
+    docker ps -a
+    create_veth_pair ${VETH_A} ${VETH_Z}                    \
+    && create_veth_pair ${VETH_B} ${VETH_Y}                 \
+    && create_veth_pair ${VETH_C} ${VETH_X}                 \
+    && docker run --net=host -d                             \
+        --name=keng-controller                              \
+        -e LICENSE_SERVERS="localhost"               \
+        $(keng_controller_img)                              \
+        --accept-eula                                       \
+        --trace                                             \
+        --disable-app-usage-reporter                        \
+    && docker run --net=host --privileged -d                \
+        --name=ixia-c-traffic-engine-${VETH_A}              \
+        -e OPT_LISTEN_PORT="5555"                           \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_A}"     \
+        -e OPT_NO_HUGEPAGES="Yes"                          \
+        -e OPT_NO_PINNING="Yes"                            \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                    \
+        $(ixia_c_traffic_engine_img)                        \
+    && docker run --net=host --privileged -d                \
+        --name=ixia-c-traffic-engine-${VETH_B}              \
+        -e OPT_LISTEN_PORT="5556"                           \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_B}"     \
+        -e OPT_NO_HUGEPAGES="Yes"                          \
+        -e OPT_NO_PINNING="Yes"                            \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                    \
+        $(ixia_c_traffic_engine_img)                        \
+    && docker run --net=host --privileged -d                \
+        --name=ixia-c-traffic-engine-${VETH_C}              \
+        -e OPT_LISTEN_PORT="5557"                           \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_C}"     \
+        -e OPT_NO_HUGEPAGES="Yes"                          \
+        -e OPT_NO_PINNING="Yes"                            \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                    \
+        $(ixia_c_traffic_engine_img)                        \
+    && docker run --net=host --privileged -d                \
+        --name=ixia-c-traffic-engine-${VETH_Z}              \
+        -e OPT_LISTEN_PORT="5558"                           \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_Z}"     \
+        -e OPT_NO_HUGEPAGES="Yes"                          \
+        -e OPT_NO_PINNING="Yes"                            \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                    \
+        $(ixia_c_traffic_engine_img)                        \
+    && docker run --net=host --privileged -d                \
+        --name=ixia-c-traffic-engine-${VETH_Y}              \
+        -e OPT_LISTEN_PORT="5559"                           \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_Y}"     \
+        -e OPT_NO_HUGEPAGES="Yes"                          \
+        -e OPT_NO_PINNING="Yes"                            \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                    \
+        $(ixia_c_traffic_engine_img)                        \
+    && docker run --net=host --privileged -d                \
+        --name=ixia-c-traffic-engine-${VETH_X}              \
+        -e OPT_LISTEN_PORT="5560"                           \
+        -e ARG_IFACE_LIST="virtual@af_packet,${VETH_X}"     \
+        -e OPT_NO_HUGEPAGES="Yes"                          \
+        -e OPT_NO_PINNING="Yes"                            \
+        -e OPT_ADAPTIVE_CPU_USAGE="Yes"                    \
+        $(ixia_c_traffic_engine_img)                        \
+    && docker ps -a                                         \
+    && gen_controller_config_b2b_dp_3pair                   \
+    && gen_config_b2b_dp_3pair                              \
+    && echo "Successfully deployed !"
+}
+
 rm_ixia_c_b2b_dp() {
     echo "Tearing down back-to-back with DP-only distribution of ixia-c ..."
     docker stop keng-controller && docker rm keng-controller
@@ -653,6 +793,27 @@ rm_ixia_c_b2b_dp() {
     docker rm ixia-c-traffic-engine-${VETH_Z}
     docker ps -a
     rm_veth_pair ${VETH_A} ${VETH_Z}
+}
+
+rm_ixia_c_b2b_dp_3pair() {
+    echo "Tearing down back-to-back with DP-only distribution of ixia-c (3 veth pairs) ..."
+    docker stop keng-controller && docker rm keng-controller
+    docker stop ixia-c-traffic-engine-${VETH_A}
+    docker rm ixia-c-traffic-engine-${VETH_A}
+    docker stop ixia-c-traffic-engine-${VETH_B}
+    docker rm ixia-c-traffic-engine-${VETH_B}
+    docker stop ixia-c-traffic-engine-${VETH_C}
+    docker rm ixia-c-traffic-engine-${VETH_C}
+    docker stop ixia-c-traffic-engine-${VETH_Z}
+    docker rm ixia-c-traffic-engine-${VETH_Z}
+    docker stop ixia-c-traffic-engine-${VETH_Y}
+    docker rm ixia-c-traffic-engine-${VETH_Y}
+    docker stop ixia-c-traffic-engine-${VETH_X}
+    docker rm ixia-c-traffic-engine-${VETH_X}
+    docker ps -a
+    rm_veth_pair ${VETH_A} ${VETH_Z}
+    rm_veth_pair ${VETH_B} ${VETH_Y}
+    rm_veth_pair ${VETH_C} ${VETH_X}
 }
 
 create_ixia_c_b2b_cpdp() {
@@ -1203,6 +1364,9 @@ topo() {
                 dp  )
                     create_ixia_c_b2b_dp
                 ;;
+                dp3p )
+                    create_ixia_c_b2b_dp_3pair
+                ;;
                 cpdp)
                     create_ixia_c_b2b_cpdp $3
                 ;;
@@ -1228,6 +1392,9 @@ topo() {
             case $2 in
                 dp  )
                     rm_ixia_c_b2b_dp
+                ;;
+                dp3p )
+                    rm_ixia_c_b2b_dp_3pair
                 ;;
                 cpdp)
                     rm_ixia_c_b2b_cpdp
